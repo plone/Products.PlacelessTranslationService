@@ -1,3 +1,7 @@
+1.0fork-rc6 - 2004-05-05
+
+    Cleaned up all python files, realigend the code and removed spaces
+
 1.0fork-rc5 - 2004-04-22
 
     Changed logging to get use the methods and vars from utils.py
@@ -13,6 +17,8 @@
 
         from Products.PlacelessTranslationService.PatchStringIO import applyRequestPatch
         applyRequestPatch()
+
+    NOTE: FOR THIS RELEAE THE get_request PATCH IS ENABLED BY DEFAULT!
 
     Better debugging message for PoSyntaxErrors
 
