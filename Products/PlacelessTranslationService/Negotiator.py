@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
 
-$Id: Negotiator.py,v 1.10 2004/05/04 21:56:03 dreamcatcher Exp $
+$Id: Negotiator.py,v 1.11 2004/06/23 12:09:32 tiran Exp $
 """
 
 import types
@@ -162,14 +162,16 @@ class BrowserAccept:
         return [accept[1] for accept in accepts]
 
 
-class SessionAccept:
+class CookieAccept:
     filters = (str_lower, lang_normalize, str_strip)
 
     def __init__(self, request):
         pass
 
     def getAccepted(self, request, kind='language'):
-        language = request.SESSION.get('pts_language', None)
+        if not hasattr(language, 'cookies'):
+            return ()
+        language = request.cookies.get('pts_language', None)
         if language:
             if type(language) is types.TupleType:
                 return language
@@ -181,8 +183,8 @@ class SessionAccept:
         else:
             return ()
 
-def setSessionLanguage(request, lang, REQUEST=None):
-    """sets the language of the current session
+def setCookieLanguage(request, lang, REQUEST=None):
+    """sets the language to a cookie
 
     request - the request object
     lang - language as string like de or pt_BR (it's normalizd)
@@ -190,7 +192,7 @@ def setSessionLanguage(request, lang, REQUEST=None):
     if type(lang) is types.TupleType:
         lang = lang[1]
     lang = str_lower(lang_normalize(lang))
-    request.SESSION['pts_language'] = (lang,)
+    request.RESPONSE.setCookie('pts_language', lang)
     if REQUEST:
         REQUEST.RESPONSE.redirect(REQUEST.URL0)
     else:
@@ -222,8 +224,7 @@ class RequestGetAccept:
                 # XXX log?
                 setLanguage = False
             if setLanguage:
-                # request.RESPONE.setCookie('language', language)
-                request.SESSION['pts_language'] = (language,)
+                setCookieLanguage(request, language)
             return (language,)
         else:
             return ()
@@ -233,7 +234,7 @@ class RequestGetAccept:
 # if a acceptor returns a false value (() or None) then the next acceptor
 # in the chain is queried
 registerLangPrefsMethod({'klass':BrowserAccept,   'priority':10 }, 'language')
-registerLangPrefsMethod({'klass':SessionAccept,   'priority':40 }, 'language')
+registerLangPrefsMethod({'klass':CookieAccept,   'priority':40 }, 'language')
 registerLangPrefsMethod({'klass':RequestGetAccept,'priority':50 }, 'language')
 
 registerLangPrefsMethod({'klass':BrowserAccept,'priority':10 }, 'content-type')

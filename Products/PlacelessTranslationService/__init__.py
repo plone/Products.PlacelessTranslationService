@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: __init__.py,v 1.15 2004/05/04 21:56:03 dreamcatcher Exp $
+$Id: __init__.py,v 1.16 2004/06/23 12:09:32 tiran Exp $
 '''.strip()
 
 import os, sys
@@ -32,7 +32,7 @@ from AccessControl.Permissions import view
 import PatchStringIO # patch at first
 from PlacelessTranslationService import PlacelessTranslationService, PTSWrapper
 from utils import log, WARNING, BLATHER, PROBLEM
-from Negotiator import negotiator, setSessionLanguage
+from Negotiator import negotiator, setCookieLanguage
 import TranslateTags
 
 # in python 2.1 fnmatch doesn't have the filter function
@@ -88,7 +88,7 @@ def getLanguageName(*args, **kwargs):
     """ see PlaceslessTranslationService.PTSWrapper """
     return getTranslationService().getLanguageName(*args, **kwargs)
 
-security.declareProtected(view, 'setSessionLanguage')
+security.declareProtected(view, 'setCookieLanguage')
 # imported from the Negotiator
 
 negotiateDeprecatedLogged = 0
