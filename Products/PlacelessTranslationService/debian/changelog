@@ -1,3 +1,11 @@
+zope-pts (1.0.fork-rc6-1) unstable; urgency=low
+
+  * New upstream release
+
+  * Source cleanup
+
+ -- Christian Heimes <heimes@faho.rwth-aachen.de>  Wed,  5 May 2004 01:01:33 +0200
+
 zope-pts (1.0.fork-rc5-1) unstable; urgency=low
 
   * New upstream release 
