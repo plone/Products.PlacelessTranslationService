@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.26 2004/09/05 19:33:38 tiran Exp $
+$Id: GettextMessageCatalog.py,v 1.27 2004/09/05 21:30:59 tiran Exp $
 """
 
 from gettext import GNUTranslations
@@ -240,7 +240,8 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             translationRegistry[self.getId()] = self._v_tro = tro
 
             # right to left support
-            is_rtl = tro._info.get('X-Is-RTL', 'no').strip().lower()
+            is_rtl = tro._info.get('x-is-rtl', 'no').strip().lower()
+            print self.getId(), is_rtl
             if is_rtl in ('yes', 'y', 'true', '1'):
                 self._is_rtl = True
             elif is_rtl in ('no', 'n', 'false', '0'):
