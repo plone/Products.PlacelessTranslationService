@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.26 2004/04/04 23:21:20 tiran Exp $
+$Id: PlacelessTranslationService.py,v 1.27 2004/04/04 23:45:53 tiran Exp $
 """
 
 import sys, re, zLOG, Globals, fnmatch
@@ -373,7 +373,9 @@ class PlacelessTranslationService(Folder):
         for language in self._fallbacks:
             fallback_catalog_names = catalogRegistry.get((language, domain),  ())
             if fallback_catalog_names:
-                catalog_names = catalog_names + fallback_catalog_names
+                for fallback_catalog_name in fallback_catalog_names:
+                    if fallback_catalog_name not in catalog_names:
+                        catalog_names.append(fallback_catalog_name)
 
         # move global catalogs to the beginning to allow overwriting
         # message ids by placing a po file in INSTANCE_HOME/i18n
