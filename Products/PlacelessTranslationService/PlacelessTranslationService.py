@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.22 2004/03/08 10:07:45 longsleep Exp $
+$Id: PlacelessTranslationService.py,v 1.23 2004/03/08 21:19:42 longsleep Exp $
 """
 
 import sys, re, zLOG, Globals, fnmatch
@@ -208,7 +208,7 @@ class PlacelessTranslationService(Folder):
         id = p+name
 
         # validate id
-        try: self._checkId(id)
+        try: self._checkId(id, 1)
         except: id=name # fallback mode for borked paths
 
         # the po file path

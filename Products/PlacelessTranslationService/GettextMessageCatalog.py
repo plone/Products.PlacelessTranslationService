@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.13 2004/03/08 10:07:45 longsleep Exp $
+$Id: GettextMessageCatalog.py,v 1.14 2004/03/08 21:19:41 longsleep Exp $
 """
 
 from Acquisition import aq_parent
@@ -144,11 +144,11 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         name = self.getId()
         pofile = self._pofile
         pts._delObject(name)
-        try: pts.addCatalog(GettextMessageCatalog(pofile))
+        try: pts.addCatalog(GettextMessageCatalog(name, pofile))
         except:
             exc=sys.exc_info()
             log('Message Catalog has errors', zLOG.PROBLEM, name, exc)
-            pts.addCatalog(BrokenMessageCatalog(pofile, exc))
+            pts.addCatalog(BrokenMessageCatalog(name, pofile, exc))
         self = pts._getOb(name)
         if hasattr(REQUEST, 'RESPONSE'):
             if not REQUEST.form.has_key('noredir'):
