@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.22 2004/07/01 20:15:04 fresh Exp $
+$Id: GettextMessageCatalog.py,v 1.23 2004/07/02 11:50:23 fresh Exp $
 """
 
 from gettext import GNUTranslations
@@ -38,7 +38,11 @@ from OFS.Uninstalled import BrokenClass
 from utils import log, Registry, INFO, BLATHER, PROBLEM
 from msgfmt import Msgfmt
 
-
+try:
+    from Products.PageTemplates.TALES import Context as TALESContextClass
+except ImportError:
+    # must be using OpenTAL
+    TALESContextClass = None
 
 try:
     True
@@ -426,6 +430,7 @@ InitializeClass(GettextMessageCatalog)
 # template to use to write missing entries to .missing
 missing_template = u'''
 #. Added on %(date)s
+#: %(reference)s%(context)s
 msgid "%(id)s"
 msgstr ""
 '''
@@ -460,9 +465,42 @@ class MissingIds(Persistent):
         if not self._ids.has_key(msgid):
             if getattr(self, '_v_file', None) is None:
                 self._v_file = codecs.open(self._fileName, 'a', self._charset)
+            context_info = ('No context information available',)
+            if TALESContextClass:
+                # with ZPT TALES, we can provide some context as to
+                # where this message was found
+                
+                # The next line provides a way to detect recursion.
+                __exception_formatter__ = 1            
+                # raise an exception so we can get a stack frame
+                try:
+                    raise ZeroDivisionError
+                except ZeroDivisionError:
+                    f = sys.exc_info()[2].tb_frame.f_back
+                # go hunting for the context that called up
+                while f is not None:
+                    locals = f.f_locals
+                    if locals.get('__exception_formatter__'):
+                        # Stop recursion.
+                        context_info = ('Recursion Error while trying to find Context',)
+                        break
+                    Context = locals.get('self')
+                    if isinstance(Context,TALESContextClass):
+                        context_info = (
+                            Context.source_file,
+                            'Line %i, Column %i' % (
+                                       Context.position[0],
+                                       Context.position[1],
+                                       )
+                            )
+                        break
+                    f = f.f_back
+
             self._v_file.write(missing_template % {
                 'id':msgid.replace('"', r'\"'),
                 'date':time.asctime(),
+                'reference':context_info[0],
+                'context':''.join(['\n#. '+line for line in context_info[1:]]),
                 })
             self._v_file.flush()
             self._ids[msgid]=1
