@@ -129,13 +129,12 @@ class Msgfmt:
         #import pdb; pdb.set_trace()
         for l in lines:
             lno += 1
-            # If we get a comment line after a msgstr, this is a new entry
-            if l[0] == '#' and section == STR:
-                if msgid == "":
-                    msgstr += lines[lno-2]
+            # If we get a comment line after a msgstr or a line starting with 
+            # msgid, this is a new entry
+            # XXX: l.startswith('msgid') is needed because not all msgid/msgstr
+            # pairs in the plone pos have a leading comment
+            if (l[0] == '#' or l.startswith('msgid')) and section == STR:
                 self.add(msgid, msgstr, fuzzy)
-                #print msgstr
-                #sys.exit(0)
                 section = None
                 fuzzy = 0
             # Record a fuzzy mark
@@ -159,8 +158,6 @@ class Msgfmt:
                 continue
             # XXX: Does this always follow Python escape semantics?
             l = eval(l)
-            #l = l.replace('"', '').strip()
-            #l = l.replace("\\n", "\n")
             if section == ID:
                 msgid += l
             elif section == STR:
