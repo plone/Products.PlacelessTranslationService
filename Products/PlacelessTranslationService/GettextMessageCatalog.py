@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.19 2004/05/04 21:56:03 dreamcatcher Exp $
+$Id: GettextMessageCatalog.py,v 1.20 2004/07/01 10:38:13 fresh Exp $
 """
 
 from gettext import GNUTranslations
@@ -236,7 +236,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             self.name = unicode(tro._info.get('language-name', ''), tro._charset)
             self.default_zope_data_encoding = tro._charset
             translationRegistry[self.getId()] = self._v_tro = tro
-            missingFileName = self._pofile[:-2] + '.missing'
+            missingFileName = self._pofile[:-3] + '.missing'
             if os.access(missingFileName, os.W_OK):
                 self._missing = MissingIds(missingFileName, self._v_tro._charset)
             else:
