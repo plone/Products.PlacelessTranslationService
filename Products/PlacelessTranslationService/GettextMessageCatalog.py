@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.3.2.5 2003/12/25 19:38:19 tiran Exp $
+$Id: GettextMessageCatalog.py,v 1.3.2.6 2003/12/26 20:58:19 tiran Exp $
 """
 
 from gettext import GNUTranslations
@@ -91,12 +91,12 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     icon = 'misc_/PlacelessTranslationService/GettextMessageCatalog.png'
     __roles__=('Manager',)
     title__roles__=__roles__
-    _file_mod_time = None
     
     def __init__(self, pofile):
         """Initialize the message catalog"""
         self._pofile = pofile
         self.id = os.path.split(self._pofile)[-1]
+        self._mod_time = self._getModTime()
         self._prepareTranslations()
 
     def _prepareTranslations(self):
@@ -237,21 +237,25 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
              file.close()
         return data 
         
-    # Refresh our contents from the filesystem if that is newer and we are
-    # running in debug mode.
     def _updateFromFS(self):
         """Refresh our contents from the filesystem
         
         if the file is newer and we are running in debug mode.
         """
         if Globals.DevelopmentMode:
-            try:
-                mtime=os.stat(self._pofile)[8]
-            except:
-                mtime=0
-            if mtime != self._file_mod_time:
-                self._file_mod_time = mtime
+            mtime = self._getModTime()
+            if mtime != self._mod_time:
+                self._mod_time = mtime
                 self.reload()
+
+    def _getModTime(self):
+        """
+        """
+        try:
+            mtime = os.stat(self._pofile)[8]
+        except IOError:
+            mtime = 0
+        return mtime
 
     def get_size(self):
         """Get the size of the underlying file."""
@@ -263,7 +267,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         Returns a DateTime instance.
         """
         self._updateFromFS()
-        return DateTime(self._file_mod_time)
+        return DateTime(self._mod_time)
 
     def getObjectFSPath(self):
         """Return the path of the file we represent"""
