@@ -16,12 +16,13 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: utils.py,v 1.1.2.1 2004/01/30 15:45:36 tiran Exp $
+$Id: utils.py,v 1.1.2.2 2004/02/03 21:06:57 tiran Exp $
 '''.strip()
 
 import zLOG
 from UserDict import UserDict
 from types import UnicodeType
+import sys
 
 NOISY_DEBUG = False
 
