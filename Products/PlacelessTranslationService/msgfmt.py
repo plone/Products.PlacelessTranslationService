@@ -1,6 +1,9 @@
 #! /usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 # Written by Martin v. Löwis <loewis@informatik.hu-berlin.de>
+#
+# Changed by Christian 'Tiran' Heimes <ch@comlounge.net> for the placeless
+# translation service (PTS) of zope
 
 """Generate binary message catalog from textual translation description.
 
