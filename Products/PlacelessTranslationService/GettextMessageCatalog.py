@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.20 2004/07/01 10:38:13 fresh Exp $
+$Id: GettextMessageCatalog.py,v 1.21 2004/07/01 18:11:09 fresh Exp $
 """
 
 from gettext import GNUTranslations
@@ -272,25 +272,6 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             if not REQUEST.form.has_key('noredir'):
                 REQUEST.RESPONSE.redirect(self.absolute_url())
 
-    def _log_missing(self, id, orig_text):
-        """Logging missing ids
-        """
-        if self._missing is None:
-            return
-        self._missing.log(id, orig_text)
-
-    def getMessage(self, id, orig_text=None, testing=False):
-        """get message from catalog
-        """
-        self._prepareTranslations()
-        try:
-            msg = getMessage(self._v_tro, id, orig_text)
-        except KeyError:
-            if not testing:
-                self._log_missing(id, orig_text)
-            raise
-        return msg
-
     security.declarePublic('queryMessage')
     def queryMessage(self, id, default=None):
         """Queries the catalog for a message
@@ -298,7 +279,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         If the message wasn't found the default value or the id is returned.
         """
         try:
-            return self.getMessage(id, default) #, testing=True)
+            return getMessage(translationRegistry[self.getId()],id,default)
         except KeyError:
             if default is None:
                 default = id
