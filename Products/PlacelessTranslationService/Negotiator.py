@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
 
-$Id: Negotiator.py,v 1.6.4.2 2004/01/29 20:38:14 tiran Exp $
+$Id: Negotiator.py,v 1.6.4.3 2004/01/30 00:04:35 tiran Exp $
 """
 
 import types
@@ -45,10 +45,11 @@ def registerLangPrefsMethod(prefs, kind='language'):
     # add this pref helper
     _langPrefsRegistry[kind].append(prefs)
     # sort by priority
-    _langPrefsRegistry[kind].sort(lambda x, y: cmp(x['priority'], y['priority']))
+    _langPrefsRegistry[kind].sort(lambda x, y: cmp(y['priority'], x['priority']))
 
 def getLangPrefs(env, kind='language'):
     # get higest prio method for kind
+    print _langPrefsRegistry[kind]
     for pref in  _langPrefsRegistry[kind]:
         handler = pref['klass'](env)
         accepted = handler.getAccepted(env, kind)
@@ -208,6 +209,9 @@ class RequestGetAccept:
             return ()
 
 
+# higher number = higher priority
+# if a acceptor returns a false value (() or None) then the next acceptor
+# in the chain is queried
 registerLangPrefsMethod({'klass':BrowserAccept,   'priority':10 }, 'language')
 registerLangPrefsMethod({'klass':SessionAccept,   'priority':40 }, 'language')
 registerLangPrefsMethod({'klass':RequestGetAccept,'priority':50 }, 'language')
