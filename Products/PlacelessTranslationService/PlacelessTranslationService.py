@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.38 2004/07/15 09:19:19 tiran Exp $
+$Id: PlacelessTranslationService.py,v 1.39 2004/09/05 19:33:38 tiran Exp $
 """
 
 import sys, os, re, fnmatch
@@ -30,7 +30,11 @@ from Globals import InitializeClass
 from OFS.Folder import Folder
 from ZPublisher.HTTPRequest import HTTPRequest
 
-from GettextMessageCatalog import BrokenMessageCatalog, GettextMessageCatalog, translationRegistry, getMessage
+from GettextMessageCatalog import BrokenMessageCatalog
+from GettextMessageCatalog import GettextMessageCatalog
+from GettextMessageCatalog import translationRegistry
+from GettextMessageCatalog import rtlRegistry
+from GettextMessageCatalog import getMessage
 from Negotiator import negotiator
 from Domain import Domain
 from utils import log, Registry, INFO, BLATHER, PROBLEM
@@ -425,7 +429,7 @@ class PlacelessTranslationService(Folder):
 
         # cache catalog names to speed up because this method is called
         # for every msgid
-        cache_name = 'PTS_catalog_names_%s_%s' % (domain, target_language or 'none')
+        cache_name = '_pts_catalog_names_%s_%s' % (domain, target_language or 'none')
         cached_catalog_names = context.get(cache_name, None)
         if cached_catalog_names:
             return [translationRegistry[name] for name in cached_catalog_names]
@@ -461,7 +465,14 @@ class PlacelessTranslationService(Folder):
         # in the request. It may cause reference circles and cause memory leaks
         context.set(cache_name, catalog_names)
 
-        return [translationRegistry[name] for name in catalog_names ]
+        # test for right to left language
+        context.set('PTS_Is_RTL', False)
+        for name in catalog_names:
+            if rtlRegistry.get(name):
+                context.set('PTS_Is_RTL', True)
+                break
+
+        return [translationRegistry[name] for name in catalog_names]
 
     security.declarePrivate('setLanguageFallbacks')
     def setLanguageFallbacks(self, fallbacks=None):

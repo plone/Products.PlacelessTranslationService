@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.25 2004/07/18 18:33:07 tiran Exp $
+$Id: GettextMessageCatalog.py,v 1.26 2004/09/05 19:33:38 tiran Exp $
 """
 
 from gettext import GNUTranslations
@@ -68,6 +68,8 @@ permission = 'View management screens'
 
 translationRegistry = Registry()
 registerTranslation = translationRegistry.register
+rtlRegistry = Registry()
+registerRTL = rtlRegistry.register
 
 def getMessage(catalog, id, orig_text=None):
     """get message from catalog
@@ -234,7 +236,19 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             self.preferred_encodings = tro._info.get('preferred-encodings', '').split()
             self.name = unicode(tro._info.get('language-name', ''), tro._charset)
             self.default_zope_data_encoding = tro._charset
+
             translationRegistry[self.getId()] = self._v_tro = tro
+
+            # right to left support
+            is_rtl = tro._info.get('X-Is-RTL', 'no').strip().lower()
+            if is_rtl in ('yes', 'y', 'true', '1'):
+                self._is_rtl = True
+            elif is_rtl in ('no', 'n', 'false', '0'):
+                self._is_rtl = False
+            else:
+                raise ValueError, 'Unsupported value for X-Is-RTL' % is_rtl
+            rtlRegistry[self.getId()] = self.isRTL()
+
             missingFileName = self._pofile[:-3] + '.missing'
             if os.access(missingFileName, os.W_OK):
                 tro.add_fallback(MissingIds(missingFileName, self._v_tro._charset))
@@ -317,6 +331,11 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         """
         self._prepareTranslations()
         return self._v_tro._info.get(name, None)
+    
+    def isRTL(self):
+        """
+        """
+        return self._is_rtl
 
     security.declareProtected(view_management_screens, 'Title')
     def Title(self):
