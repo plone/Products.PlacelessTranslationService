@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: TranslateTags.py,v 1.2 2004/02/03 22:14:42 tiran Exp $
+$Id: TranslateTags.py,v 1.3 2004/07/09 18:43:59 tiran Exp $
 '''.strip()
 
 from utils import log
@@ -57,7 +57,7 @@ class TranslateTag:
             r.append(section(None, md))
 
         if r:
-            if len(r) > 1: r = "(%s)\n" % join(r,' ')
+            if len(r) > 1: r = "(%s)" % join(r,' ')
             else: r = r[0]
         else:
             r = ''
@@ -65,7 +65,7 @@ class TranslateTag:
         msgid = self._msgid or r
         domain = self._domain or get(md, 'i18n-domain', 'DTML')
 
-        return translate(domain, msgid, context=md['REQUEST'], default=r) + '\n'
+        return translate(domain, msgid, context=md['REQUEST'], default=r)
 
     __call__=render
 
