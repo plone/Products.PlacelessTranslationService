@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
 
-$Id: Negotiator.py,v 1.6.4.3 2004/01/30 00:04:35 tiran Exp $
+$Id: Negotiator.py,v 1.6.4.4 2004/01/30 00:25:11 tiran Exp $
 """
 
 import types
@@ -235,10 +235,10 @@ class Negotiator:
             # Store cache in request object
             cache = {}
             request.set(cache_name, cache)
-        #try:
-        #    return cache[choices]
-        #except KeyError:
-        cache[choices] = self._negotiate(choices, request, kind)
+        try:
+            return cache[choices]
+        except KeyError:
+            cache[choices] = self._negotiate(choices, request, kind)
         return cache[choices]
 
     def _negotiate(self, choices, request, kind):
