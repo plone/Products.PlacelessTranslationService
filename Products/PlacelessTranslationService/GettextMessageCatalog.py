@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.15 2004/03/27 22:25:48 tiran Exp $
+$Id: GettextMessageCatalog.py,v 1.16 2004/04/04 23:32:32 tiran Exp $
 """
 
 from Acquisition import aq_parent
@@ -145,6 +145,10 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         pofile = self._pofile
         pts._delObject(name)
         try: pts.addCatalog(GettextMessageCatalog(name, pofile))
+        except OSError:
+	    # XXX TODO
+	    # remove a catalog if it cannot be loaded from the old location
+            raise
         except:
             exc=sys.exc_info()
             log('Message Catalog has errors', zLOG.PROBLEM, name, exc)
