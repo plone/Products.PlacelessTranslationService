@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.14.2.1 2004/01/29 20:37:57 tiran Exp $
+$Id: PlacelessTranslationService.py,v 1.14.2.2 2004/01/30 15:45:36 tiran Exp $
 """
 
 import sys, re, zLOG, Globals, fnmatch
@@ -28,7 +28,9 @@ from OFS.Folder import Folder
 from types import DictType, StringType, UnicodeType
 from Negotiator import negotiator
 from Domain import Domain
+from utils import log, Registry
 from msgfmt import PoSyntaxError
+from GettextMessageCatalog import BrokenMessageCatalog, GettextMessageCatalog, translationRegistry, getMessage
 import os
 try:
     from pax import XML
@@ -42,16 +44,7 @@ except NameError:
     False=0
 
 _marker = []
-NOISY_DEBUG = False
 
-def log(msg, severity=zLOG.INFO, detail='', error=None):
-    if not NOISY_DEBUG and severity is zLOG.BLATHER:
-        return
-    if type(msg) is UnicodeType:
-        msg = msg.encode(sys.getdefaultencoding(), 'replace')
-    if type(detail) is UnicodeType:
-        detail = detail.encode(sys.getdefaultencoding(), 'replace')
-    zLOG.LOG('PlacelessTranslationService', severity, msg, detail, error)
 
 def map_get(map, name):
     return map.get(name)
@@ -72,13 +65,6 @@ _get_var_regex = re.compile(r'%(n)s' %({'n': NAME_RE}))
 # Note that these fallbacks are used only to find a catalog.  If a particular
 # message in a catalog is not translated, tough luck, you get the msgid.
 LANGUAGE_FALLBACKS = list(os.environ.get('LANGUAGE_FALLBACKS', 'en').split(' '))
-
-from UserDict import UserDict
-
-class Registry(UserDict):
-
-    def register(self, name, value):
-        self[name] = value
 
 catalogRegistry = Registry()
 registerCatalog = catalogRegistry.register
@@ -160,7 +146,8 @@ class PlacelessTranslationService(Folder):
     # internal is always 0 on releases; if you hack this internally, increment it
     # -3 for alpha, -2 for beta, -1 for release candidate
     # for forked releases internal is always 99
-    _class_version = (1, -2, 4, 99)
+    # use an internal of >99 to recreate the PTS at evry startup (development mode)
+    _class_version = (1, -2, 5, 99)
     all_meta_types = ()
 
     security = ClassSecurityInfo()
@@ -181,7 +168,7 @@ class PlacelessTranslationService(Folder):
 
     def _registerMessageCatalog(self, catalog):
 
-        from GettextMessageCatalog import BrokenMessageCatalog
+        
         # dont register broken message catalogs
         if isinstance(catalog, BrokenMessageCatalog): return
 
@@ -206,7 +193,6 @@ class PlacelessTranslationService(Folder):
         self._p_changed = 1
 
     def _load_dir(self, basepath):
-        from GettextMessageCatalog import GettextMessageCatalog, BrokenMessageCatalog
         log('looking into ' + basepath, zLOG.BLATHER)
         if not os.path.isdir(basepath):
             log('it does not exist', zLOG.BLATHER)
@@ -284,6 +270,28 @@ class PlacelessTranslationService(Folder):
         log('adding %s: %s' % (catalog.id, catalog.title))
         self._registerMessageCatalog(catalog)
 
+    security.declarePrivate('getCatalogs')
+    def getCatalogsForTranslation(self, context, domain, target_language=None):
+        # ZPT passes the object as context.  That's wrong according to spec.
+        try:
+            context = context.REQUEST
+        except AttributeError:
+            pass
+
+        if target_language is None:
+            target_language = self.negotiate_language(context, domain)
+
+        # Get the translation. Use the specified fallbacks if this fails
+        catalog_names = catalogRegistry.get((target_language, domain), ()) or \
+                        fbcatalogRegistry.get((target_language, domain), ())
+        if not catalog_names:
+            for language in self._fallbacks:
+                catalog_names = catalogRegistry.get((language, domain),  ())
+                if catalog_names:
+                    break
+
+        return [translationRegistry[name] for name in catalog_names ]
+
     security.declarePrivate('setLanguageFallbacks') 
     def setLanguageFallbacks(self, fallbacks=None):
         if fallbacks is None:
@@ -300,7 +308,7 @@ class PlacelessTranslationService(Folder):
                     if cat.name:
                         return cat.name
 
-    security.declarePublic(view, 'getLanguages')
+    security.declareProtected(view, 'getLanguages')
     def getLanguages(self, domain=None):
         """Get available languages"""
         if domain is None:
@@ -329,8 +337,6 @@ class PlacelessTranslationService(Folder):
                   target_language=None, default=None, as_unicode=False):
         """
         """
-        from GettextMessageCatalog import translationRegistry, getMessage
-
         if not msgid:
             # refuse to translate an empty msgid
             return default
@@ -341,20 +347,8 @@ class PlacelessTranslationService(Folder):
         except AttributeError:
             pass
 
-        if target_language is None:
-            target_language = self.negotiate_language(context, domain)
-
-        # Get the translation. Use the specified fallbacks if this fails
-        catalog_names = catalogRegistry.get((target_language, domain), ()) or \
-                        fbcatalogRegistry.get((target_language, domain), ())
-        if not catalog_names:
-            for language in self._fallbacks:
-                catalog_names = catalogRegistry.get((language, domain),  ())
-                if catalog_names:
-                    break
-
-        for name in catalog_names:
-            catalog = translationRegistry[name]
+        catalogs = self.getCatalogsForTranslation(context, domain, target_language)
+        for catalog in catalogs:
             try:
                 text = getMessage(catalog, msgid, default)
             except KeyError:

@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
 
-$Id: Negotiator.py,v 1.6.4.4 2004/01/30 00:25:11 tiran Exp $
+$Id: Negotiator.py,v 1.6.4.5 2004/01/30 15:45:36 tiran Exp $
 """
 
 import types
@@ -49,7 +49,6 @@ def registerLangPrefsMethod(prefs, kind='language'):
 
 def getLangPrefs(env, kind='language'):
     # get higest prio method for kind
-    print _langPrefsRegistry[kind]
     for pref in  _langPrefsRegistry[kind]:
         handler = pref['klass'](env)
         accepted = handler.getAccepted(env, kind)
@@ -156,15 +155,15 @@ class BrowserAccept:
 
         return [accept[1] for accept in accepts]
 
-class SessionAccept:
 
+class SessionAccept:
     filters = (str_lower, lang_normalize)
 
     def __init__(self, request):
         pass
 
     def getAccepted(self, request, kind='language'):
-        language = request.SESSION.get('PTS_language', None)
+        language = request.SESSION.get('pts_language', None)
         if language:
             if type(language) is types.TupleType:
                 return language
@@ -176,8 +175,23 @@ class SessionAccept:
         else:
             return ()
 
-class RequestGetAccept:
+def setSessionLanguage(request, lang, REQUEST=None):
+    """sets the language of the current session
 
+    request - the request object
+    lang - language as string like de or pt_BR (it's normalizd)
+    """
+    if type(lang) is types.TupleType:
+        lang = lang[1]
+    lang = str_lower(lang_normalize(lang))
+    request.SESSION['pts_language'] = (lang,)
+    if REQUEST:
+        REQUEST.RESPONSE.redirect(REQUEST.URL0)
+    else:
+        return lang
+
+
+class RequestGetAccept:
     filters = (str_lower, lang_normalize)
 
     def __init__(self, request):
@@ -203,7 +217,7 @@ class RequestGetAccept:
                 setLanguage = False
             if setLanguage:
                 # request.RESPONE.setCookie('language', language)
-                request.SESSION['PTS_language'] = (language,)
+                request.SESSION['pts_language'] = (language,)
             return (language,)
         else:
             return ()

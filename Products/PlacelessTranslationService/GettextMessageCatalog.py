@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.7.2.1 2004/01/29 20:38:44 tiran Exp $
+$Id: GettextMessageCatalog.py,v 1.7.2.2 2004/01/30 15:45:36 tiran Exp $
 """
 
 from Acquisition import aq_parent
@@ -32,7 +32,7 @@ from Acquisition import Implicit
 from App.Management import Tabs
 import re
 from OFS.Uninstalled import BrokenClass
-from PlacelessTranslationService import log, Registry
+from utils import log, Registry
 from msgfmt import Msgfmt
 from DateTime import DateTime
 import Globals
