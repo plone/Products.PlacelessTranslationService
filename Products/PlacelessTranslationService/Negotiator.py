@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
 
-$Id: Negotiator.py,v 1.11 2004/06/23 12:09:32 tiran Exp $
+$Id: Negotiator.py,v 1.12 2004/06/23 14:24:55 tiran Exp $
 """
 
 import types
@@ -169,7 +169,7 @@ class CookieAccept:
         pass
 
     def getAccepted(self, request, kind='language'):
-        if not hasattr(language, 'cookies'):
+        if not hasattr(request, 'cookies'):
             return ()
         language = request.cookies.get('pts_language', None)
         if language:
