@@ -1,3 +1,14 @@
+1.0fork-rc3 - 2004-03-09
+
+    Added a product identifier to the control panel catalog id
+    to allow same po filenames in different locations:
+      - Catalog its are now like Products.CMFPlone.i18n.plone-de.po
+      - Catalogs not coming from a Product (eg from INSTANCE_HOME)
+        are named like before (plone-de.po)
+ 
+    fixed collector issue #910529
+    thanks to Nicolas Ledez for the report and the patch
+
 1.0fork-rc2 - 2004-03-01
 
     Fixed bug in FasterStringIO that added new lines to the output
