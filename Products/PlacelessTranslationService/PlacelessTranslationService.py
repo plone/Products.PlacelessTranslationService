@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.20 2004/03/01 10:32:27 tiran Exp $
+$Id: PlacelessTranslationService.py,v 1.21 2004/03/02 09:27:48 longsleep Exp $
 """
 
 import sys, re, zLOG, Globals, fnmatch
@@ -99,8 +99,8 @@ class PTSWrapper:
     security.declareProtected(view, 'translate')
     def translate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
-        """translate a message using the default encoding
-        
+        """
+        translate a message using the default encoding
         get the real service and call its translate method
         return default if service couldnt be retrieved
         """
@@ -111,8 +111,8 @@ class PTSWrapper:
     security.declareProtected(view, 'utranslate')
     def utranslate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
-        """translate a message using unicode
-        
+        """
+        translate a message using unicode
         see translate()
         """
         service = self.load(context)
@@ -130,7 +130,9 @@ class PTSWrapper:
         return service.getLanguages(domain)
 
     def __repr__(self):
-        """ return a string representation """
+        """
+        return a string representation
+        """
         return "<PTSWrapper for %s>" %(self._path)
 
 InitializeClass(PTSWrapper)
@@ -146,7 +148,7 @@ class PlacelessTranslationService(Folder):
     # internal is always 0 on releases; if you hack this internally, increment it
     # -3 for alpha, -2 for beta, -1 for release candidate
     # for forked releases internal is always 99
-    # use an internal of >99 to recreate the PTS at evry startup (development mode)
+    # use an internal of >99 to recreate the PTS at every startup (development mode)
     _class_version = (1, -1, 10, 99)
     all_meta_types = ()
 
@@ -194,6 +196,7 @@ class PlacelessTranslationService(Folder):
 
     def _load_catalog_file(self, name, popath, language=None, domain=None):
         """
+        create catalog instances in ZODB
         """
         ob = self._getOb(name, _marker)
         try:
@@ -221,11 +224,10 @@ class PlacelessTranslationService(Folder):
              self.addCatalog(BrokenMessageCatalog(os.path.join(popath, name), exc))
 
     def _load_i18n_dir(self, basepath):
-        """Loads an i18n directory (Zope3 PTS format)
-        
+        """
+        Loads an i18n directory (Zope3 PTS format)
         Format:
             Products/MyProduct/i18n/*.po
-        
         The language and domain are stored in the po file
         """
         log('looking into ' + basepath, zLOG.BLATHER)
@@ -250,11 +252,10 @@ class PlacelessTranslationService(Folder):
         log('Initialized:', detail = repr(names) + (' from %s\n' % basepath))
         
     def _load_locales_dir(self, basepath):
-        """Loads an locales directory (Zope3 format)
-
+        """
+        Loads an locales directory (Zope3 format)
         Format:
             Products/MyProduct/locales/${lang}/LC_MESSAGES/${domain}.po
-        
         Where ${lang} and ${domain} are the language and the domain of the po
         file (e.g. locales/de/LC_MESSAGES/plone.po)
         """
@@ -295,7 +296,9 @@ class PlacelessTranslationService(Folder):
 
     security.declareProtected(view_management_screens, 'manage_renameObject')
     def manage_renameObject(self, id, new_id, REQUEST=None):
-        "wrap manage_renameObject to deal with registration"
+        """
+        wrap manage_renameObject to deal with registration
+        """
         catalog = self._getOb(id)
         self._unregisterMessageCatalog(catalog)
         Folder.manage_renameObject(self, id, new_id, REQUEST=None)
@@ -363,7 +366,9 @@ class PlacelessTranslationService(Folder):
 
     security.declareProtected(view, 'getLanguages')
     def getLanguages(self, domain=None):
-        """Get available languages"""
+        """
+        Get available languages
+        """
         if domain is None:
             # no domain, so user wants 'em all
             langs = catalogRegistry.keys()
@@ -380,7 +385,8 @@ class PlacelessTranslationService(Folder):
     security.declareProtected(view, 'utranslate')
     def utranslate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
-        """translate() using unicode
+        """
+        translate() using unicode
         """
         return self.translate(domain, msgid, mapping, context,
                   target_language, default, as_unicode=True)
@@ -389,6 +395,7 @@ class PlacelessTranslationService(Folder):
     def translate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None, as_unicode=False):
         """
+        translate a message using the default encoding
         """
         if not msgid:
             # refuse to translate an empty msgid
@@ -423,8 +430,7 @@ class PlacelessTranslationService(Folder):
             text = default
 
         # Now we need to do the interpolation
-        text = self.interpolate(text, mapping)
-        return text
+        return self.interpolate(text, mapping)
 
     security.declarePrivate('negotiate_language') 
     def negotiate_language(self, context, domain):
@@ -440,60 +446,68 @@ class PlacelessTranslationService(Folder):
     security.declareProtected(view, 'getDomain')
     def getDomain(self, domain):
         """
+        return a domain instance
         """
         return Domain(domain, self)
 
     security.declarePrivate('interpolate') 
     def interpolate(self, text, mapping):
-     try:
-        """Insert the data passed from mapping into the text"""
+        """
+        Insert the data passed from mapping into the text
+        """
 
-        # If the mapping does not exist, make a "raw translation" without
-        # interpolation.
-        if mapping is None or type(text) not in (StringType, UnicodeType):
-            # silly wabbit!
+        # XXX: why this big try/except?
+        try:
+
+            # If the mapping does not exist, make a "raw translation" without
+            # interpolation.
+            if mapping is None or type(text) not in (StringType, UnicodeType):
+                # silly wabbit!
+                return text
+
+            get = map_get
+            try:
+                mapping.get('')
+            except AttributeError:
+                get = getattr
+
+            # Find all the spots we want to substitute
+            to_replace = _interp_regex.findall(text)
+
+            # ZPT (string) or OpenPT (unicode)?
+            if type(text) is StringType:
+                conv = str
+            else:
+                conv = XML
+
+            # Now substitute with the variables in mapping
+            for string in to_replace:
+                var = _get_var_regex.findall(string)[0]
+                value = get(mapping, var)
+                try:
+                    value = value()
+                except (TypeError, AttributeError):
+                    pass
+                if value is None:
+                    value = string
+                if type(value) not in (StringType, UnicodeType):
+                    # FIXME: we shouldn't do this. We should instead
+                    # return a list. But i'm not sure about how to use
+                    # the regex to split the text.
+                    value = conv(value)
+                text = text.replace(string, value)
+
             return text
 
-        get = map_get
-        try:
-            mapping.get('')
-        except AttributeError:
-            get = getattr
-
-        # Find all the spots we want to substitute
-        to_replace = _interp_regex.findall(text)
-
-        # ZPT (string) or OpenPT (unicode)?
-        if type(text) is StringType:
-            conv = str
-        else:
-            conv = XML
-
-        # Now substitute with the variables in mapping
-        for string in to_replace:
-            var = _get_var_regex.findall(string)[0]
-            value = get(mapping, var)
-            try:
-                value = value()
-            except (TypeError, AttributeError):
-                pass
-            if value is None:
-                value = string
-            if type(value) not in (StringType, UnicodeType):
-                # FIXME: we shouldn't do this. We should instead
-                # return a list. But i'm not sure about how to use
-                # the regex to split the text.
-                value = conv(value)
-            text = text.replace(string, value)
-
-        return text
-     except:
-        import traceback
-        traceback.print_exc()
+        except:
+            log('interpolation error', zLOG.PROBLEM, error=sys.exc_info())
+            return text
 
     security.declareProtected(view_management_screens, 'manage_main')
     def manage_main(self, REQUEST, *a, **kw):
-        "Wrap Folder's manage_main to render international characters"
+        """
+        Wrap Folder's manage_main to render international characters
+        """
         # ugh, API cruft
         if REQUEST is self and a:
             REQUEST = a[0]
@@ -504,7 +518,6 @@ class PlacelessTranslationService(Folder):
         REQUEST.RESPONSE.setHeader('Content-type', 'text/html; charset=utf-8')
         return r
 
-    #
-    ############################################################
 
 InitializeClass(PlacelessTranslationService)
+
