@@ -1,3 +1,19 @@
+1.0fork-rc5 - 2004-04-05
+
+    Changed logging to get use the methods and vars from utils.py
+
+    Cleaned up the imports an seperate them into python, zope and PTS imports
+
+    Removed the dependency and auto loading of the get_request patch. Now it's
+    loaded only when using the MessageID module, when applying unicode to
+    FasterStringIO (shouldn't happen!) or as fallback when PTS can't get a valid
+    context (REQUEST).
+    The last two cases will break the first time after a (re)start of zope. If
+    your software depends on get_request() apply the patch manually::
+
+        from Products.PlacelessTranslationService.PatchStringIO import applyRequestPatch
+        applyRequestPatch()
+
 1.0fork-rc4 - 2004-04-05
 
     Changed po file id creation:

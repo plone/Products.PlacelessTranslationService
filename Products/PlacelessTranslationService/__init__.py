@@ -16,19 +16,24 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: __init__.py,v 1.13 2004/04/05 00:42:54 tiran Exp $
+$Id: __init__.py,v 1.14 2004/04/20 23:38:27 tiran Exp $
 '''.strip()
 
+import os, sys
+import fnmatch
+
+from Products.PageTemplates.GlobalTranslationService import \
+    setGlobalTranslationService, getGlobalTranslationService
+import Globals
 from OFS.Application import get_products
 from AccessControl import ModuleSecurityInfo, allow_module
 from AccessControl.Permissions import view
+
 import PatchStringIO # patch at first
 from PlacelessTranslationService import PlacelessTranslationService, PTSWrapper
-from utils import log
-import zLOG
+from utils import log, WARNING, BLATHER, PROBLEM
 from Negotiator import negotiator, setSessionLanguage
-from Products.PageTemplates.GlobalTranslationService import setGlobalTranslationService, getGlobalTranslationService
-import os, fnmatch, sys, Zope, Globals, TranslateTags
+import TranslateTags
 
 # in python 2.1 fnmatch doesn't have the filter function
 if not hasattr(fnmatch, 'filter'):
@@ -91,7 +96,7 @@ security.declareProtected(view, 'negotiate')
 def negotiate(langs, context):
     """ deprecated! """
     if not negotiateDeprecatedLogged:
-        log('Products.PlacelessTranslationService.negotiate() is deprecated', zLOG.WARNING)
+        log('Products.PlacelessTranslationService.negotiate() is deprecated', WARNING)
         negotiateDeprecatedLogged = 1
     return negotiator.negotiate(langs, context, 'language')
 
@@ -132,7 +137,7 @@ def initialize(context):
 
 
     # sweep products
-    log('products: %r' % get_products(), zLOG.BLATHER)
+    log('products: %r' % get_products(), BLATHER)
     ploneDir = None
     for prod in get_products():
         # prod is a tuple in the form:
@@ -151,7 +156,7 @@ def initialize(context):
 
     # didn't found any catalogs
     if not cp_ts.objectIds():
-        log('no translations found!', zLOG.PROBLEM)
+        log('no translations found!', PROBLEM)
 
     # set ZPT's translation service
     # NOTE: since this registry is a global var we cant register the persistent service itself (zodb connection)

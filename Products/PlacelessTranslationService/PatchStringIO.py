@@ -34,7 +34,13 @@
 #
 
 from thread import get_ident
+from traceback import format_stack
+
 from ZPublisher import Publish, mapply
+import Globals
+
+from utils import log, INFO, BLATHER, PROBLEM
+
 
 def get_request():
     """Get a request object"""
@@ -51,14 +57,17 @@ def new_publish(request, module_name, after_list, debug=0):
 
     return x
 
-if not hasattr(Publish, '_requests'):
-    # Apply patch
-    Publish._requests = {}
-    Publish.old_publish = Publish.publish
-    Publish.publish = new_publish
+def applyRequestPatch():
+    if not hasattr(Publish, '_requests'):
+        log('Applying patch', severity=INFO,
+            detail='*** Patching ZPublisher.Publish with the get_request patch! ***')
+	# Apply patch
+        Publish._requests = {}
+        Publish.old_publish = Publish.publish
+        Publish.publish = new_publish
+        Globals.get_request = get_request
 
-    import Globals
-    Globals.get_request = get_request
+#applyRequestPatch()
 
 # PATCH 2
 #

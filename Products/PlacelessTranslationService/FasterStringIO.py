@@ -35,11 +35,6 @@ Adapted for the PlacelessTranslationService / SpeedPack by Christian Heimes
 Thanks to Andreas Jung for his idea to use list.append().
 """
 try:
-    from errno import EINVAL
-except ImportError:
-    EINVAL = 22
-
-try:
     True
 except NameError:
     True=1
@@ -47,7 +42,6 @@ except NameError:
 
 from types import UnicodeType, StringType
 from TAL.TALInterpreter import _write_ValueError
-from Globals import get_request
 
 class FasterStringIO:
     """class FasterStringIO([buffer])
@@ -118,12 +112,25 @@ class FasterStringIO:
         if not s: return
        
         if isinstance(s, UnicodeType):
-            response = get_request().RESPONSE
+            # XXX: import the get_request method
+            # this will fail the first time we need it if the patch wasn't applied
+            # before
             try:
+                from Globals import get_request
+            except ImportError:
+                from PatchStringIO import applyRequestPatch
+                applyRequestPatch()
+                request = None
+            else:
+                request = get_request()            
+
+            try:
+                response = request.RESPONSE
                 s = response._encode_unicode(s)
             except AttributeError:
                 # not an HTTPResponse
                 pass
+
         #for l in s.split('\n'):
         #    self.len += len(l) +1
         #    self.buf.append(l)

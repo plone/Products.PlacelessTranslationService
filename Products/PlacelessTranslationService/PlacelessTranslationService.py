@@ -17,32 +17,36 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.31 2004/04/15 01:55:30 panjunyong Exp $
+$Id: PlacelessTranslationService.py,v 1.32 2004/04/20 23:38:25 tiran Exp $
 """
 
-import sys, re, zLOG, Globals, fnmatch
+import sys, os, re, fnmatch
+from types import DictType, StringType, UnicodeType
+
+import Globals
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view, view_management_screens
-from Globals import InitializeClass, get_request
+from Globals import InitializeClass
 from OFS.Folder import Folder
-from types import DictType, StringType, UnicodeType
+from ZPublisher.HTTPRequest import HTTPRequest
+
+from GettextMessageCatalog import BrokenMessageCatalog, GettextMessageCatalog, translationRegistry, getMessage
 from Negotiator import negotiator
 from Domain import Domain
-from utils import log, Registry
+from utils import log, Registry, INFO, BLATHER, PROBLEM
 from msgfmt import PoSyntaxError
-from GettextMessageCatalog import BrokenMessageCatalog, GettextMessageCatalog, translationRegistry, getMessage
-from ZPublisher.HTTPRequest import HTTPRequest
-import os
-try:
-    from pax import XML
-except:
-    def XML(v):
-        return str(v)
+
 try:
     True
 except NameError:
     True=1
     False=0
+
+try:
+    from pax import XML
+except:
+    def XML(v):
+        return str(v)
 
 _marker = []
 
@@ -149,7 +153,7 @@ class PlacelessTranslationService(Folder):
     # -3 for alpha, -2 for beta, -1 for release candidate
     # for forked releases internal is always 99
     # use an internal of >99 to recreate the PTS at every startup (development mode)
-    _class_version = (1, -1, 14, 99)
+    _class_version = (1, -1, 15, 99)
     all_meta_types = ()
 
     security = ClassSecurityInfo()
@@ -277,7 +281,7 @@ class PlacelessTranslationService(Folder):
                 pass
         except:
              exc=sys.exc_info()
-             log('Message Catalog has errors', zLOG.PROBLEM, name, exc)
+             log('Message Catalog has errors', PROBLEM, name, exc)
              self.addCatalog(BrokenMessageCatalog(id, pofile, exc))
 
     def _load_i18n_dir(self, basepath):
@@ -287,9 +291,9 @@ class PlacelessTranslationService(Folder):
             Products/MyProduct/i18n/*.po
         The language and domain are stored in the po file
         """
-        log('looking into ' + basepath, zLOG.BLATHER)
+        log('looking into ' + basepath, BLATHER)
         if not os.path.isdir(basepath):
-            log('it does not exist', zLOG.BLATHER)
+            log('it does not exist', BLATHER)
             return
 
         # print deprecation warning for mo files
@@ -301,7 +305,7 @@ class PlacelessTranslationService(Folder):
         # load po files
         names = fnmatch.filter(os.listdir(basepath), '*.po')
         if not names:
-            log('nothing found', zLOG.BLATHER)
+            log('nothing found', BLATHER)
             return
         for name in names:
             self._load_catalog_file(name, basepath)
@@ -317,9 +321,9 @@ class PlacelessTranslationService(Folder):
         file (e.g. locales/de/LC_MESSAGES/plone.po)
         """
         found=[]
-        log('looking into ' + basepath, zLOG.BLATHER)
+        log('looking into ' + basepath, BLATHER)
         if not os.path.isdir(basepath):
-            log('it does not exist', zLOG.BLATHER)
+            log('it does not exist', BLATHER)
             return
         
         for lang in os.listdir(basepath):
@@ -338,7 +342,7 @@ class PlacelessTranslationService(Folder):
                 self._load_catalog_file(name, msgpath, lang, domain)
 
         if not found:
-            log('nothing found', zLOG.BLATHER)
+            log('nothing found', BLATHER)
             return
         log('Initialized:', detail = repr(found) + (' from %s\n' % basepath))
 
@@ -347,8 +351,18 @@ class PlacelessTranslationService(Folder):
         context = getattr(context, 'REQUEST', context)
         if not isinstance(context, HTTPRequest):
             # try to recover
-            # XXX add logging?
-            context = get_request()
+            log('Using get_request patch.', severity=INFO)
+            # XXX: import the get_request method
+            # this will fail the first time we need it if the patch wasn't applied
+            # before
+            try:
+                from Globals import get_request
+            except ImportError:
+                from PatchStringIO import applyRequestPatch
+                applyRequestPatch()
+            else:
+                context = get_request()
+
         return context
 
     security.declareProtected(view_management_screens, 'manage_renameObject')
@@ -583,7 +597,7 @@ class PlacelessTranslationService(Folder):
             return text
 
         except:
-            log('interpolation error', zLOG.PROBLEM, error=sys.exc_info())
+            log('interpolation error', PROBLEM, error=sys.exc_info())
             return text
 
     security.declareProtected(view_management_screens, 'manage_main')

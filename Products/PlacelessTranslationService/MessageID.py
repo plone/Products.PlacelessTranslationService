@@ -17,13 +17,18 @@ Message Id factor based on the i18n/messageid file of Zope 3.
 
 Adapted for the Placeless Translation Service by Christian Heimes
 
-$Id: MessageID.py,v 1.4 2004/02/16 12:14:17 tiran Exp $
+$Id: MessageID.py,v 1.5 2004/04/20 23:38:25 tiran Exp $
 """
-
-from Globals import InitializeClass, get_request
-from AccessControl import ClassSecurityInfo
-from Products.PlacelessTranslationService import translate, utranslate
 from types import BuiltinFunctionType, UnicodeType, StringType
+
+from Globals import InitializeClass
+from AccessControl import ClassSecurityInfo
+
+from Products.PlacelessTranslationService import translate, utranslate
+
+# MessageID requires the get_request patch to work
+from PatchStringIO import applyRequestPatch
+applyRequestPatch()
 
 try:
     True
@@ -86,9 +91,9 @@ class MessageID(MessageIDBase):
     def translate(self):
         """translate the message id
         """
+        # get the context (aka request) in the translate method itself
         return translate(domain=self.domain, 
                             msgid=self.ustr, 
-                            context=get_request(),
                             mapping=self.mapping,
                             default=self.default)
 
@@ -122,10 +127,9 @@ class MessageIDUnicode(MessageIDBase):
     def translate(self):
         """translate the message id
         """
-
+        # get the context (aka request) in the translate method itself
         return utranslate(domain=self.domain, 
                             msgid=self.ustr, 
-                            context=get_request(),
                             mapping=self.mapping,
                             default=self.default)
 

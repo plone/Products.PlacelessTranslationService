@@ -17,25 +17,28 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.16 2004/04/04 23:32:32 tiran Exp $
+$Id: GettextMessageCatalog.py,v 1.17 2004/04/20 23:38:16 tiran Exp $
 """
 
-from Acquisition import aq_parent
+from gettext import GNUTranslations
+import os, sys, types, codecs, traceback
+import re
+
+from Acquisition import aq_parent, Implicit
+from DateTime import DateTime
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view, view_management_screens
 from Globals import InitializeClass
-from gettext import GNUTranslations
-import os, sys, types, codecs, traceback, zLOG
+import Globals
 from OFS.Traversable import Traversable
 from Persistence import Persistent, Overridable
-from Acquisition import Implicit
 from App.Management import Tabs
-import re
 from OFS.Uninstalled import BrokenClass
-from utils import log, Registry
+
+from utils import log, Registry, INFO, BLATHER, PROBLEM
 from msgfmt import Msgfmt
-from DateTime import DateTime
-import Globals
+
+
 
 try:
     True
@@ -151,7 +154,7 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             raise
         except:
             exc=sys.exc_info()
-            log('Message Catalog has errors', zLOG.PROBLEM, name, exc)
+            log('Message Catalog has errors', PROBLEM, name, exc)
             pts.addCatalog(BrokenMessageCatalog(name, pofile, exc))
         self = pts._getOb(name)
         if hasattr(REQUEST, 'RESPONSE'):
@@ -258,11 +261,11 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         pofile=self._pofile
         try:
             self._prepareTranslations(0)
-            log('reloading %s: %s' % (name, self.title), severity=zLOG.BLATHER)
+            log('reloading %s: %s' % (name, self.title), severity=BLATHER)
         except:
             pts._delObject(name)
             exc=sys.exc_info()
-            log('Message Catalog has errors', zLOG.PROBLEM, name, exc)
+            log('Message Catalog has errors', PROBLEM, name, exc)
             pts.addCatalog(BrokenMessageCatalog(name, pofile, exc))
         self = pts._getOb(name)
         if hasattr(REQUEST, 'RESPONSE'):

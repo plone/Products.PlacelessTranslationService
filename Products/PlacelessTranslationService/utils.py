@@ -16,10 +16,10 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: utils.py,v 1.3 2004/02/11 00:15:24 pupq Exp $
+$Id: utils.py,v 1.4 2004/04/20 23:38:27 tiran Exp $
 '''.strip()
 
-import zLOG
+from zLOG import LOG, INFO, BLATHER, PROBLEM, WARNING
 from UserDict import UserDict
 from types import UnicodeType
 import sys
@@ -37,11 +37,11 @@ class Registry(UserDict):
     def register(self, name, value):
         self[name] = value
 
-def log(msg, severity=zLOG.INFO, detail='', error=None):
-    if not NOISY_DEBUG and severity is zLOG.BLATHER:
+def log(msg, severity=INFO, detail='', error=None):
+    if not NOISY_DEBUG and severity == BLATHER:
         return
     if type(msg) is UnicodeType:
         msg = msg.encode(sys.getdefaultencoding(), 'replace')
     if type(detail) is UnicodeType:
         detail = detail.encode(sys.getdefaultencoding(), 'replace')
-    zLOG.LOG('PlacelessTranslationService', severity, msg, detail, error)
+    LOG('PlacelessTranslationService', severity, msg, detail, error)
