@@ -5,7 +5,7 @@ import re
 
 from StringIO import StringIO
 
-from TALDefs import NAME_RE
+from TAL.TALDefs import NAME_RE
 from TAL.TALDefs import I18NError
 from TAL.tests.test_talinterpreter import TestCaseBase
 from TAL.TALInterpreter import TALInterpreter
@@ -62,7 +62,7 @@ class Z3I18NCornerTestCase(TestCaseBase):
     def setUp(self):
         self.engine = Z3DummyEngine()
         self.engine.setLocal('bar', 'BaRvAlUe')
-        self.engine.setLocal('msg', MessageID('MsGiD', 'domain'))
+        self.engine.setLocal('msg', MessageID('MsGiD', 'lower'))
 
     def _check(self, program, expected):
         result = StringIO()
@@ -90,19 +90,61 @@ class Z3I18NCornerTestCase(TestCaseBase):
             '</div>')
         self._check(program,
                     '<div>THIS IS TEXT FOR <span>BARVALUE</span>.</div>\n')
-
-    def test_translate_messageid(self):
-        program, macros = self._compile('<span tal:content="msg" />')
-        self._check(program,
-                    '<span>MSGID</span>\n')
-
+    
     def test_translate_twodomains(self):
         program, macros = self._compile(
                 '<div i18n:domain="lower" i18n:translate="">TOLOWER</div>'
                 '<div i18n:domain="upper" i18n:translate="">toupper</div>')
         self._check(program,
-                    '<div>tolower</div>\n'
+                    '<div>tolower</div>'
                     '<div>TOUPPER</div>\n')
+
+    def test_translate_messageid(self):
+        program, macros = self._compile('<span tal:content="msg" />')
+        self._check(program,
+                    '<span>msgid</span>\n')
+
+    def test_translate_messageid_within_other_domain(self):
+        program, macros = self._compile('<div i18n:domain="upper"><span tal:content="msg" /></div>')
+        self._check(program,
+                    '<div><span>msgid</span></div>\n')
+
+    def test_translate_messageid_with_domain_overridden(self):
+        program, macros = self._compile('<div i18n:domain="upper"><span tal:content="msg" i18n:translate=""/></div>')
+        self._check(program,
+                    '<div><span>MSGID</span></div>\n')
+
+    def test_translate_attr_twodomains(self):
+        program, macros = self._compile(
+                '<div i18n:domain="lower" i18n:attributes="title" title="TOLOWER">TOLOWER</div>'
+                '<div i18n:domain="upper" i18n:attributes="title" title="toupper">toupper</div>')
+        self._check(program,
+                    '<div title="tolower">TOLOWER</div>'
+                    '<div title="TOUPPER">toupper</div>\n')
+
+    def test_translate_attr_messageid(self):
+        program, macros = self._compile('<span tal:content="msg" tal:attributes="title msg"/>')
+        self._check(program,
+                    '<span title="msgid">msgid</span>\n')
+
+    def test_translate_attr_messageid_within_other_domain(self):
+        program, macros = self._compile(
+                '<div i18n:domain="upper">'
+                '<span tal:content="msg" tal:attributes="title msg"/></div>')
+        self._check(program,
+                    '<div><span title="msgid">msgid</span></div>\n')
+
+    def test_translate_attr_messageid_with_domain_overridden(self):
+        program, macros = self._compile(
+                '<div i18n:domain="upper">'
+                '<span tal:content="msg" i18n:translate="" tal:attributes="title msg"/></div>')
+        self._check(program,
+                    '<div><span title="msgid">MSGID</span></div>\n')
+        program, macros = self._compile(
+                '<div i18n:domain="upper">'
+                '<span tal:content="msg" i18n:translate="" tal:attributes="title msg" i18n:attributes="title"/></div>')
+        self._check(program,
+                    '<div><span title="MSGID">MSGID</span></div>\n')
 
 
 def test_suite():
