@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: __init__.py,v 1.11 2004/02/16 18:21:37 dtremea Exp $
+$Id: __init__.py,v 1.12 2004/03/02 09:34:26 longsleep Exp $
 '''.strip()
 
 from OFS.Application import get_products
@@ -61,7 +61,6 @@ allow_module('Products.PlacelessTranslationService.MessageID')
 security.declareProtected(view, 'getTranslationService')
 def getTranslationService():
     """ returns the PTS instance """
-    #return getGlobalTranslationService()
     return translation_service
 
 security.declareProtected(view, 'translate')
@@ -112,7 +111,7 @@ def initialize(context):
     if cp_id in cp.objectIds():
         cp_ts = getattr(cp, cp_id)
         # use the ts in the acquisition context of the control panel
-        #translation_service = translation_service.__of__(cp)
+        # translation_service = translation_service.__of__(cp)
         translation_service = cp_ts
     else:
         cp_ts = make_translation_service(cp)
@@ -137,7 +136,7 @@ def initialize(context):
     ploneDir = None
     for prod in get_products():
         # prod is a tuple in the form:
-        #(priority, dir_name, index, base_dir) for each Product directory
+        # (priority, dir_name, index, base_dir) for each Product directory
         cp_ts._load_i18n_dir(os.path.join(prod[3], prod[1], 'i18n'))
         cp_ts._load_locales_dir(os.path.join(prod[3], prod[1], 'locales'))
 
