@@ -1,1 +1,1 @@
-1.0-rc8 (Unreleased)
+1.1-rc1 (CVS/Unreleased)

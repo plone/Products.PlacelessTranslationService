@@ -1,0 +1,18 @@
+# ********************************************
+# Customize this according to your environment
+# ********************************************
+
+# Zope environment settings as in http://your.zope.instance/Control_Panel
+# ***********************************************************************
+export INSTANCE_HOME=/path/to/your/instance
+export SOFTWARE_HOME=/path/to/zope/lib/python
+
+# The Python engine for Zope may not be the system default Python engine
+# **********************************************************************
+export PYTHON=/usr/bin/python
+
+# ZMySQLDA connection string to your test MySQL database.
+# Refer ZMySQLDA documentation for connection string syntax.
+# The MySQL user must have "create table" granted.
+# **********************************************************
+export DBCONNECTS="-test_bdn@localhost user password"

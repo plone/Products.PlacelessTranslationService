@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.37 2004/07/10 08:52:27 tiran Exp $
+$Id: PlacelessTranslationService.py,v 1.38 2004/07/15 09:19:19 tiran Exp $
 """
 
 import sys, os, re, fnmatch
@@ -35,6 +35,9 @@ from Negotiator import negotiator
 from Domain import Domain
 from utils import log, Registry, INFO, BLATHER, PROBLEM
 from msgfmt import PoSyntaxError
+
+from Tracker import global_tracker
+from GettextMessageCatalog import ptFile
 
 try:
     True
@@ -163,8 +166,13 @@ class PlacelessTranslationService(Folder):
     # -3 for alpha, -2 for beta, -1 for release candidate
     # for forked releases internal is always 99
     # use an internal of >99 to recreate the PTS at every startup (development mode)
-    _class_version = (1, -1, 16, 0)
+    _class_version = (1, 1, 1, -1)
     all_meta_types = ()
+
+    manage_options = Folder.manage_options + (
+        {'label': 'Tracker', 'action': 'manage_trackerForm'},)
+
+    manage_trackerForm = ptFile('manage_trackerForm', globals(), 'www', 'manage_trackerForm')
 
     security = ClassSecurityInfo()
 
@@ -504,6 +512,7 @@ class PlacelessTranslationService(Folder):
         """
         translate a message using the default encoding
         """
+        global global_tracker
         if not msgid:
             # refuse to translate an empty msgid
             return default
@@ -535,6 +544,9 @@ class PlacelessTranslationService(Folder):
             # TAL doesn't but will use the default
             # if None is returned
             text = default
+            if target_language is None:
+                target_language = self.negotiate_language(context, domain)
+            global_tracker.recordFailure(domain, msgid, target_language)
 
         # Now we need to do the interpolation
         return self.interpolate(text, mapping)
@@ -625,5 +637,18 @@ class PlacelessTranslationService(Folder):
         REQUEST.RESPONSE.setHeader('Content-type', 'text/html; charset=utf-8')
         return r
 
+    security.declareProtected(view_management_screens, 'manage_tracker')
+    def manage_tracker(self, REQUEST=None):
+        """Defers all to the global_tracker
+        """
+        global global_tracker
+        return global_tracker.manage_tracker(self, REQUEST)
+
+    security.declareProtected(view, 'getTracker')
+    def getTracker(self):
+        """The domain tracker of that PTS (used only for ZMI template)
+        """
+        global global_tracker
+        return global_tracker
 
 InitializeClass(PlacelessTranslationService)

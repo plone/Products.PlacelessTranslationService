@@ -1,0 +1,112 @@
+<h1 tal:replace="structure here/manage_page_header">Header</h1>
+<h2 tal:define="management_view string:Tracker;
+                manage_tabs_message options/manage_tabs_message | nothing"
+    tal:replace="structure here/manage_tabs">Tabs</h2>
+<tal:block i18n:domain="PlacelessTranslationService">
+
+<h2 i18n:translate="">Domain tracker</h2>
+
+<p>This utility provides hints for finding the missing msgids for a
+given domain.<p>
+
+<h3>Usage</h3>
+<p>
+<ul>
+<li>Provide the domain of your application.</li> 
+<li>Switch the domain tracker on.</li> 
+<li>Browse the pages of your site using the various favorite language preference settings.<br /> 
+You may use your browser preferences or a language tool like PloneLanguageTool for this. </li>
+<li>Come back later here to see and download .po files you can add to yourProduct.</li>
+<p>
+
+<p>Note that the domain tracking is <b>reset</b> at Zope startup!</p>
+
+<form method="post" action="manage_tracker"
+      tal:define="tracker here/getTracker">
+
+<h4>Domain</h4>
+<p>
+Choose a domain in which all untranslated msgids will be tracked. <br />
+Note : the msgids are tracked in plone set language
+</p>
+<fieldset><legend>Choose the domain to track</legend>
+
+<p><i>Warning: changing the domain will delete all msgids collected up to now.</i></p>
+
+<p>
+ <input type="submit" name="button.setdomain" value="Set domain to..." />
+ <input type="text" name="domain" value ="#"
+        tal:attributes="value tracker/domain" />
+</p>
+</fieldset>
+
+<h4>Mode</h4>
+<p>
+To record untranslated msgids, tracker has to be set <i>on</i>.
+</p>
+<fieldset><legend>Switching mode</legend>
+
+<p tal:condition="not: tracker/mode">
+ The domain tracker is actually <b>inactive</b>. Untranslated msgids are not recorded.
+</p>
+
+<p tal:condition="tracker/mode">
+ The domain tracker is actually <b>active</b>. Untranslated msgids for above domain are recorded.
+</p>
+
+<input type="submit" name="button.togglemode" value="#"
+       tal:attributes="value python:tracker.mode and 'Stop tracking' or 'Start tracking'" />
+</fieldset>
+
+<h4>Results</h4>
+<p>
+All untranslated msgids are collected here. Click <i>Download</i> to download a generated po file
+or <i>View</i> to see it.<br />
+If anormally there are no results, try to reload a plone page using your domain, and return in the tracker.
+</p>
+<fieldset><legend>Collected msgids</legend>
+
+<p tal:condition="not: tracker/msgids">
+ There is no untranslated msgid for now. Check your settings or come
+ back later.
+</p>
+
+<tal:block condition="tracker/msgids">
+
+<p>
+ A total of <b tal:content="python: len(tracker.msgids)">165</b> untranslated msgids have been found:
+</p>
+<ul>
+ <li tal:repeat="item tracker/availableLanguages">
+  <b tal:content="item">de</b>:
+  <span tal:replace="python: len(tracker.availableMsgids(language=item))">63</span>
+   msgids.
+  <input type="submit" name="#" value="Download"
+         tal:attributes="name string:button.download.po.${item}" />
+  or
+  <input type="submit" name="#" value="View here"
+         tal:attributes="name string:button.view.po.${item}" />
+  the 
+  <tt tal:content="string:${tracker/domain}-${item}.po">domain-de.po</tt> file.
+ </li>
+</ul>
+
+<p>
+ <input type="submit" name="button.download.pot" value="Download" />
+  or
+ <input type="submit" name="button.view.pot" value="View here" />
+  a <tt tal:replace="string:${tracker/domain}.pot">domain.pot</tt>
+  file with all msgids merged.
+</p>
+
+<p>
+ <input type="submit" name="button.clear" value="Clear" />
+ the recorded msgids.
+</p>
+</tal:block>
+</fieldset>
+
+</form>
+
+</tal:block>
+<h1 tal:replace="structure here/manage_page_footer">Footer</h1>
