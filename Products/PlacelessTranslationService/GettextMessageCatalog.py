@@ -17,12 +17,11 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.3.2.4 2003/12/24 23:44:12 tiran Exp $
+$Id: GettextMessageCatalog.py,v 1.3.2.5 2003/12/25 19:38:19 tiran Exp $
 """
 
-from gettext import GNUTranslations, NullTranslations
+from gettext import GNUTranslations
 import os, types, codecs
-from types import DictType, StringType, UnicodeType
 from OFS.Traversable import Traversable
 from Persistence import Persistent
 from Acquisition import Implicit
@@ -70,12 +69,16 @@ translationRegistry = Registry()
 registerTranslation = translationRegistry.register
 
 def getMessage(catalog, id, orig_text=None):
-    """
+    """get message from catalog
+    
+    returns the message according to the id 'id' from the catalog 'catalog' or
+    raises a KeyError if no translation was found. The return type is always
+    unicode
     """
     msg = catalog.gettext(id)
     if msg is id:
         raise KeyError
-    if type(msg) is StringType:
+    if type(msg) is types.StringType:
         msg = unicode(msg, catalog._charset)
     return msg
 
@@ -88,8 +91,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     icon = 'misc_/PlacelessTranslationService/GettextMessageCatalog.png'
     __roles__=('Manager',)
     title__roles__=__roles__
-    
-    _file_mod_time = 0
+    _file_mod_time = None
     
     def __init__(self, pofile):
         """Initialize the message catalog"""
@@ -98,11 +100,12 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         self._prepareTranslations()
 
     def _prepareTranslations(self):
-        """ """
+        """Generate the translation object from a po file
+        """
         self._updateFromFS()
         tro = None
         if getattr(self, '_v_tro', None) is None:
-            self._v_tro = tro = translationRegistry.get(self.id, None)
+            self._v_tro = tro = translationRegistry.get(self.getId(), None)
         if tro is None:
             moFile = self._getMoFile()
             tro = GNUTranslations(moFile)
@@ -110,15 +113,14 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
                            or tro._info.get('language', None)) # old way
             self._domain = tro._info.get('domain', None)
             if self._language is None or self._domain is None:
-                raise ValueError, 'potfile has no metadata'
+                raise ValueError, 'potfile has no metadata, PTS needs a language and a message domain!'
             self._language = self._language.lower().replace('_', '-')
             self._other_languages = tro._info.get('x-is-fallback-for', '').split()
             self.preferred_encodings = tro._info.get('preferred-encodings', '').split()
             self.name = unicode(tro._info.get('language-name', ''), tro._charset)
             self.default_zope_data_encoding = tro._charset
-            translationRegistry[self.id] = self._v_tro = tro
-            # XXX check it
-            missingFileName = self._pofile[:-2] + 'missing'
+            translationRegistry[self.getId()] = self._v_tro = tro
+            missingFileName = self._pofile[:-2] + '.missing'
             if os.access(missingFileName, os.W_OK):
                 self._missing = MissingIds(missingFileName, self._v_tro._charset)
             else:
@@ -132,24 +134,27 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         return self.manage_options
 
     def reload(self, REQUEST=None):
-        "Forcibly re-read the file"
-        if self.id in translationRegistry.keys():
-            del translationRegistry[self.id]
+        """Forcibly re-read the file
+        """
+        if self.getId() in translationRegistry.keys():
+            del translationRegistry[self.getId()]
         if hasattr(self, '_v_tro'):
             del self._v_tro
         self._prepareTranslations()
-        log('reloading %s: %s' % (self.id, self.title))
+        log('reloading %s: %s' % (self.getId(), self.title))
         if hasattr(REQUEST, 'RESPONSE'):
             if not REQUEST.form.has_key('noredir'):
                 REQUEST.RESPONSE.redirect(self.absolute_url())
 
     def _log_missing(self, id, orig_text):
+        """Logging missing ids
+        """
         if self._missing is None:
             return
         self._missing.log(id, orig_text)
 
     def getMessage(self, id, orig_text=None, testing=False):
-        """
+        """get message from catalog
         """
         self._prepareTranslations()
         try:
@@ -160,12 +165,14 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             raise
         return msg
 
-    queryMessage__roles__=None # Public
+    queryMessage__roles__ = None # Public
     def queryMessage(self, id, default=None):
-        """
+        """Queries the catalog for a message
+        
+        If the message wasn't found the default value or the id is returned.
         """
         try:
-            return self.getMessage(id, default, testing=True)
+            return self.getMessage(id, default) #, testing=True)
         except KeyError:
             if default is None:
                 default = id
@@ -212,7 +219,8 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         return self.title
         
     def _getMoFile(self):
-        """ returns the translation object """
+        """get compiled version of the po file as file object
+        """
         mo = Msgfmt(self._readFile())
         return mo.getAsFile()
         
@@ -234,7 +242,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     def _updateFromFS(self):
         """Refresh our contents from the filesystem
         
-        if that is newer and we are running in debug mode.
+        if the file is newer and we are running in debug mode.
         """
         if Globals.DevelopmentMode:
             try:
@@ -293,6 +301,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         keys.sort()
         return [{'name': k, 'value': info[k]} for k in keys] + [
             {'name': 'full path', 'value': self._pofile},
+            {'name': 'last modification', 'value': self.getModTime().ISO()}
             ]
     #
     ############################################################
