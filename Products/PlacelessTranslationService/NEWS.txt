@@ -8,8 +8,11 @@
     Always append fallback catalogs to the catalogs
     used for translation
 
-    Move GlobalCatalogs from INSTANCE_HOME/i18n/ to the
-    beginning of the catalogs used for translation
+    Support INSTANCE_HOME/locales/
+    
+    Move GlobalCatalogs from INSTANCE_HOME/i18n/ and
+    INSTANCE_HOME/locales/ to the beginning of the
+    catalogs used for translation
 
 1.0fork-rc3 - 2004-03-09
 

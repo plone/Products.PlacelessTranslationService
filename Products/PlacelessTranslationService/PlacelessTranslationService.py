@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.27 2004/04/04 23:45:53 tiran Exp $
+$Id: PlacelessTranslationService.py,v 1.28 2004/04/05 00:42:54 tiran Exp $
 """
 
 import sys, re, zLOG, Globals, fnmatch
@@ -45,7 +45,6 @@ except NameError:
     False=0
 
 _marker = []
-
 
 def map_get(map, name):
     return map.get(name)
@@ -150,7 +149,7 @@ class PlacelessTranslationService(Folder):
     # -3 for alpha, -2 for beta, -1 for release candidate
     # for forked releases internal is always 99
     # use an internal of >99 to recreate the PTS at every startup (development mode)
-    _class_version = (1, -1, 13, 99)
+    _class_version = (1, -1, 13, 199)
     all_meta_types = ()
 
     security = ClassSecurityInfo()
@@ -199,17 +198,47 @@ class PlacelessTranslationService(Folder):
     def calculatePoId(self, name, popath):
         """Calulate the po id 
         """
-        p = popath.split(os.sep)
-        try:
-            idx = p.index('Products')
-        except ValueError:
-            idx = None
-        if idx:
-            # po file is located in a product
-            # pre is MyProducts.i18n or MyProducts.locales
-            pre = '.'.join(p[idx+1:idx+3])
+        # instance, software and global catalog path for i18n and locales
+        iPath       = os.path.join(INSTANCE_HOME, 'Products') + os.sep
+        sPath       = os.path.join(SOFTWARE_HOME, 'Products') + os.sep
+        gci18nNPath = os.path.join(INSTANCE_HOME, 'i18n')
+        gcLocPath   = os.path.join(INSTANCE_HOME, 'locales')
+
+        # a global catalog is 
+        isGlobalCatalog = False
+        
+        # remove [isg]Path from the popath
+        if popath.startswith(iPath):
+            path = popath[len(iPath):]
+        elif popath.startswith(sPath):
+            path = popath[len(sPath):]
+        elif popath.startswith(gci18nNPath):
+            path = popath[len(gci18nNPath):]
+            isGlobalCatalog = True
+        elif popath.startswith(gcLocPath):
+            path = popath[len(gcLocPath):]
+            isGlobalCatalog = True
         else:
+            # po file is located at a strange place
+            # calculate the name using the position of the i18n/locales directory
+            p = popath.split(os.sep)
+            try:
+                idx = p.index('i18n')
+            except ValueError:
+                try:
+                    idx = p.index('locales')
+                except ValueError:
+                    raise OSError('Invalid po path %s for %s. That should not happen' % (popath, name))       
+            path = os.path.join(p[idx-1],p[idx])
+
+        # the po file name is GlobalCatalogs-$name or MyProducts.i18n-$name
+        # or MyProducts.locales-$name
+        if not isGlobalCatalog:
+            p = path.split(os.sep)
+            pre = '.'.join(p[:2])
+        else: 
             pre = 'GlobalCatalogs'
+
         return '%s-%s' % (pre, name)
 
     def _load_catalog_file(self, name, popath, language=None, domain=None):

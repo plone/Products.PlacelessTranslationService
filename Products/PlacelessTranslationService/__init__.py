@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: __init__.py,v 1.12 2004/03/02 09:34:26 longsleep Exp $
+$Id: __init__.py,v 1.13 2004/04/05 00:42:54 tiran Exp $
 '''.strip()
 
 from OFS.Application import get_products
@@ -144,7 +144,11 @@ def initialize(context):
     instance_i18n = os.path.join(INSTANCE_HOME, 'i18n')
     if os.path.isdir(instance_i18n):
         cp_ts._load_i18n_dir(instance_i18n)
-        
+
+    instance_locales = os.path.join(INSTANCE_HOME, 'locales')
+    if os.path.isdir(instance_locales):
+        cp_ts._load_locales_dir(instance_locales)
+
     # didn't found any catalogs
     if not cp_ts.objectIds():
         log('no translations found!', zLOG.PROBLEM)
