@@ -101,22 +101,21 @@ ZTUtils.Zope.complex_marshal = new_complex_marshal
 
 old_processInputs = ZPublisher.HTTPRequest.HTTPRequest.processInputs
 def new_processInputs(self, *args, **kw):
-        old_processInputs(self, *args, **kw)
-	d = {}
-	for key, value in self.form.items():
-	    if key.endswith('@i18n'):
-		l = key.split('@')
-		#XXX empty mapping 
-		id = '@'.join(l[:-2])
-		msg = d.setdefault(id, {})
-		msg[l[-2]] = value
-		del self.form[key]
-	for key, value in d.items():
-	    id = value['id']
-	    domain = value['domain']
-	    default = value['default']
-	    msg=MessageID(id, domain, default)
-	    msg.mapping.update(dict(value.get('mapping', {})))
-	    self.form[key] = msg
+    old_processInputs(self, *args, **kw)
+    d = {}
+    for key, value in self.form.items():
+        if key.endswith('@i18n'):
+            l = key.split('@')
+            id = '@'.join(l[:-2])
+            msg = d.setdefault(id, {})
+            msg[l[-2]] = value
+            del self.form[key]
+    for key, value in d.items():
+        id = value['id']
+        domain = value['domain']
+        default = value['default']
+        msg=MessageID(id, domain, default)
+        msg.mapping.update(dict(value.get('mapping', {})))
+        self.form[key] = msg
 
 ZPublisher.HTTPRequest.HTTPRequest.processInputs = new_processInputs
