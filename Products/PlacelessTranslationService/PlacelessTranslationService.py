@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.25 2004/03/18 21:03:21 psol Exp $
+$Id: PlacelessTranslationService.py,v 1.26 2004/04/04 23:21:20 tiran Exp $
 """
 
 import sys, re, zLOG, Globals, fnmatch
@@ -150,7 +150,7 @@ class PlacelessTranslationService(Folder):
     # -3 for alpha, -2 for beta, -1 for release candidate
     # for forked releases internal is always 99
     # use an internal of >99 to recreate the PTS at every startup (development mode)
-    _class_version = (1, -1, 12, 99)
+    _class_version = (1, -1, 13, 99)
     all_meta_types = ()
 
     security = ClassSecurityInfo()
@@ -195,18 +195,29 @@ class PlacelessTranslationService(Folder):
         self._unregister_inner(catalog, fbcatalogRegistry)
         self._p_changed = 1
 
+    security.declarePrivate('calculatePoId')
+    def calculatePoId(self, name, popath):
+        """Calulate the po id 
+        """
+        p = popath.split(os.sep)
+        try:
+            idx = p.index('Products')
+        except ValueError:
+            idx = None
+        if idx:
+            # po file is located in a product
+            # pre is MyProducts.i18n or MyProducts.locales
+            pre = '.'.join(p[idx+1:idx+3])
+        else:
+            pre = 'GlobalCatalogs'
+        return '%s-%s' % (pre, name)
+
     def _load_catalog_file(self, name, popath, language=None, domain=None):
         """
         create catalog instances in ZODB
         """
 
-        # get the current path to compute the id
-        p = popath.split(os.sep)
-        try: p = '.'.join(p[p.index('Products'):])+'.'
-        except: p = ''
-
-        # compute id        
-        id = p+name
+        id = self.calculatePoId(name, popath)
 
         # validate id
         try: self._checkId(id, 1)
@@ -346,7 +357,7 @@ class PlacelessTranslationService(Folder):
         log('adding %s: %s' % (catalog.id, catalog.title))
         self._registerMessageCatalog(catalog)
 
-    security.declarePrivate('getCatalogs')
+    security.declarePrivate('getCatalogsForTranslation')
     def getCatalogsForTranslation(self, context, domain, target_language=None):
         # ZPT passes the object as context.  That's wrong according to spec.
         context = self._getContext(context)
@@ -354,15 +365,24 @@ class PlacelessTranslationService(Folder):
         if target_language is None:
             target_language = self.negotiate_language(context, domain)
 
-        # Get the translation. Use the specified fallbacks if this fails
+        # get the catalogs for translations
         catalog_names = catalogRegistry.get((target_language, domain), ()) or \
                         fbcatalogRegistry.get((target_language, domain), ())
-        if not catalog_names:
-            for language in self._fallbacks:
-                catalog_names = catalogRegistry.get((language, domain),  ())
-                if catalog_names:
-                    break
 
+        # get fallback catalogs
+        for language in self._fallbacks:
+            fallback_catalog_names = catalogRegistry.get((language, domain),  ())
+            if fallback_catalog_names:
+                catalog_names = catalog_names + fallback_catalog_names
+
+        # move global catalogs to the beginning to allow overwriting
+        # message ids by placing a po file in INSTANCE_HOME/i18n
+        for i in range(len(catalog_names)):
+            catalog_name = catalog_names[i]
+            if catalog_name.startswith('GlobalCatalogs-'):
+                del catalog_names[i]
+                catalog_names.insert(0, catalog_name)
+                
         return [translationRegistry[name] for name in catalog_names ]
 
     security.declarePrivate('setLanguageFallbacks') 
