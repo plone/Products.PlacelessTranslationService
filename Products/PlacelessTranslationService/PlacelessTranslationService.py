@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.24 2004/03/09 11:03:15 longsleep Exp $
+$Id: PlacelessTranslationService.py,v 1.25 2004/03/18 21:03:21 psol Exp $
 """
 
 import sys, re, zLOG, Globals, fnmatch
@@ -31,6 +31,7 @@ from Domain import Domain
 from utils import log, Registry
 from msgfmt import PoSyntaxError
 from GettextMessageCatalog import BrokenMessageCatalog, GettextMessageCatalog, translationRegistry, getMessage
+from ZPublisher.HTTPRequest import HTTPRequest
 import os
 try:
     from pax import XML
@@ -304,7 +305,7 @@ class PlacelessTranslationService(Folder):
     def _getContext(self, context):
         # ZPT passes the object as context.  That's wrong according to spec.
         context = getattr(context, 'REQUEST', context)
-        if not hasattr(context, 'SESSION'):
+        if not isinstance(context, HTTPRequest):
             # try to recover
             # XXX add logging?
             context = get_request()
