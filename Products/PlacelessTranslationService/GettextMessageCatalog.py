@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.17 2004/04/20 23:38:16 tiran Exp $
+$Id: GettextMessageCatalog.py,v 1.18 2004/04/22 19:29:38 tiran Exp $
 """
 
 from gettext import GNUTranslations
@@ -347,7 +347,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     def _getMoFile(self):
         """get compiled version of the po file as file object
         """
-        mo = Msgfmt(self._readFile())
+        mo = Msgfmt(self._readFile(), self.getId())
         return mo.getAsFile()
         
     def _readFile(self, reparse=False):

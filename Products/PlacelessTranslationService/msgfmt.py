@@ -53,8 +53,9 @@ class PoSyntaxError(Exception):
 
 class Msgfmt:
     """ """
-    def __init__(self, po):
+    def __init__(self, po, name='unknown'):
         self.po = po
+        self.name = name
         self.messages = {}
 
     def readPoData(self):
@@ -164,13 +165,13 @@ class Msgfmt:
             try:
                 l = eval(l, globals())
             except Exception, msg:
-                raise PoSyntaxError('%s (line %d of the po file): \n%s' % (msg, lno, l))
+                raise PoSyntaxError('%s (line %d of po file %s): \n%s' % (msg, lno, self.name, l))
             if section == ID:
                 msgid += l
             elif section == STR:
                 msgstr += l
             else:
-                raise PoSyntaxError('error in line %d' % lno)
+                raise PoSyntaxError('error in line %d of po file %s' % (lno, self.name))
 
         # Add last entry
         if section == STR:
