@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.3 2003/11/20 16:14:51 tesdal Exp $
+$Id: GettextMessageCatalog.py,v 1.3.2.1 2003/12/22 18:12:54 tiran Exp $
 """
 
 from gettext import GNUTranslations
@@ -29,6 +29,11 @@ from Acquisition import Implicit
 from App.Management import Tabs
 import re
 from PlacelessTranslationService import log, Registry
+from cStringIO import StringIO
+from msgfmt import make as compileMo
+from Products.CMFCore.utils import expandpath
+from DateTime import DateTime
+import Globals
 
 try:
     True
@@ -78,29 +83,32 @@ def getMessage(catalog, id, orig_text=None):
 
 class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     """
-    Message catalog that wraps a .mo file in the filesystem
+    Message catalog that wraps a .po file in the filesystem and stores
+    the compiled po file in the zodb
     """
     meta_type = title = 'Gettext Message Catalog'
     icon = 'misc_/PlacelessTranslationService/GettextMessageCatalog.png'
     __roles__=('Manager',)
     title__roles__=__roles__
-
-    def __init__(self, path_to_file):
+    
+    _file_mod_time = 0
+    _parsed = 0
+    
+    def __init__(self, pofile):
         """Initialize the message catalog"""
-        self._path_to_file = path_to_file
-        self.id = os.path.split(self._path_to_file)[-1]
-        #self.id = self._path_to_file.replace('/', '::')
+        self._pofile = pofile
+        self.id = os.path.split(self._pofile)[-1].split('.')[0]
         self._prepareTranslations()
 
     def _prepareTranslations(self):
         """ """
+        self._updateFromFS()
         tro = None
         if getattr(self, '_v_tro', None) is None:
             self._v_tro = tro = translationRegistry.get(self.id, None)
         if tro is None:
-            file = open(self._path_to_file, 'rb')
-            tro = GNUTranslations(file)
-            file.close()
+            mo = self._getMo()
+            tro = GNUTranslations(mo)
             self._language = (tro._info.get('language-code', None) # new way
                            or tro._info.get('language', None)) # old way
             self._domain = tro._info.get('domain', None)
@@ -112,7 +120,8 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             self.name = unicode(tro._info.get('language-name', ''), tro._charset)
             self.default_zope_data_encoding = tro._charset
             translationRegistry[self.id] = self._v_tro = tro
-            missingFileName = self._path_to_file[:-1] + 'issing'
+            # XXX check it
+            missingFileName = self._pofile[:-1] + 'issing'
             if os.access(missingFileName, os.W_OK):
                 self._missing = MissingIds(missingFileName, self._v_tro._charset)
             else:
@@ -204,6 +213,68 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     Title__roles__ = __roles__
     def Title(self):
         return self.title
+        
+    def _getMo(self):
+        """ returns the mo data as StringIO """
+        self._updateFromFS()
+        modata = compileMo(self._readFile())
+        return StringIO(modata)
+            
+        
+    def _readFile(self, reparse=False):
+        """Read the data from the filesystem.
+        
+        Read the file indicated by exandpath(self._pofile), and parse the
+        data if necessary.  'reparse' is set when reading the second
+        time and beyond.
+        """ 
+        fp = expandpath(self._pofile)
+        file = open(fp, 'rb')
+        try:
+             data = file.readlines()
+        finally:
+             file.close()
+        if reparse:
+            # XXX right?
+            #self.reload()
+            pass
+        return data 
+        
+    # Refresh our contents from the filesystem if that is newer and we are
+    # running in debug mode.
+    def _updateFromFS(self):
+        parsed = self._parsed
+        if not parsed or Globals.DevelopmentMode:
+            # XXX right?
+            #self.reload()
+            fp = expandpath(self._pofile)
+            try:
+                mtime=os.stat(fp)[8]
+            except:
+                mtime=0
+            if not parsed or mtime != self._file_mod_time:
+                # if we have to read the file again, remove the cache
+                self._readFile(1)
+                self._file_mod_time = mtime
+                self._parsed = 1    
+
+    def get_size(self):
+        """Get the size of the underlying file."""
+        fp = expandpath(self._pofile)
+        return os.path.getsize(fp)
+
+    def getModTime(self):
+        """Return the last_modified date of the file we represent.
+
+        Returns a DateTime instance.
+        """
+        self._updateFromFS()
+        return DateTime(self._file_mod_time)
+
+    def getObjectFSPath(self):
+        """Return the path of the file we represent"""
+        self._updateFromFS()
+        return self._pofile
 
     ############################################################
     # Zope/OFS integration
@@ -224,7 +295,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     file_exists__roles__ = __roles__
     def file_exists(self):
         try:
-            file = open(self._path_to_file, 'rb')
+            file = open(self._pofile, 'rb')
         except:
             return False
         return True
@@ -236,7 +307,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         keys = info.keys()
         keys.sort()
         return [{'name': k, 'value': info[k]} for k in keys] + [
-            {'name': 'full path', 'value': self._path_to_file},
+            {'name': 'full path', 'value': self._pofile},
             ]
     #
     ############################################################

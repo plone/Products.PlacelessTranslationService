@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.6 2003/11/24 20:57:39 longsleep Exp $
+$Id: PlacelessTranslationService.py,v 1.6.2.1 2003/12/22 18:12:54 tiran Exp $
 """
 
 import sys, re, zLOG, Globals, fnmatch
@@ -170,7 +170,7 @@ class PlacelessTranslationService(Folder):
         if not os.path.isdir(basepath):
             log('it does not exist', zLOG.BLATHER)
             return
-        names = fnmatch.filter(os.listdir(basepath), '*.mo')
+        names = fnmatch.filter(os.listdir(basepath), '*.po')
         if not names:
             log('nothing found', zLOG.BLATHER)
             return

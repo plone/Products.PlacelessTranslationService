@@ -15,10 +15,11 @@ This file was taken from Python-2.3.2/Tools/i18n and altered in several ways.
 Now you can simply use it from another python module:
 
   from msgfmt import make
-  po = open('mypofile.po')
+  po = open('mypofile.po').readlines()
   mo = make(po)
 
-where po is a file handler to a po file and mo is the compiled mo file as string.
+where po is list of strings (readlines of a po file) and mo is the compiled mo
+file as string.
 
 Exceptions:
 
@@ -95,25 +96,16 @@ def generate():
 
 
 
-def make(infile):
+def make(podata):
     ID = 1
     STR = 2
 
-    # rewind to make shure we start from the beginning
-    infile.seek(0)
-
-    #try:
-    # XXX this could raise an IOError
-    lines = infile.readlines()
-    #except IOError, msg:
-    #    do something
-    
     section = None
     fuzzy = 0
 
     # Parse the catalog
     lno = 0
-    for l in lines:
+    for l in podata:
         lno += 1
         # If we get a comment line after a msgstr, this is a new entry
         if l[0] == '#' and section == STR:
