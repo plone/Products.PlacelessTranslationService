@@ -1,3 +1,26 @@
+zope-pts (1.0.fork-rc4-1) unstable; urgency=low
+
+  * New upstream release 
+
+  * Changed po file id creation:
+     - id is MyProducts.i18n-pofile or MyProducts.locales-pofile 
+       for po files loaded from a product directory
+     - id is GlobalCatalogs-pofile for po files loaded from
+       INSTANCE_HOME/i18n/
+    
+  * Always append fallback catalogs to the catalogs
+    used for translation
+
+  * Support INSTANCE_HOME/locales/
+    
+  * Move GlobalCatalogs from INSTANCE_HOME/i18n/ and
+    INSTANCE_HOME/locales/ to the beginning of the
+    catalogs used for translation
+
+  * Cache catalog names in the REQUEST using the domain and language as key
+
+ -- Christian Heimes <heimes@faho.rwth-aachen.de>  Mon,  5 Apr 2004 15:13:19 +0200
+
 zope-pts (1.0.fork-rc3-1) unstable; urgency=low
 
   * New upstream release 

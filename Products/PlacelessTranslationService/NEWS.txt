@@ -1,4 +1,5 @@
-1.0fork-rc4
+1.0fork-rc4 - 2004-04-05
+
     Changed po file id creation:
      - id is MyProducts.i18n-pofile or MyProducts.locales-pofile 
        for po files loaded from a product directory
