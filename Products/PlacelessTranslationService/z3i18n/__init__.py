@@ -108,19 +108,12 @@ def new_attrAction_tal(self, item):
         value = '%s="%s"' % (name, value)
     return ok, name, value
     
-
-
 TALInterpreter.do_insertText_tal = new_do_insertText_tal
 TALInterpreter.bytecode_handlers_tal["insertText"] = new_do_insertText_tal
 TALInterpreter.do_i18nVariable = new_do_i18nVariable
 TALInterpreter.bytecode_handlers['i18nVariable'] = new_do_i18nVariable
-print 'b'
 TALInterpreter.attrAction_tal = new_attrAction_tal
 TALInterpreter.bytecode_handlers_tal["<attrAction>"] = new_attrAction_tal
-
-print 'a'
-
-
 
 old_translate = PTSWrapper.translate
 def new_translate(self, domain, *args, **kw):
