@@ -17,15 +17,16 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
 
-$Id: Negotiator.py,v 1.6 2003/11/20 21:16:08 longsleep Exp $
+$Id: Negotiator.py,v 1.6.4.1 2004/01/29 00:06:31 tiran Exp $
 """
+
+import types
 
 try:
     True
 except NameError:
     True=1
     False=0
-
 
 _langPrefsRegistry = {}
 
@@ -46,9 +47,14 @@ def registerLangPrefsMethod(prefs, kind='language'):
     # sort by priority
     _langPrefsRegistry[kind].sort(lambda x, y: cmp(x['priority'], y['priority']))
 
-def getLangPrefsMethod(env, kind='language'):
+def getLangPrefs(env, kind='language'):
     # get higest prio method for kind
-    return _langPrefsRegistry[kind][-1]['klass'](env)
+    for pref in  _langPrefsRegistry[kind]:
+        handler = pref['klass'](env)
+        accepted = handler.getAccepted(env, kind)
+        if accepted:
+            return accepted
+    return ()
 
 def lang_normalize(lang):
     return lang.replace('_', '-')
@@ -149,8 +155,63 @@ class BrowserAccept:
 
         return [accept[1] for accept in accepts]
 
+class SessionAccept:
 
-registerLangPrefsMethod({'klass':BrowserAccept,'priority':10 }, 'language')
+    filters = (str_lower, lang_normalize)
+
+    def __init__(self, request):
+        pass
+
+    def getAccepted(self, request, kind='language'):
+        language = request.SESSION.get('PTS_language', None)
+        if language:
+            if type(language) is types.TupleType:
+                return language
+            else:
+                #filter
+                for filter in self.filters:
+                    language = filter(language)
+                return (language,)
+        else:
+            return ()
+
+class RequestGetAccept:
+
+    filters = (str_lower, lang_normalize)
+
+    def __init__(self, request):
+        pass
+
+    def getAccepted(self, request, kind='language'):
+        # get
+        form = request.form
+        language=form.get('language', None)
+        setLanguage=form.get('setlanguage', None)
+        
+        if language:
+            #filter
+            for filter in self.filters:
+                language = filter(language)
+            try:
+                if setLanguage == 1 or setLanguage.lower() in ('1','true', 'yes'):
+                    setLanguage = True
+                else:
+                    setLanguage = False
+            except (ValueError, AttributeError), msg:
+                # XXX log?
+                setLanguage = False
+            if setLanguage:
+                # request.RESPONE.setCookie('language', language)
+                request.SESSION['PTS_language'] = (language,)
+            return (language,)
+        else:
+            return ()
+
+
+#registerLangPrefsMethod({'klass':BrowserAccept,   'priority':10 }, 'language')
+registerLangPrefsMethod({'klass':SessionAccept,   'priority':40 }, 'language')
+registerLangPrefsMethod({'klass':RequestGetAccept,'priority':50 }, 'language')
+
 registerLangPrefsMethod({'klass':BrowserAccept,'priority':10 }, 'content-type')
 
 
@@ -170,16 +231,15 @@ class Negotiator:
             # Store cache in request object
             cache = {}
             request.set(cache_name, cache)
-        try:
-            return cache[choices]
-        except KeyError:
-            cache[choices] = self._negotiate(choices, request, kind)
-            return cache[choices]
+        #try:
+        #    return cache[choices]
+        #except KeyError:
+        cache[choices] = self._negotiate(choices, request, kind)
+        return cache[choices]
 
     def _negotiate(self, choices, request, kind):
         
-        envprefs = getLangPrefsMethod(request, kind)
-        userchoices = envprefs.getAccepted(request, kind)
+        userchoices = getLangPrefs(request, kind)
         # Prioritize on the user preferred choices.  Return the first user
         # preferred choice that the object has available.
         test = self.tests.get(kind, _false)
@@ -196,8 +256,7 @@ class Negotiator:
         return self.negotiate(langs, request, 'language')
 
     def getLanguages(self, request):
-        envprefs = getLangPrefsMethod(request, 'language')
-        return envprefs.getAccepted(request, 'language')
+        return getLangPrefs(request, 'language')
 
 
 negotiator = Negotiator()
