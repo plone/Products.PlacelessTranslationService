@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.12 2004/03/01 10:32:27 tiran Exp $
+$Id: GettextMessageCatalog.py,v 1.13 2004/03/08 10:07:45 longsleep Exp $
 """
 
 from Acquisition import aq_parent
@@ -96,9 +96,10 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     security = ClassSecurityInfo()
     security.declareObjectProtected(view_management_screens)
  
-    def __init__(self, pofile, error):
+    def __init__(self, id, pofile, error):
         self._pofile = pofile
-        self.id = os.path.split(self._pofile)[-1]
+        #self.id = os.path.split(self._pofile)[-1]
+        self.id = id
         self._mod_time = self._getModTime()
         self.error = traceback.format_exception(error[0],error[1],error[2])
 
@@ -184,10 +185,11 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     security = ClassSecurityInfo()
     security.declareObjectProtected(view_management_screens)
     
-    def __init__(self, pofile, language=None, domain=None):
+    def __init__(self, id, pofile, language=None, domain=None):
         """Initialize the message catalog"""
         self._pofile   = pofile
-        self.id        = os.path.split(self._pofile)[-1]
+        #self.id        = os.path.split(self._pofile)[-1]
+        self.id        = id
         self._mod_time = self._getModTime()
         self._language = language
         self._domain   = domain

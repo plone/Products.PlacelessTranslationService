@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.21 2004/03/02 09:27:48 longsleep Exp $
+$Id: PlacelessTranslationService.py,v 1.22 2004/03/08 10:07:45 longsleep Exp $
 """
 
 import sys, re, zLOG, Globals, fnmatch
@@ -149,7 +149,7 @@ class PlacelessTranslationService(Folder):
     # -3 for alpha, -2 for beta, -1 for release candidate
     # for forked releases internal is always 99
     # use an internal of >99 to recreate the PTS at every startup (development mode)
-    _class_version = (1, -1, 10, 99)
+    _class_version = (1, -1, 11, 99)
     all_meta_types = ()
 
     security = ClassSecurityInfo()
@@ -198,16 +198,32 @@ class PlacelessTranslationService(Folder):
         """
         create catalog instances in ZODB
         """
-        ob = self._getOb(name, _marker)
+
+        # get the current path to compute the id
+        p = popath.split(os.sep)
+        try: p = '.'.join(p[p.index('Products'):])+'.'
+        except: p = ''
+
+        # compute id        
+        id = p+name
+
+        # validate id
+        try: self._checkId(id)
+        except: id=name # fallback mode for borked paths
+
+        # the po file path
+        pofile = os.path.join(popath, name)
+
+        ob = self._getOb(id, _marker)
         try:
             if isinstance(ob, BrokenMessageCatalog):
                 # remove broken catalog
-                self._delObject(name)
+                self._delObject(id)
                 ob = _marker
         except: pass
         try:
             if ob is _marker:
-                self.addCatalog(GettextMessageCatalog(os.path.join(popath, name), language, domain))
+                self.addCatalog(GettextMessageCatalog(id, pofile, language, domain))
             else:
                 self.reloadCatalog(ob)
         except IOError:
@@ -215,13 +231,13 @@ class PlacelessTranslationService(Folder):
             # not accessable 
             try:
                 # remove false catalog from PTS instance
-                self._delObject(name)
+                self._delObject(id)
             except:
                 pass
         except:
              exc=sys.exc_info()
              log('Message Catalog has errors', zLOG.PROBLEM, name, exc)
-             self.addCatalog(BrokenMessageCatalog(os.path.join(popath, name), exc))
+             self.addCatalog(BrokenMessageCatalog(id, pofile, exc))
 
     def _load_i18n_dir(self, basepath):
         """
