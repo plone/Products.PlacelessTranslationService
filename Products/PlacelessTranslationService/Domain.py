@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
 
-$Id: Domain.py,v 1.3 2003/11/20 16:14:51 tesdal Exp $
+$Id: Domain.py,v 1.4 2004/05/04 21:56:03 dreamcatcher Exp $
 """
 
 class Domain:
@@ -29,7 +29,7 @@ class Domain:
     def getDomainName(self):
         """Return the domain name"""
         return self._domain
-    
+
 
     def translate(self, msgid, mapping=None, context=None,
                   target_language=None):

@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
 
-$Id: Negotiator.py,v 1.9 2004/03/08 09:28:47 longsleep Exp $
+$Id: Negotiator.py,v 1.10 2004/05/04 21:56:03 dreamcatcher Exp $
 """
 
 import types
@@ -128,7 +128,7 @@ class BrowserAccept:
         length=len(req_accepts)
         filters = self.filters.get(kind, ())
 
-        # parse quality strings and build a tuple 
+        # parse quality strings and build a tuple
         # like ((float(quality), lang), (float(quality), lang))
         # which is sorted afterwards
         # if no quality string is given then the list order
@@ -208,7 +208,7 @@ class RequestGetAccept:
         form = request.form
         language=form.get('language', None)
         setLanguage=form.get('setlanguage', None)
-        
+
         if language:
             #filter
             for filter in self.filters:
@@ -262,7 +262,7 @@ class Negotiator:
         return cache[choices]
 
     def _negotiate(self, choices, request, kind):
-        
+
         userchoices = getLangPrefs(request, kind)
         # Prioritize on the user preferred choices.  Return the first user
         # preferred choice that the object has available.

@@ -61,7 +61,7 @@ def applyRequestPatch():
     if not hasattr(Publish, '_requests'):
         log('Applying patch', severity=INFO,
             detail='*** Patching ZPublisher.Publish with the get_request patch! ***')
-	# Apply patch
+        # Apply patch
         Publish._requests = {}
         Publish.old_publish = Publish.publish
         Publish.publish = new_publish

@@ -26,7 +26,7 @@ Limitations:
  * write is unicode aware
  * readlines does't guarantee lines
  * no len value available
- 
+
 You need the global request patch from PlacelessTranslationService!
 
 Based on the StringIO module from python 2.3
@@ -45,7 +45,7 @@ from TAL.TALInterpreter import _write_ValueError
 
 class FasterStringIO:
     """class FasterStringIO([buffer])
-    
+
     unicode aware and restricted version of StringIO for Zope's TAL
     """
     def __init__(self, buf = ''):
@@ -82,7 +82,7 @@ class FasterStringIO:
         return False
 
     def seek(self, pos, mode = 0):
-            raise RuntimeError("FasterStringIO doesn't support seeking")
+        raise RuntimeError("FasterStringIO doesn't support seeking")
 
     def tell(self):
         if self.closed:
@@ -104,13 +104,13 @@ class FasterStringIO:
         return self.buf
 
     def truncate(self, size=None):
-            raise RuntimeError("FasterStringIO doesn't support truncating")
+        raise RuntimeError("FasterStringIO doesn't support truncating")
 
     def write(self, s):
         if self.closed:
             raise ValueError("I/O operation on closed file")
         if not s: return
-       
+
         if isinstance(s, UnicodeType):
             # XXX: import the get_request method
             # this will fail the first time we need it if the patch wasn't applied
@@ -122,7 +122,7 @@ class FasterStringIO:
                 applyRequestPatch()
                 request = None
             else:
-                request = get_request()            
+                request = get_request()
 
             try:
                 response = request.RESPONSE

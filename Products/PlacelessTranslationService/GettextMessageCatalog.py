@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.18 2004/04/22 19:29:38 tiran Exp $
+$Id: GettextMessageCatalog.py,v 1.19 2004/05/04 21:56:03 dreamcatcher Exp $
 """
 
 from gettext import GNUTranslations
@@ -78,7 +78,7 @@ registerTranslation = translationRegistry.register
 
 def getMessage(catalog, id, orig_text=None):
     """get message from catalog
-    
+
     returns the message according to the id 'id' from the catalog 'catalog' or
     raises a KeyError if no translation was found. The return type is always
     unicode
@@ -98,7 +98,7 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
 
     security = ClassSecurityInfo()
     security.declareObjectProtected(view_management_screens)
- 
+
     def __init__(self, id, pofile, error):
         self._pofile = pofile
         #self.id = os.path.split(self._pofile)[-1]
@@ -149,8 +149,8 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         pts._delObject(name)
         try: pts.addCatalog(GettextMessageCatalog(name, pofile))
         except OSError:
-	    # XXX TODO
-	    # remove a catalog if it cannot be loaded from the old location
+            # XXX TODO
+            # remove a catalog if it cannot be loaded from the old location
             raise
         except:
             exc=sys.exc_info()
@@ -160,10 +160,10 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         if hasattr(REQUEST, 'RESPONSE'):
             if not REQUEST.form.has_key('noredir'):
                 REQUEST.RESPONSE.redirect(self.absolute_url())
-        
+
     security.declareProtected(view_management_screens, 'file_exists')
     def file_exists(self):
-        try:             
+        try:
             file = open(self._pofile, 'rb')
         except:
             return False
@@ -172,11 +172,11 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     def manage_afterAdd(self, item, container): pass
     def manage_beforeDelete(self, item, container): pass
     def manage_afterClone(self, item): pass
-                                                            
+
     manage_options = (
         {'label':'Info', 'action':''},
         )
-                                                            
+
     index_html = ptFile('index_html', globals(), 'www', 'catalog_broken')
 
 InitializeClass(BrokenMessageCatalog)
@@ -191,7 +191,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
 
     security = ClassSecurityInfo()
     security.declareObjectProtected(view_management_screens)
-    
+
     def __init__(self, id, pofile, language=None, domain=None):
         """Initialize the message catalog"""
         self._pofile   = pofile
@@ -211,7 +211,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             if self.getId() in translationRegistry.keys():
                 del translationRegistry[self.getId()]
             if not catch: raise
-            else: pass 
+            else: pass
 
     def _doPrepareTranslations(self):
         """Generate the translation object from a po file
@@ -294,7 +294,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     security.declarePublic('queryMessage')
     def queryMessage(self, id, default=None):
         """Queries the catalog for a message
-        
+
         If the message wasn't found the default value or the id is returned.
         """
         try:
@@ -343,29 +343,29 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     security.declareProtected(view_management_screens, 'Title')
     def Title(self):
         return self.title
-        
+
     def _getMoFile(self):
         """get compiled version of the po file as file object
         """
         mo = Msgfmt(self._readFile(), self.getId())
         return mo.getAsFile()
-        
+
     def _readFile(self, reparse=False):
         """Read the data from the filesystem.
-        
-        """ 
+
+        """
         file = open(self._pofile, 'rb')
         data = []
         try:
-             # XXX need more checks here
-             data = file.readlines()
+            # XXX need more checks here
+            data = file.readlines()
         finally:
-             file.close()
-        return data 
-        
+            file.close()
+        return data
+
     def _updateFromFS(self):
         """Refresh our contents from the filesystem
-        
+
         if the file is newer and we are running in debug mode.
         """
         if Globals.DevelopmentMode:
@@ -441,7 +441,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     def displayInfo(self):
         self._prepareTranslations()
         try: info = self._v_tro._info
-        except: 
+        except:
             # broken catalog probably
             info={}
         keys = info.keys()
@@ -456,7 +456,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
 InitializeClass(GettextMessageCatalog)
 
 class MissingIds(Persistent):
-    
+
     security = ClassSecurityInfo()
     security.declareObjectProtected(view_management_screens)
 
@@ -480,7 +480,7 @@ class MissingIds(Persistent):
     def log(self, msgid, orig_text):
         if not self._ids.has_key(msgid):
             if getattr(self, '_v_file', None) is None:
-              self._v_file = codecs.open(self._fileName, 'a', self._charset)
+                self._v_file = codecs.open(self._fileName, 'a', self._charset)
             if orig_text:
                 orig_text = orig_text_line_joiner.join(orig_text.split('\n'))
                 self._v_file.write(orig_text_template % {'text': orig_text})

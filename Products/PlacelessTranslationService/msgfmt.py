@@ -11,7 +11,7 @@ This program converts a textual Uniforum-style message catalog (.po file) into
 a binary GNU catalog (.mo file).  This is essentially the same function as the
 GNU msgfmt program, however, it is a simpler implementation.
 
-This file was taken from Python-2.3.2/Tools/i18n and altered in several ways. 
+This file was taken from Python-2.3.2/Tools/i18n and altered in several ways.
 Now you can simply use it from another python module:
 
   from msgfmt import Msgfmt
@@ -24,7 +24,7 @@ file as binary string.
 Exceptions:
 
   * IOError if the file couldn't be read
-  
+
   * msgfmt.PoSyntaxError if the po file has syntax errors
 
 """
@@ -47,7 +47,7 @@ class PoSyntaxError(Exception):
     """ Syntax error in a po file """
     def __init__(self, msg):
         self.msg = msg
-        
+
     def __str__(self):
         return 'Po file syntax error: %s' % self.msg
 
@@ -125,7 +125,7 @@ class Msgfmt:
 
         section = None
         fuzzy = 0
-        
+
         lines = self.readPoData()
 
         # Parse the catalog
@@ -133,7 +133,7 @@ class Msgfmt:
         #import pdb; pdb.set_trace()
         for l in lines:
             lno += 1
-            # If we get a comment line after a msgstr or a line starting with 
+            # If we get a comment line after a msgstr or a line starting with
             # msgid, this is a new entry
             # XXX: l.startswith('msgid') is needed because not all msgid/msgstr
             # pairs in the plone pos have a leading comment
@@ -185,4 +185,3 @@ class Msgfmt:
 
     def __call__(self):
         return self.getAsFile()
-

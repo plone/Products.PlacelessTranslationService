@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.32 2004/04/20 23:38:25 tiran Exp $
+$Id: PlacelessTranslationService.py,v 1.33 2004/05/04 21:56:03 dreamcatcher Exp $
 """
 
 import sys, os, re, fnmatch
@@ -78,16 +78,16 @@ registerFBCatalog = fbcatalogRegistry.register
 
 class PTSWrapper:
     """
-    Wrap the persistent PTS since persistent 
+    Wrap the persistent PTS since persistent
     objects cant be passed around threads
     """
 
-    #XXX: better have a real seperation between 
+    #XXX: better have a real seperation between
     #     control panel and translation service
     #     to avoid these zodb traversals
-    
+
     security = ClassSecurityInfo()
-    
+
     def __init__(self, service):
         # get path from service
         self._path=service.getPhysicalPath()
@@ -99,7 +99,7 @@ class PTSWrapper:
         except: return None
         # traverse the service
         return root.unrestrictedTraverse(self._path, None)
-    
+
     security.declareProtected(view, 'translate')
     def translate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
@@ -157,7 +157,7 @@ class PlacelessTranslationService(Folder):
     all_meta_types = ()
 
     security = ClassSecurityInfo()
-    
+
     def __init__(self, default_domain='global', fallbacks=None):
         self._instance_version = self._class_version
         # XXX We haven't specified that ITranslationServices have a default
@@ -174,7 +174,7 @@ class PlacelessTranslationService(Folder):
 
     def _registerMessageCatalog(self, catalog):
 
-        
+
         # dont register broken message catalogs
         if isinstance(catalog, BrokenMessageCatalog): return
 
@@ -200,7 +200,7 @@ class PlacelessTranslationService(Folder):
 
     security.declarePrivate('calculatePoId')
     def calculatePoId(self, name, popath):
-        """Calulate the po id 
+        """Calulate the po id
         """
         # instance, software and global catalog path for i18n and locales
         iPath       = os.path.join(INSTANCE_HOME, 'Products') + os.sep
@@ -208,9 +208,9 @@ class PlacelessTranslationService(Folder):
         gci18nNPath = os.path.join(INSTANCE_HOME, 'i18n')
         gcLocPath   = os.path.join(INSTANCE_HOME, 'locales')
 
-        # a global catalog is 
+        # a global catalog is
         isGlobalCatalog = False
-        
+
         # remove [isg]Path from the popath
         if popath.startswith(iPath):
             path = popath[len(iPath):]
@@ -232,7 +232,7 @@ class PlacelessTranslationService(Folder):
                 try:
                     idx = p.index('locales')
                 except ValueError:
-                    raise OSError('Invalid po path %s for %s. That should not happen' % (popath, name))       
+                    raise OSError('Invalid po path %s for %s. That should not happen' % (popath, name))
             path = os.path.join(p[idx-1],p[idx])
 
         # the po file name is GlobalCatalogs-$name or MyProducts.i18n-$name
@@ -240,7 +240,7 @@ class PlacelessTranslationService(Folder):
         if not isGlobalCatalog:
             p = path.split(os.sep)
             pre = '.'.join(p[:2])
-        else: 
+        else:
             pre = 'GlobalCatalogs'
 
         return '%s-%s' % (pre, name)
@@ -272,17 +272,17 @@ class PlacelessTranslationService(Folder):
             else:
                 self.reloadCatalog(ob)
         except IOError:
-            # io error probably cause of missing or 
-            # not accessable 
+            # io error probably cause of missing or
+            # not accessable
             try:
                 # remove false catalog from PTS instance
                 self._delObject(id)
             except:
                 pass
         except:
-             exc=sys.exc_info()
-             log('Message Catalog has errors', PROBLEM, name, exc)
-             self.addCatalog(BrokenMessageCatalog(id, pofile, exc))
+            exc=sys.exc_info()
+            log('Message Catalog has errors', PROBLEM, name, exc)
+            self.addCatalog(BrokenMessageCatalog(id, pofile, exc))
 
     def _load_i18n_dir(self, basepath):
         """
@@ -298,7 +298,7 @@ class PlacelessTranslationService(Folder):
 
         # print deprecation warning for mo files
         depr_names = fnmatch.filter(os.listdir(basepath), '*.mo')
-        if depr_names: 
+        if depr_names:
             import warnings
             warnings.warn('Compiled po files (*.mo) found in %s. PlacelessTranslationService now compiles mo files automatically. All mo files have been ignored.' % basepath, DeprecationWarning, stacklevel=4)
 
@@ -309,9 +309,9 @@ class PlacelessTranslationService(Folder):
             return
         for name in names:
             self._load_catalog_file(name, basepath)
-                 
+
         log('Initialized:', detail = repr(names) + (' from %s\n' % basepath))
-        
+
     def _load_locales_dir(self, basepath):
         """
         Loads an locales directory (Zope3 format)
@@ -325,7 +325,7 @@ class PlacelessTranslationService(Folder):
         if not os.path.isdir(basepath):
             log('it does not exist', BLATHER)
             return
-        
+
         for lang in os.listdir(basepath):
             langpath = os.path.join(basepath, lang)
             if not os.path.isdir(langpath):
@@ -380,7 +380,7 @@ class PlacelessTranslationService(Folder):
         Folder._delObject(self, id, dp)
         self._unregisterMessageCatalog(catalog)
 
-    security.declarePrivate('reloadCatalog') 
+    security.declarePrivate('reloadCatalog')
     def reloadCatalog(self, catalog):
         # trigger an exception if we don't know anything about it
         id=catalog.id
@@ -390,7 +390,7 @@ class PlacelessTranslationService(Folder):
         catalog=self._getOb(id)
         self._registerMessageCatalog(catalog)
 
-    security.declarePrivate('addCatalog') 
+    security.declarePrivate('addCatalog')
     def addCatalog(self, catalog):
         try:
             self._delObject(catalog.id)
@@ -404,7 +404,7 @@ class PlacelessTranslationService(Folder):
     def getCatalogsForTranslation(self, context, domain, target_language=None):
         # ZPT passes the object as context.  That's wrong according to spec.
         context = self._getContext(context)
-        
+
         # cache catalog names to speed up because this method is called
         # for every msgid
         cache_name = 'PTS_catalog_names_%s_%s' % (domain, target_language or 'none')
@@ -445,13 +445,13 @@ class PlacelessTranslationService(Folder):
 
         return [translationRegistry[name] for name in catalog_names ]
 
-    security.declarePrivate('setLanguageFallbacks') 
+    security.declarePrivate('setLanguageFallbacks')
     def setLanguageFallbacks(self, fallbacks=None):
         if fallbacks is None:
             fallbacks = LANGUAGE_FALLBACKS
         self._fallbacks = fallbacks
 
-    
+
     security.declareProtected(view, 'getLanguageName')
     def getLanguageName(self, code):
         for (ccode, cdomain), cnames in catalogRegistry.items():
@@ -529,7 +529,7 @@ class PlacelessTranslationService(Folder):
         # Now we need to do the interpolation
         return self.interpolate(text, mapping)
 
-    security.declarePrivate('negotiate_language') 
+    security.declarePrivate('negotiate_language')
     def negotiate_language(self, context, domain):
         if context is None:
             raise TypeError, 'No destination language'
@@ -547,7 +547,7 @@ class PlacelessTranslationService(Folder):
         """
         return Domain(domain, self)
 
-    security.declarePrivate('interpolate') 
+    security.declarePrivate('interpolate')
     def interpolate(self, text, mapping):
         """
         Insert the data passed from mapping into the text
@@ -617,4 +617,3 @@ class PlacelessTranslationService(Folder):
 
 
 InitializeClass(PlacelessTranslationService)
-

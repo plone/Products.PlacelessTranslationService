@@ -17,7 +17,7 @@ Message Id factor based on the i18n/messageid file of Zope 3.
 
 Adapted for the Placeless Translation Service by Christian Heimes
 
-$Id: MessageID.py,v 1.5 2004/04/20 23:38:25 tiran Exp $
+$Id: MessageID.py,v 1.6 2004/05/04 21:56:03 dreamcatcher Exp $
 """
 from types import BuiltinFunctionType, UnicodeType, StringType
 
@@ -70,7 +70,7 @@ class MessageIDBase:
 
     def __call__(self):
         return self.translate()
-    
+
     def __getattr__XXX(self, func):
         """try to emulate class MessageID(unicode)
         """
@@ -92,8 +92,8 @@ class MessageID(MessageIDBase):
         """translate the message id
         """
         # get the context (aka request) in the translate method itself
-        return translate(domain=self.domain, 
-                            msgid=self.ustr, 
+        return translate(domain=self.domain,
+                            msgid=self.ustr,
                             mapping=self.mapping,
                             default=self.default)
 
@@ -107,7 +107,7 @@ class MessageIDUnicode(MessageIDBase):
     """unicode MessageID
     """
     security = ClassSecurityInfo()
-    
+
     def __init__(self, ustr, domain=None, default=None, default_encoding=None):
         MessageIDBase.__init__(self, ustr, domain, default, default_encoding)
         if default_encoding and type(ustr) is not UnicodeType:
@@ -117,7 +117,7 @@ class MessageIDUnicode(MessageIDBase):
         self.ustr = ustr
         if default is None:
             self.default = ustr
-        else:    
+        else:
             if default_encoding and type(ustr) is not UnicodeType:
                 self.default = unicode(default, default_encoding)
             else:
@@ -128,8 +128,8 @@ class MessageIDUnicode(MessageIDBase):
         """translate the message id
         """
         # get the context (aka request) in the translate method itself
-        return utranslate(domain=self.domain, 
-                            msgid=self.ustr, 
+        return utranslate(domain=self.domain,
+                            msgid=self.ustr,
                             mapping=self.mapping,
                             default=self.default)
 
@@ -157,7 +157,7 @@ class MessageIDFactory:
         """
         if self._as_unicode:
             return MessageIDUnicode(ustr, domain=self._domain,
-                                    default=default, 
+                                    default=default,
                                     default_encoding=self._default_encoding)
         else:
             return MessageID(ustr, domain=self._domain,

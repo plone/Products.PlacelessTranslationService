@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: __init__.py,v 1.14 2004/04/20 23:38:27 tiran Exp $
+$Id: __init__.py,v 1.15 2004/05/04 21:56:03 dreamcatcher Exp $
 '''.strip()
 
 import os, sys
@@ -128,7 +128,7 @@ def initialize(context):
             detail = '(found %s.%s.%s.%s)\n' % instance_version)
         cp._delObject(cp_id)
         cp_ts = make_translation_service(cp)
-        
+
     if instance_version < PlacelessTranslationService._class_version:
         log('outdated translation service found, recreating',
             detail = '(found %s.%s.%s.%s)\n' % instance_version)
