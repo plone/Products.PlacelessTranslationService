@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.33 2004/05/04 21:56:03 dreamcatcher Exp $
+$Id: PlacelessTranslationService.py,v 1.34 2004/07/01 14:35:21 fresh Exp $
 """
 
 import sys, os, re, fnmatch
@@ -137,7 +137,7 @@ class PTSWrapper:
         """
         return a string representation
         """
-        return "<PTSWrapper for %s>" %(self._path)
+        return "<PTSWrapper for %s>" % '/'.join(self._path)
 
 InitializeClass(PTSWrapper)
 
