@@ -111,7 +111,7 @@ Using PlacelessTranslationService
      the ZODB, then you can generate the PO Template using PTS itself
      as follows.
 
-     -	Create a blank PO file for your native language in the location
+     - Create a blank PO file for your native language in the location
 	you have chosen to store your i18n files. This can be done by
 	copying the blank.pot file included in the doc directory of the PTS
 	distribution and changing its extension to .po. 
@@ -207,8 +207,4 @@ Historical Information
   Placeless; it also happens with Localizer.
 
   As of more recent releases, this problem seems to have disappeared,
-  thanks to tireless effort of a few contributors.  However, if your
-  setup is peculiar enough that you still get UnicodeError, now you
-  know why.  The fix?  Either fix ZPT, or (shameless plug) switch to
-  OpenPT which is a bit slower but works ;-)
-
+  thanks to tireless effort of a few contributors. 

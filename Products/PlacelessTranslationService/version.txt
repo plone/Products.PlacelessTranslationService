@@ -1,1 +1,1 @@
-1.0fork-rc7 (UNRELEASED/CVS)
+1.0-rc8 (Unreleased)

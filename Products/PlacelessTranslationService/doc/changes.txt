@@ -1,4 +1,8 @@
-1.0fork-rc8
+1.0-rc8
+
+    This version is no longer a fork, but is the official version now. 
+    Thanks to Lalo Martins for his tireless efforts in writing the 
+    original product.
 
     Disabled usage of SESSION
 
