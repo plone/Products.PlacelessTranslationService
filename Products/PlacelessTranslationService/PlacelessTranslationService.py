@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.39 2004/09/05 19:33:38 tiran Exp $
+$Id: PlacelessTranslationService.py,v 1.40 2004/09/05 20:49:18 tiran Exp $
 """
 
 import sys, os, re, fnmatch
@@ -42,6 +42,8 @@ from msgfmt import PoSyntaxError
 
 from Tracker import global_tracker
 from GettextMessageCatalog import ptFile
+
+PTS_IS_RTL = '_pts_is_rtl'
 
 try:
     True
@@ -427,15 +429,15 @@ class PlacelessTranslationService(Folder):
         # ZPT passes the object as context.  That's wrong according to spec.
         context = self._getContext(context)
 
+        if target_language is None:
+            target_language = self.negotiate_language(context, domain)
+
         # cache catalog names to speed up because this method is called
         # for every msgid
         cache_name = '_pts_catalog_names_%s_%s' % (domain, target_language or 'none')
         cached_catalog_names = context.get(cache_name, None)
         if cached_catalog_names:
             return [translationRegistry[name] for name in cached_catalog_names]
-
-        if target_language is None:
-            target_language = self.negotiate_language(context, domain)
 
         # get the catalogs for translations
         catalog_names = catalogRegistry.get((target_language, domain), ()) or \
@@ -466,10 +468,10 @@ class PlacelessTranslationService(Folder):
         context.set(cache_name, catalog_names)
 
         # test for right to left language
-        context.set('PTS_Is_RTL', False)
+        context.set(PTS_IS_RTL, False)
         for name in catalog_names:
             if rtlRegistry.get(name):
-                context.set('PTS_Is_RTL', True)
+                context.set(PTS_IS_RTL, True)
                 break
 
         return [translationRegistry[name] for name in catalog_names]
@@ -507,6 +509,17 @@ class PlacelessTranslationService(Folder):
             l = [k[0] for k in catalogRegistry.keys() if k[1] == domain]
         l.sort()
         return l
+
+    security.declareProtected(view, 'isRTL')
+    def isRTL(self, context, domain):
+        """get RTL settings
+        """
+        context = self._getContext(context)
+        pts_is_rtl = context.get(PTS_IS_RTL, None)
+        if pts_is_rtl is None:
+            # call getCatalogsForTranslation to initialize the negotiator
+            self.getCatalogsForTranslation(context, domain)
+        return context.get(PTS_IS_RTL, False)
 
     security.declareProtected(view, 'utranslate')
     def utranslate(self, domain, msgid, mapping=None, context=None,

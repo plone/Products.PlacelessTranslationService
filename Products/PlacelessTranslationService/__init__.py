@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: __init__.py,v 1.16 2004/06/23 12:09:32 tiran Exp $
+$Id: __init__.py,v 1.17 2004/09/05 20:49:18 tiran Exp $
 '''.strip()
 
 import os, sys
@@ -30,7 +30,9 @@ from AccessControl import ModuleSecurityInfo, allow_module
 from AccessControl.Permissions import view
 
 import PatchStringIO # patch at first
-from PlacelessTranslationService import PlacelessTranslationService, PTSWrapper
+from PlacelessTranslationService import PlacelessTranslationService
+from PlacelessTranslationService import PTSWrapper
+from PlacelessTranslationService import PTS_IS_RTL
 from utils import log, WARNING, BLATHER, PROBLEM
 from Negotiator import negotiator, setCookieLanguage
 import TranslateTags
@@ -65,28 +67,39 @@ allow_module('Products.PlacelessTranslationService.MessageID')
 
 security.declareProtected(view, 'getTranslationService')
 def getTranslationService():
-    """ returns the PTS instance """
+    """returns the PTS instance
+    """
     return translation_service
 
 security.declareProtected(view, 'translate')
 def translate(*args, **kwargs):
-    """ see PlaceslessTranslationService.PlaceslessTranslationService """
+    """see PlaceslessTranslationService.PlaceslessTranslationService
+    """
     return getTranslationService().translate(*args, **kwargs)
 
 security.declareProtected(view, 'utranslate')
 def utranslate(*args, **kwargs):
-    """ see PlaceslessTranslationService.PlaceslessTranslationService """
+    """see PlaceslessTranslationService.PlaceslessTranslationService
+    """
     return getTranslationService().utranslate(*args, **kwargs)
 
 security.declareProtected(view, 'getLanguages')
 def getLanguages(*args, **kwargs):
-    """ see PlaceslessTranslationService.PlaceslessTranslationService """
+    """see PlaceslessTranslationService.PlaceslessTranslationService
+    """
     return getTranslationService().getLanguages(*args, **kwargs)
 
 security.declareProtected(view, 'getLanguageName')
 def getLanguageName(*args, **kwargs):
-    """ see PlaceslessTranslationService.PTSWrapper """
+    """see PlaceslessTranslationService.PTSWrapper
+    """
     return getTranslationService().getLanguageName(*args, **kwargs)
+
+security.declareProtected(view, 'isRTL')
+def isRTL(context, domain):
+    """see PlaceslessTranslationService.PTSWrapper
+    """
+    return getTranslationService().isRTL(context, domain)
 
 security.declareProtected(view, 'setCookieLanguage')
 # imported from the Negotiator
