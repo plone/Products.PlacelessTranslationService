@@ -17,10 +17,10 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.3.2.1 2003/12/22 18:12:54 tiran Exp $
+$Id: GettextMessageCatalog.py,v 1.3.2.2 2003/12/23 13:31:36 tiran Exp $
 """
 
-from gettext import GNUTranslations
+from gettext import GNUTranslations, NullTranslations
 import os, types, codecs
 from types import DictType, StringType, UnicodeType
 from OFS.Traversable import Traversable
@@ -29,9 +29,8 @@ from Acquisition import Implicit
 from App.Management import Tabs
 import re
 from PlacelessTranslationService import log, Registry
-from cStringIO import StringIO
+from tempfile import mktemp
 from msgfmt import make as compileMo
-from Products.CMFCore.utils import expandpath
 from DateTime import DateTime
 import Globals
 
@@ -102,13 +101,12 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
 
     def _prepareTranslations(self):
         """ """
-        self._updateFromFS()
+        # XXX self._updateFromFS()
         tro = None
         if getattr(self, '_v_tro', None) is None:
             self._v_tro = tro = translationRegistry.get(self.id, None)
         if tro is None:
-            mo = self._getMo()
-            tro = GNUTranslations(mo)
+            tro = self._getTro()
             self._language = (tro._info.get('language-code', None) # new way
                            or tro._info.get('language', None)) # old way
             self._domain = tro._info.get('domain', None)
@@ -121,7 +119,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             self.default_zope_data_encoding = tro._charset
             translationRegistry[self.id] = self._v_tro = tro
             # XXX check it
-            missingFileName = self._pofile[:-1] + 'issing'
+            missingFileName = self._pofile[:-2] + 'missing'
             if os.access(missingFileName, os.W_OK):
                 self._missing = MissingIds(missingFileName, self._v_tro._charset)
             else:
@@ -214,12 +212,30 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     def Title(self):
         return self.title
         
-    def _getMo(self):
-        """ returns the mo data as StringIO """
-        self._updateFromFS()
-        modata = compileMo(self._readFile())
-        return StringIO(modata)
+    def _getTro(self):
+        """ returns the translation object """
+        # XXX self._updateFromFS()
+        moData = compileMo(self._readFile())
+        tro = None
+        # I'm using a binary temp file because I had some problems
+        # with cStringIO and unicode encoded data. But don't worry :)
+        # Afaik operations on small temporary files are faster than
+        # cStringIO - at least on linux :)
+        tmp = mktemp(suffix="-%s.mo" % self.getId())
+        try:
+            moFile = open(tmp, 'w+b') # open for writing and reading
+            moFile.write(moData)      # write compiled mo data
+            moFile.seek(0)            # rewind
+            tro = GNUTranslations(moFile)
+            moFile.close()
+        finally:
+            # and finally delete the temp file
+            os.unlink(tmp)
             
+        if not tro:
+            return NullTranslations()
+        else:
+            return tro
         
     def _readFile(self, reparse=False):
         """Read the data from the filesystem.
@@ -228,16 +244,15 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         data if necessary.  'reparse' is set when reading the second
         time and beyond.
         """ 
-        fp = expandpath(self._pofile)
-        file = open(fp, 'rb')
+        file = open(self._pofile, 'rb')
         try:
              data = file.readlines()
         finally:
              file.close()
-        if reparse:
-            # XXX right?
-            #self.reload()
-            pass
+        #if reparse:
+        #    # XXX right?
+        #    #self.reload()
+        #    pass
         return data 
         
     # Refresh our contents from the filesystem if that is newer and we are
@@ -247,9 +262,8 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         if not parsed or Globals.DevelopmentMode:
             # XXX right?
             #self.reload()
-            fp = expandpath(self._pofile)
             try:
-                mtime=os.stat(fp)[8]
+                mtime=os.stat(self._pofile)[8]
             except:
                 mtime=0
             if not parsed or mtime != self._file_mod_time:
@@ -260,20 +274,19 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
 
     def get_size(self):
         """Get the size of the underlying file."""
-        fp = expandpath(self._pofile)
-        return os.path.getsize(fp)
+        return os.path.getsize(self._pofile)
 
     def getModTime(self):
         """Return the last_modified date of the file we represent.
 
         Returns a DateTime instance.
         """
-        self._updateFromFS()
+        # XXX self._updateFromFS()
         return DateTime(self._file_mod_time)
 
     def getObjectFSPath(self):
         """Return the path of the file we represent"""
-        self._updateFromFS()
+        # XXX self._updateFromFS()
         return self._pofile
 
     ############################################################

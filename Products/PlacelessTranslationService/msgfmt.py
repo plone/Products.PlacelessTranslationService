@@ -31,11 +31,19 @@ Exceptions:
 
 import struct
 import array
+#from PlacelessTranslationService import log
+
+try:
+    True
+except NameError:
+    True=1
+    False=0
 
 __version__ = "1.1pts"
 
 MESSAGES = {}
 
+
 class PoSyntaxError(Exception):
     """ Syntax error in a po file """
     def __init__(self, lno):
@@ -45,6 +53,7 @@ class PoSyntaxError(Exception):
         return 'Po file syntax error on line %d' % self.lno
 
 
+
 def add(id, str, fuzzy):
     "Add a non-fuzzy translation to the dictionary."
     global MESSAGES
@@ -52,7 +61,7 @@ def add(id, str, fuzzy):
         MESSAGES[id] = str
 
 
-
+
 def generate():
     "Return the generated output."
     global MESSAGES
@@ -95,13 +104,33 @@ def generate():
     return output
 
 
-
+#def getCharset(lst):
+#    for item in lst:
+#        item.strip()
+#        if not item:
+#            continue
+#        # remove enclosing '"'
+#        item = item[1:-1]
+#        if ':' in item:
+#            k, v = item.split(':', 1)
+#            k = k.strip().lower()
+#            v = v.strip()
+#            if k == 'content-type':
+#                return v.split('charset=')[1]
+        
 def make(podata):
     ID = 1
     STR = 2
 
     section = None
     fuzzy = 0
+
+    #charset = getCharset(podata)
+    #if charset and charset.lower().startswith('utf'):
+    #    isUTF = True
+    #    #log("isUTF")
+    #else:
+    #    isUTF = False
 
     # Parse the catalog
     lno = 0
@@ -149,8 +178,17 @@ def make(podata):
     return generate()
                       
 
-if __name__ == '__main__':
+def main(pofile='plone-zh.po'):
+    from cStringIO import StringIO
+    from gettext import GNUTranslations
+    import os
+    
+    po = open(pofile)
+    moData = make(po)
+    moIO = StringIO(moData)
+    tro = GNUTranslations(moIO)
+    return tro._charset    
 
-    po = open('i18n/pts-de.po')
-    mo = make(po)
-    print "Seems to work :)"   
+if __name__ == '__main__':
+    print main()
+    
