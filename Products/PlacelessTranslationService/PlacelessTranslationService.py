@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.35 2004/07/01 20:32:17 fresh Exp $
+$Id: PlacelessTranslationService.py,v 1.36 2004/07/02 13:45:11 fresh Exp $
 """
 
 import sys, os, re, fnmatch
@@ -108,6 +108,11 @@ class PTSWrapper:
         get the real service and call its translate method
         return default if service couldnt be retrieved
         """
+        
+        # this is useful for GettextMessageCatalog
+        # see the end of GettextMessageCatalog.py for details        
+        __pts_caller_backcount__ = 1
+        
         service = self.load(context)
         if not service: return default
         return service.translate(domain, msgid, mapping, context, target_language, default)

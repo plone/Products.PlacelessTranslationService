@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.23 2004/07/02 11:50:23 fresh Exp $
+$Id: GettextMessageCatalog.py,v 1.24 2004/07/02 13:45:10 fresh Exp $
 """
 
 from gettext import GNUTranslations
@@ -430,7 +430,10 @@ InitializeClass(GettextMessageCatalog)
 # template to use to write missing entries to .missing
 missing_template = u'''
 #. Added on %(date)s
+#.
 #: %(reference)s%(context)s
+#.
+#. Orginal text:%(original)s
 msgid "%(id)s"
 msgstr ""
 '''
@@ -465,18 +468,24 @@ class MissingIds(Persistent):
         if not self._ids.has_key(msgid):
             if getattr(self, '_v_file', None) is None:
                 self._v_file = codecs.open(self._fileName, 'a', self._charset)
-            context_info = ('No context information available',)
+            context_info = None
+
+            # raise an exception so we can get a stack frame
+            try:
+                raise ZeroDivisionError
+            except ZeroDivisionError:
+                f = sys.exc_info()[2].tb_frame.f_back
+                # gm_f is the frame in which the getMessage in this
+                # file executes. 
+                gm_f = f.f_back
+
+            # The next line provides a way to detect recursion.
+            __exception_formatter__ = 1
+            
             if TALESContextClass:
                 # with ZPT TALES, we can provide some context as to
                 # where this message was found
                 
-                # The next line provides a way to detect recursion.
-                __exception_formatter__ = 1            
-                # raise an exception so we can get a stack frame
-                try:
-                    raise ZeroDivisionError
-                except ZeroDivisionError:
-                    f = sys.exc_info()[2].tb_frame.f_back
                 # go hunting for the context that called up
                 while f is not None:
                     locals = f.f_locals
@@ -493,14 +502,75 @@ class MissingIds(Persistent):
                                        Context.position[1],
                                        )
                             )
+                        original = f.f_back.f_locals.get('default')
                         break
                     f = f.f_back
 
+            if context_info is None:
+                # lets insert details of the thing that called PTS
+                # you can indicate a thing to use instead of PTS
+                # by putting:
+                #
+                # __pts_caller_backcount__ = 1
+                #
+                # ...in the thing.
+                # This is handy, for example, if you have a generic
+                # external method or python script that does
+                # translations and you want to record what is calling
+                # it, and  not just the thing itself.
+                #
+                # The value is the number of stack frames to count
+                # back to find the caller.
+                # For external methods, this should be 2
+                # For python scripts, it might be 1
+                # XXX please add to and correct as appropriate
+
+                # build an inverse list of frames
+                frames = []
+                f = gm_f
+                while 1:
+                    frames.append(f)
+                    f = f.f_back
+                    if f is None:
+                        break
+                frames.reverse()
+                
+                caller_f = None
+                # look for __pts_caller_backcount__
+                for f in frames:
+                    backcount = f.f_locals.get('__pts_caller_backcount__')
+                    if backcount is not None:
+                        while backcount:
+                            f = f.f_back
+                            backcount -= 1
+                        caller_f = f
+                        break
+
+                # delete frames list reference to (hopefuly) stop
+                # memory leaks
+                frames = None
+                
+                # report context info as appropriate
+                if caller_f is None:
+                    context_info = ('No context information could be found',)
+                else:                    
+                    caller_co = caller_f.f_code
+                    context_info = (
+                        caller_co.co_filename,
+                        'Line %i, in %s' % (caller_f.f_lineno, caller_co.co_name),
+                        )
+                    
+            # insert default text, also probably pretty fragile ;-)
+            default = gm_f.f_locals['orig_text']
+            if default is None:
+                '< No original text supplied >'
+                
             self._v_file.write(missing_template % {
                 'id':msgid.replace('"', r'\"'),
                 'date':time.asctime(),
                 'reference':context_info[0],
                 'context':''.join(['\n#. '+line for line in context_info[1:]]),
+                'original':''.join(['\n#. '+line for line in default.split('\n')])
                 })
             self._v_file.flush()
             self._ids[msgid]=1
