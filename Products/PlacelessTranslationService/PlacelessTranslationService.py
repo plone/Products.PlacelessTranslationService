@@ -17,11 +17,13 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.14 2004/01/28 13:48:15 tiran Exp $
+$Id: PlacelessTranslationService.py,v 1.14.2.1 2004/01/29 20:37:57 tiran Exp $
 """
 
 import sys, re, zLOG, Globals, fnmatch
 from AccessControl import ClassSecurityInfo
+from AccessControl.Permissions import view, view_management_screens
+from Globals import InitializeClass
 from OFS.Folder import Folder
 from types import DictType, StringType, UnicodeType
 from Negotiator import negotiator
@@ -38,9 +40,13 @@ try:
 except NameError:
     True=1
     False=0
+
 _marker = []
+NOISY_DEBUG = False
 
 def log(msg, severity=zLOG.INFO, detail='', error=None):
+    if not NOISY_DEBUG and severity is zLOG.BLATHER:
+        return
     if type(msg) is UnicodeType:
         msg = msg.encode(sys.getdefaultencoding(), 'replace')
     if type(detail) is UnicodeType:
@@ -90,17 +96,21 @@ class PTSWrapper:
     #     control panel and translation service
     #     to avoid these zodb traversals
     
+    security = ClassSecurityInfo()
+    
     def __init__(self, service):
         # get path from service
         self._path=service.getPhysicalPath()
 
+    security.declarePrivate('load')
     def load(self, context):
         # return the real service
         try: root = context.getPhysicalRoot()
         except: return None
         # traverse the service
         return root.unrestrictedTraverse(self._path, None)
-
+    
+    security.declareProtected(view, 'translate')
     def translate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
         """translate a message using the default encoding
@@ -112,6 +122,7 @@ class PTSWrapper:
         if not service: return default
         return service.translate(domain, msgid, mapping, context, target_language, default)
 
+    security.declareProtected(view, 'utranslate')
     def utranslate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
         """translate a message using unicode
@@ -122,10 +133,21 @@ class PTSWrapper:
         if not service: return default
         return service.utranslate(domain, msgid, mapping, context, target_language, default)
 
+    security.declarePublic(view, 'getLanguageName')
+    def getLanguageName(self, code, context):
+        service = self.load(context)
+        return service.getLanguageName(code)
+
+    security.declarePublic(view, 'getLanguages')
+    def getLanguages(self, context, domain=None):
+        service = self.load(context)
+        return service.getLanguages(domain)
+
     def __repr__(self):
         """ return a string representation """
         return "<PTSWrapper for %s>" %(self._path)
 
+InitializeClass(PTSWrapper)
 
 class PlacelessTranslationService(Folder):
     """
@@ -138,14 +160,11 @@ class PlacelessTranslationService(Folder):
     # internal is always 0 on releases; if you hack this internally, increment it
     # -3 for alpha, -2 for beta, -1 for release candidate
     # for forked releases internal is always 99
-    _class_version = (1, -2, 3, 99)
+    _class_version = (1, -2, 4, 99)
     all_meta_types = ()
 
     security = ClassSecurityInfo()
-    security.declarePublic('translate')
-    security.declarePublic('getLanguages')
-    security.declarePublic('getLanguageName')
-
+    
     def __init__(self, default_domain='global', fallbacks=None):
         self._instance_version = self._class_version
         # XXX We haven't specified that ITranslationServices have a default
@@ -232,6 +251,7 @@ class PlacelessTranslationService(Folder):
                  
         log('Initialized:', detail = repr(names) + (' from %s\n' % basepath))
 
+    security.declareProtected(view_management_screens, 'manage_renameObject')
     def manage_renameObject(self, id, new_id, REQUEST=None):
         "wrap manage_renameObject to deal with registration"
         catalog = self._getOb(id)
@@ -244,6 +264,7 @@ class PlacelessTranslationService(Folder):
         Folder._delObject(self, id, dp)
         self._unregisterMessageCatalog(catalog)
 
+    security.declarePrivate('reloadCatalog') 
     def reloadCatalog(self, catalog):
         # trigger an exception if we don't know anything about it
         id=catalog.id
@@ -253,6 +274,7 @@ class PlacelessTranslationService(Folder):
         catalog=self._getOb(id)
         self._registerMessageCatalog(catalog)
 
+    security.declarePrivate('addCatalog') 
     def addCatalog(self, catalog):
         try:
             self._delObject(catalog.id)
@@ -262,11 +284,14 @@ class PlacelessTranslationService(Folder):
         log('adding %s: %s' % (catalog.id, catalog.title))
         self._registerMessageCatalog(catalog)
 
+    security.declarePrivate('setLanguageFallbacks') 
     def setLanguageFallbacks(self, fallbacks=None):
         if fallbacks is None:
             fallbacks = LANGUAGE_FALLBACKS
         self._fallbacks = fallbacks
 
+    
+    security.declareProtected(view, 'getLanguageName')
     def getLanguageName(self, code):
         for (ccode, cdomain), cnames in catalogRegistry.items():
             if ccode == code:
@@ -275,6 +300,7 @@ class PlacelessTranslationService(Folder):
                     if cat.name:
                         return cat.name
 
+    security.declarePublic(view, 'getLanguages')
     def getLanguages(self, domain=None):
         """Get available languages"""
         if domain is None:
@@ -290,6 +316,7 @@ class PlacelessTranslationService(Folder):
         l.sort()
         return l
 
+    security.declareProtected(view, 'utranslate')
     def utranslate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
         """translate() using unicode
@@ -297,6 +324,7 @@ class PlacelessTranslationService(Folder):
         self.translate(domain, msgid, mapping, context,
                   target_language, default, as_unicode=True)
 
+    security.declareProtected(view, 'translate')
     def translate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None, as_unicode=False):
         """
@@ -354,6 +382,7 @@ class PlacelessTranslationService(Folder):
         text = self.interpolate(text, mapping)
         return text
 
+    security.declarePrivate('negotiate_language') 
     def negotiate_language(self, context, domain):
         if context is None:
             raise TypeError, 'No destination language'
@@ -364,11 +393,13 @@ class PlacelessTranslationService(Folder):
                 langs.append(fallback)
         return negotiator.negotiate(langs, context, 'language')
 
+    security.declareProtected(view, 'getDomain')
     def getDomain(self, domain):
         """
         """
         return Domain(domain, self)
 
+    security.declarePrivate('interpolate') 
     def interpolate(self, text, mapping):
      try:
         """Insert the data passed from mapping into the text"""
@@ -416,6 +447,7 @@ class PlacelessTranslationService(Folder):
         import traceback
         traceback.print_exc()
 
+    security.declareProtected(view_management_screens, 'manage_main')
     def manage_main(self, REQUEST, *a, **kw):
         "Wrap Folder's manage_main to render international characters"
         # ugh, API cruft
@@ -430,3 +462,5 @@ class PlacelessTranslationService(Folder):
 
     #
     ############################################################
+
+InitializeClass(PlacelessTranslationService)
