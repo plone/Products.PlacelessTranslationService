@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
 
-$Id: Negotiator.py,v 1.6.4.1 2004/01/29 00:06:31 tiran Exp $
+$Id: Negotiator.py,v 1.6.4.2 2004/01/29 20:38:14 tiran Exp $
 """
 
 import types
@@ -208,7 +208,7 @@ class RequestGetAccept:
             return ()
 
 
-#registerLangPrefsMethod({'klass':BrowserAccept,   'priority':10 }, 'language')
+registerLangPrefsMethod({'klass':BrowserAccept,   'priority':10 }, 'language')
 registerLangPrefsMethod({'klass':SessionAccept,   'priority':40 }, 'language')
 registerLangPrefsMethod({'klass':RequestGetAccept,'priority':50 }, 'language')
 
