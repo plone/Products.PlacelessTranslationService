@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.3.2.2 2003/12/23 13:31:36 tiran Exp $
+$Id: GettextMessageCatalog.py,v 1.3.2.3 2003/12/23 13:49:27 tiran Exp $
 """
 
 from gettext import GNUTranslations, NullTranslations
@@ -227,10 +227,10 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             moFile.write(moData)      # write compiled mo data
             moFile.seek(0)            # rewind
             tro = GNUTranslations(moFile)
-            moFile.close()
         finally:
             # and finally delete the temp file
-            os.unlink(tmp)
+            moFile.close()
+            #os.unlink(tmp)
             
         if not tro:
             return NullTranslations()

@@ -178,15 +178,29 @@ def make(podata):
     return generate()
                       
 
-def main(pofile='plone-zh.po'):
-    from cStringIO import StringIO
+def main(pofile='plone-nl.po'):
     from gettext import GNUTranslations
+    from tempfile import mktemp
     import os
     
     po = open(pofile)
-    moData = make(po)
-    moIO = StringIO(moData)
-    tro = GNUTranslations(moIO)
+    compileMo = make
+    moData = compileMo(po)
+    tro = None
+    # I'm using a binary temp file because I had some problems
+    # with cStringIO and unicode encoded data. But don't worry :)
+    # Afaik operations on small temporary files are faster than
+    # cStringIO - at least on linux :)
+    tmp = mktemp(suffix="-%s.mo" % pofile)
+    try:
+        moFile = open(tmp, 'w+b') # open for writing and reading
+        moFile.write(moData)      # write compiled mo data
+        moFile.seek(0)            # rewind
+        tro = GNUTranslations(moFile)
+    finally:
+        # and finally delete the temp file
+        moFile.close()
+        #os.unlink(tmp)
     return tro._charset    
 
 if __name__ == '__main__':
