@@ -1,4 +1,4 @@
-1.0fork-rc5 - 2004-04-05
+1.0fork-rc5 - 2004-04-22
 
     Changed logging to get use the methods and vars from utils.py
 
@@ -13,6 +13,8 @@
 
         from Products.PlacelessTranslationService.PatchStringIO import applyRequestPatch
         applyRequestPatch()
+
+    Better debugging message for PoSyntaxErrors
 
 1.0fork-rc4 - 2004-04-05
 
