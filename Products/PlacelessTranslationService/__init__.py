@@ -16,11 +16,11 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: __init__.py,v 1.8.2.2 2004/01/29 20:47:04 tiran Exp $
+$Id: __init__.py,v 1.8.2.3 2004/01/29 23:56:05 tiran Exp $
 '''.strip()
 
 from OFS.Application import get_products
-from AccessControl import ModuleSecurityInfo
+from AccessControl import ModuleSecurityInfo, allow_module
 from AccessControl.Permissions import view
 from PlacelessTranslationService import PlacelessTranslationService, PTSWrapper, log
 import zLOG
@@ -45,6 +45,9 @@ notify_initialized = []
 # id to use in the Control Panel
 cp_id = 'TranslationService'
 
+# module level translation service
+translation_service = PlacelessTranslationService('default')
+
 # icon
 misc_ = {
     'PlacelessTranslationService.png':
@@ -53,14 +56,16 @@ misc_ = {
     Globals.ImageFile('www/GettextMessageCatalog.png', globals()),
     }
 
-
 # set product-wide attrs for importing
 security = ModuleSecurityInfo('Products.PlacelessTranslationService')
+allow_module('Products.PlacelessTranslationService')
+allow_module('Products.PlacelessTranslationService.MessageID')
 
 security.declareProtected(view, 'getTranslationService')
 def getTranslationService():
     """ returns the PTS Wrapper """
-    return getGlobalTranslationService()
+    #return getGlobalTranslationService()
+    return translation_service
 
 security.declareProtected(view, 'translate')
 def translate(*args, **kwargs):
@@ -94,7 +99,7 @@ def negotiate(langs, context):
 def make_translation_service(cp):
     """Control_Panel translation service
     """
-    translation_service = PlacelessTranslationService('default')
+    global translation_service
     translation_service.id = cp_id
     cp._setObject(cp_id, translation_service)
     return getattr(cp, cp_id)
@@ -140,4 +145,3 @@ def initialize(context):
     TranslateTags.initialize()
     for function in notify_initialized:
         function()
-
