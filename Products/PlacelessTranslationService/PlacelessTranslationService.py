@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.6.2.1 2003/12/22 18:12:54 tiran Exp $
+$Id: PlacelessTranslationService.py,v 1.6.2.2 2003/12/26 21:07:50 tiran Exp $
 """
 
 import sys, re, zLOG, Globals, fnmatch
@@ -39,8 +39,11 @@ except NameError:
     False=0
 _marker = []
 
+NOISY_DEBUG = False
 
 def log(msg, severity=zLOG.INFO, detail='', error=None):
+    if not NOISY_DEBUG and severity == zLOG.BLATHER:
+        return
     if type(msg) is UnicodeType:
         msg = msg.encode(sys.getdefaultencoding(), 'replace')
     if type(detail) is UnicodeType:
@@ -185,6 +188,11 @@ class PlacelessTranslationService(Folder):
                 log('Message Catalog has no metadata', zLOG.PROBLEM, name, sys.exc_info())
             except:
                 log('Message Catalog has errors', zLOG.PROBLEM, name, sys.exc_info())
+                try:
+                    # remove false catalog from PTS instance
+                    self._delObject(name)
+                except:
+                    pass
         log('Initialized:', detail = repr(names) + (' from %s\n' % basepath))
 
     def manage_renameObject(self, id, new_id, REQUEST=None):
