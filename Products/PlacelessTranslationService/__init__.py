@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: __init__.py,v 1.8.2.1 2004/01/29 20:42:39 tiran Exp $
+$Id: __init__.py,v 1.8.2.2 2004/01/29 20:47:04 tiran Exp $
 '''.strip()
 
 from OFS.Application import get_products
@@ -25,7 +25,6 @@ from AccessControl.Permissions import view
 from PlacelessTranslationService import PlacelessTranslationService, PTSWrapper, log
 import zLOG
 from Negotiator import negotiator
-from MessageID import MessageIDFactory
 from Products.PageTemplates.GlobalTranslationService import setGlobalTranslationService, getGlobalTranslationService
 import os, fnmatch, zLOG, sys, Zope, Globals, TranslateTags
 
