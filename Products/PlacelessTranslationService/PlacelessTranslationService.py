@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.40 2004/09/05 20:49:18 tiran Exp $
+$Id: PlacelessTranslationService.py,v 1.40.2.1 2004/09/18 15:15:52 godchap Exp $
 """
 
 import sys, os, re, fnmatch
@@ -42,6 +42,8 @@ from msgfmt import PoSyntaxError
 
 from Tracker import global_tracker
 from GettextMessageCatalog import ptFile
+
+from z3i18n.messageid import MessageID
 
 PTS_IS_RTL = '_pts_is_rtl'
 
@@ -124,6 +126,10 @@ class PTSWrapper:
         
         service = self.load(context)
         if not service: return default
+        if isinstance(msgid, MessageID):
+            domain = msgid.domain
+            mapping = msgid.mapping
+            default = msgid.default
         return service.translate(domain, msgid, mapping, context, target_language, default)
 
     security.declareProtected(view, 'utranslate')
