@@ -1,5 +1,5 @@
 ##############################################################################
-#    Copyright (C) 2001, 2002, 2003 Lalo Martins <lalo@laranja.org>,
+#    Copyright (C) 2001-2005 Lalo Martins <lalo@laranja.org>,
 #                  Zope Corporation and Contributors
 
 #    This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
 
-$Id: Negotiator.py,v 1.12 2004/06/23 14:24:55 tiran Exp $
+$Id: Negotiator.py,v 1.12.4.1 2005/02/03 17:06:52 longsleep Exp $
 """
 
 import types

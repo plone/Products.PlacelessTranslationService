@@ -1,5 +1,5 @@
 ##############################################################################
-#    Copyright (C) 2001, 2002, 2003 Lalo Martins <lalo@laranja.org>,
+#    Copyright (C) 2001-2005 Lalo Martins <lalo@laranja.org>,
 #                  Zope Corporation and Contributors
 
 #    This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
 
-$Id: Domain.py,v 1.4 2004/05/04 21:56:03 dreamcatcher Exp $
+$Id: Domain.py,v 1.4.4.1 2005/02/03 17:06:51 longsleep Exp $
 """
 
 class Domain:

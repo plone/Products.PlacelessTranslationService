@@ -1,5 +1,5 @@
 ##############################################################################
-#    Copyright (C) 2001, 2002, 2003 Lalo Martins <lalo@laranja.org>,
+#    Copyright (C) 2001-2005 Lalo Martins <lalo@laranja.org>,
 #                  and Contributors
 
 #    This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: TranslateTags.py,v 1.3 2004/07/09 18:43:59 tiran Exp $
+$Id: TranslateTags.py,v 1.3.4.1 2005/02/03 17:06:52 longsleep Exp $
 '''.strip()
 
 from utils import log

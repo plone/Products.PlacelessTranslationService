@@ -1,5 +1,5 @@
 ##############################################################################
-#    Copyright (C) 2001, 2002, 2003 Lalo Martins <lalo@laranja.org>,
+#    Copyright (C) 2001-2005 Lalo Martins <lalo@laranja.org>,
 #                  Zope Corporation and Contributors
 
 #    This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.24.2.2 2005/02/03 17:02:43 longsleep Exp $
+$Id: GettextMessageCatalog.py,v 1.24.2.3 2005/02/03 17:06:52 longsleep Exp $
 """
 
 from gettext import GNUTranslations
