@@ -1,13 +1,15 @@
 import ZTUtils, ZPublisher
 
 from TAL.TALInterpreter import TALInterpreter
+from TAL.TALInterpreter import BOOLEAN_HTML_ATTRS
 from TAL.TALInterpreter import escape
+
+from TAL.TALDefs import attrEscape
 
 from Products.PlacelessTranslationService.PlacelessTranslationService \
     import PTSWrapper 
-from messageid import MessageID
 
-from messageid import MessageIDFactory
+from messageid import MessageID, MessageIDFactory
 
 def new_do_i18nVariable(self, stuff):
     varname, program, expression = stuff
@@ -53,8 +55,8 @@ def new_do_insertText_tal(self, stuff):
     if isinstance(text, MessageID):
         # Translate this now.
         text = self.engine.translate(text.domain, text)
-    s = escape(text)
     # added by patch
+    s = escape(text)
     self._stream_write(s)
     i = s.rfind('\n')
     if i < 0:
@@ -62,11 +64,61 @@ def new_do_insertText_tal(self, stuff):
     else:
         self.col = len(s) - (i + 1)
 
+def new_attrAction_tal(self, item):
+    name, value, action = item[:3]
+    ok = 1
+    expr, xlat, msgid = item[3:]
+    if self.html and name.lower() in BOOLEAN_HTML_ATTRS:
+        evalue = self.engine.evaluateBoolean(item[3])
+        if evalue is self.Default:
+            if action == 'insert': # Cancelled insert
+                ok = 0
+        elif evalue:
+            value = None
+        else:
+            ok = 0
+    elif expr is not None:
+        evalue = self.engine.evaluateText(item[3])
+        if evalue is self.Default:
+            if action == 'insert': # Cancelled insert
+                ok = 0
+        else:
+            if evalue is None:
+                ok = 0
+            value = evalue
+    else:
+        evalue = None
+
+    if ok:
+        #import pdb; pdb.set_trace()
+        if isinstance(value, MessageID):
+            # Translate this now.
+            value = self.engine.translate(value.domain, value)
+        
+        if xlat:
+            translated = self.translate(msgid or value, value, {})
+            if translated is not None:
+                value = translated
+        if value is None:
+            value = name
+        elif evalue is self.Default:
+            value = attrEscape(value)
+        else:
+            value = escape(value, quote=1)
+        value = '%s="%s"' % (name, value)
+    return ok, name, value
+    
+
+
 TALInterpreter.do_insertText_tal = new_do_insertText_tal
 TALInterpreter.bytecode_handlers_tal["insertText"] = new_do_insertText_tal
 TALInterpreter.do_i18nVariable = new_do_i18nVariable
 TALInterpreter.bytecode_handlers['i18nVariable'] = new_do_i18nVariable
+print 'b'
+TALInterpreter.attrAction_tal = new_attrAction_tal
+TALInterpreter.bytecode_handlers_tal["<attrAction>"] = new_attrAction_tal
 
+print 'a'
 
 
 

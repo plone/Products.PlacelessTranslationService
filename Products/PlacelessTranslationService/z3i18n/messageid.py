@@ -13,7 +13,7 @@
 ##############################################################################
 """Message IDs.
 
-$Id: messageid.py,v 1.1.2.1 2004/09/17 13:32:36 godchap Exp $
+$Id: messageid.py,v 1.1.2.2 2004/09/18 02:57:44 godchap Exp $
 """
 
 class MessageID(unicode):
@@ -43,9 +43,11 @@ class MessageID(unicode):
         return self
 
     def __getstate__(self):
+        #print "__getstate__", self
         return unicode(self), self.domain, self.default, self.mapping
 
     def __setstate__(self, (ustr, domain, default, mapping)):
+        #print "__setstate__", self
         super(MessageID, self).__init__(ustr)
         self.domain = domain
         if default is None:
