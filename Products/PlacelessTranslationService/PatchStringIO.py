@@ -67,7 +67,7 @@ def applyRequestPatch():
         Publish.publish = new_publish
         Globals.get_request = get_request
 
-#applyRequestPatch()
+applyRequestPatch()
 
 # PATCH 2
 #
