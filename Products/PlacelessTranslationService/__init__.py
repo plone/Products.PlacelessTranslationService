@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: __init__.py,v 1.17 2004/09/05 20:49:18 tiran Exp $
+$Id: __init__.py,v 1.18 2004/09/08 14:39:23 tiran Exp $
 '''.strip()
 
 import os, sys
@@ -97,7 +97,7 @@ def getLanguageName(*args, **kwargs):
 
 security.declareProtected(view, 'isRTL')
 def isRTL(context, domain):
-    """see PlaceslessTranslationService.PTSWrapper
+    """Returns true for a rtl language and false for a ltr language
     """
     return getTranslationService().isRTL(context, domain)
 

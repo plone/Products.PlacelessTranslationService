@@ -1,3 +1,20 @@
+1.2-rc1 - 2004-09-08
+
+    New feature RTL support and RTL api for right to left languages. Po files
+    may contain a header called X-Is-RTL with either yes, y, true or 1 for a
+    rtl language or no, n, false, 0 for a ltr language (default value). The 
+    product module also contains a new method isRTL which is available TTW.
+
+1.1-rc1 - 2004-07-15
+
+    New feature msgid tracker (thanks to ingeniweb):
+
+      It's tracking untranslated msgids inside the PTS. You can easily download
+      them as po file. See ZMI for more informations
+      
+    Set MessageCatalog isPrincipiaFolderish to false to avoid infinite recursion
+    of dtml-tree inside the ZMI.
+
 1.0-rc8
 
     This version is no longer a fork, but is the official version now. 
