@@ -16,13 +16,13 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: utils.py,v 1.4 2004/04/20 23:38:27 tiran Exp $
+$Id: utils.py,v 1.4.4.1 2005/02/03 17:02:42 longsleep Exp $
 '''.strip()
 
 from zLOG import LOG, INFO, BLATHER, PROBLEM, WARNING
 from UserDict import UserDict
 from types import UnicodeType
-import sys
+import sys, os
 
 try:
     True
@@ -45,3 +45,24 @@ def log(msg, severity=INFO, detail='', error=None):
     if type(detail) is UnicodeType:
         detail = detail.encode(sys.getdefaultencoding(), 'replace')
     LOG('PlacelessTranslationService', severity, msg, detail, error)
+
+def make_relative_location(popath):
+    # return ("INSTANCE_HOME", stripped po path)
+    # when po is located below INSTANCE_HOME
+    # and return ("ZOPE_HOME", stripped po path) 
+    # when po is located below ZOPE_HOME
+
+    popath = os.path.normpath(popath)
+    instance_home = os.path.normpath(INSTANCE_HOME)
+    zope_home = os.path.normpath(ZOPE_HOME)
+
+    if popath.startswith(zope_home):
+        return ("ZOPE_HOME", popath[len(zope_home)+1:])
+    elif popath.startswith(instance_home):
+        return ("INSTANCE_HOME", popath[len(instance_home)+1:])
+    else:
+        return ("ABSOLUTE", popath) 
+
+
+
+

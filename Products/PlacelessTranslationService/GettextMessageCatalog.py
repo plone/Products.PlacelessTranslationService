@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.24.2.1 2004/11/25 22:17:40 longsleep Exp $
+$Id: GettextMessageCatalog.py,v 1.24.2.2 2005/02/03 17:02:43 longsleep Exp $
 """
 
 from gettext import GNUTranslations
@@ -29,13 +29,13 @@ from DateTime import DateTime
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view, view_management_screens
 from Globals import InitializeClass
-import Globals
+import Globals, os
 from OFS.Traversable import Traversable
 from Persistence import Persistent, Overridable
 from App.Management import Tabs
 from OFS.Uninstalled import BrokenClass
 
-from utils import log, Registry, INFO, BLATHER, PROBLEM
+from utils import log, make_relative_location, Registry, INFO, BLATHER, PROBLEM
 from msgfmt import Msgfmt
 
 try:
@@ -96,8 +96,7 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     security.declareObjectProtected(view_management_screens)
 
     def __init__(self, id, pofile, error):
-        self._pofile = pofile
-        #self.id = os.path.split(self._pofile)[-1]
+        self._pofile = make_relative_location(pofile)
         self.id = id
         self._mod_time = self._getModTime()
         self.error = traceback.format_exception(error[0],error[1],error[2])
@@ -107,7 +106,7 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         """
         """
         try:
-            mtime = os.stat(self._pofile)[8]
+            mtime = os.stat(self._getPoFile())[8]
         except IOError:
             mtime = 0
         return mtime
@@ -128,20 +127,31 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         """
         return self.error
 
+    def _getPoFile(self):
+        """get absolute path of the po file as string
+        """
+        prefix, pofile = self._pofile
+        if prefix == 'ZOPE_HOME':
+            return os.path.join(ZOPE_HOME, pofile)
+        elif prefix == 'INSTANCE_HOME':
+            return os.path.join(INSTANCE_HOME, pofile)
+        else:
+            return os.path.normpath(pofile)
+
     security.declareProtected(view_management_screens, 'Title')
     def Title(self):
         return self.title
 
     def get_size(self):
         """Get the size of the underlying file."""
-        return os.path.getsize(self._pofile)
+        return os.path.getsize(self._getPoFile())
 
     def reload(self, REQUEST=None):
         """ Forcibly re-read the file """
         # get pts
         pts = aq_parent(self)
         name = self.getId()
-        pofile = self._pofile
+        pofile = self._getPoFile()
         pts._delObject(name)
         try: pts.addCatalog(GettextMessageCatalog(name, pofile))
         except OSError:
@@ -160,7 +170,7 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     security.declareProtected(view_management_screens, 'file_exists')
     def file_exists(self):
         try:
-            file = open(self._pofile, 'rb')
+            file = open(self._getPoFile(), 'rb')
         except:
             return False
         return True
@@ -193,8 +203,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
 
     def __init__(self, id, pofile, language=None, domain=None):
         """Initialize the message catalog"""
-        self._pofile   = pofile
-        #self.id        = os.path.split(self._pofile)[-1]
+        self._pofile   = make_relative_location(pofile)
         self.id        = id
         self._mod_time = self._getModTime()
         self._language = language
@@ -235,7 +244,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             self.name = unicode(tro._info.get('language-name', ''), tro._charset)
             self.default_zope_data_encoding = tro._charset
             translationRegistry[self.getId()] = self._v_tro = tro
-            missingFileName = self._pofile[:-3] + '.missing'
+            missingFileName = self._getPoFile()[:-3] + '.missing'
             if os.access(missingFileName, os.W_OK):
                 tro.add_fallback(MissingIds(missingFileName, self._v_tro._charset))
             if self.name:
@@ -255,7 +264,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             del self._v_tro
         name = self.getId()
         pts = aq_parent(self)
-        pofile=self._pofile
+        pofile=self._getPoFile()
         try:
             self._prepareTranslations(0)
             log('reloading %s: %s' % (name, self.title), severity=BLATHER)
@@ -328,11 +337,22 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         mo = Msgfmt(self._readFile(), self.getId())
         return mo.getAsFile()
 
+    def _getPoFile(self):
+        """get absolute path of the po file as string
+        """
+        prefix, pofile = self._pofile
+        if prefix == 'ZOPE_HOME':
+            return os.path.join(ZOPE_HOME, pofile)
+        elif prefix == 'INSTANCE_HOME':
+            return os.path.join(INSTANCE_HOME, pofile)
+        else:
+            return os.path.normpath(pofile)
+
     def _readFile(self, reparse=False):
         """Read the data from the filesystem.
 
         """
-        file = open(self._pofile, 'rb')
+        file = open(self._getPoFile(), 'rb')
         data = []
         try:
             # XXX need more checks here
@@ -356,14 +376,14 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         """
         """
         try:
-            mtime = os.stat(self._pofile)[8]
+            mtime = os.stat(self._getPoFile())[8]
         except IOError:
             mtime = 0
         return mtime
 
     def get_size(self):
         """Get the size of the underlying file."""
-        return os.path.getsize(self._pofile)
+        return os.path.getsize(self._getPoFile())
 
     def getModTime(self):
         """Return the last_modified date of the file we represent.
@@ -375,7 +395,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
 
     def getObjectFSPath(self):
         """Return the path of the file we represent"""
-        return self._pofile
+        return self._getPoFile()
 
     ############################################################
     # Zope/OFS integration
@@ -396,7 +416,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     security.declareProtected(view_management_screens, 'file_exists')
     def file_exists(self):
         try:
-            file = open(self._pofile, 'rb')
+            file = open(self._getPoFile(), 'rb')
         except:
             return False
         return True
@@ -425,7 +445,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         keys = info.keys()
         keys.sort()
         return [{'name': k, 'value': info[k]} for k in keys] + [
-            {'name': 'full path', 'value': self._pofile},
+            {'name': 'full path', 'value': os.path.join(*self._pofile)},
             {'name': 'last modification', 'value': self.getModTime().ISO()}
             ]
     #
