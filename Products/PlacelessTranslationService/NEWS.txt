@@ -1,3 +1,10 @@
+??? - ????-??-??
+
+    Store relative paths of persisten message catalogs into zodb. This
+    fixes an issue when using multiple zeo clients in different file
+    system locations. Paths are stored relative to either ZOPE_HOME or 
+    INSTANCE_HOME.
+
 1.0 - 2004-11-25
 
     Set MessageCatalog isPrincipiaFolderish to false to avoid infinite
