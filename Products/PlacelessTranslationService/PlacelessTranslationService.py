@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.34 2004/07/01 14:35:21 fresh Exp $
+$Id: PlacelessTranslationService.py,v 1.35 2004/07/01 20:32:17 fresh Exp $
 """
 
 import sys, os, re, fnmatch
@@ -132,6 +132,11 @@ class PTSWrapper:
     def getLanguages(self, context, domain=None):
         service = self.load(context)
         return service.getLanguages(domain)
+
+    security.declarePrivate('negotiate_language')
+    def negotiate_language(self, context, domain):
+        service = self.load(context)
+        return service.negotiate_language(context.REQUEST,domain)
 
     def __repr__(self):
         """
