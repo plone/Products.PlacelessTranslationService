@@ -1,9 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 # Written by Martin v. Löwis <loewis@informatik.hu-berlin.de>
-#
-# modified by Christian Heimes <heimes@faho.rwth-aachen.de> for the
-# Placeless Translation Service
 
 """Generate binary message catalog from textual translation description.
 
@@ -14,24 +11,28 @@ GNU msgfmt program, however, it is a simpler implementation.
 This file was taken from Python-2.3.2/Tools/i18n and altered in several ways. 
 Now you can simply use it from another python module:
 
-  from msgfmt import make
-  po = open('mypofile.po').readlines()
-  mo = make(po)
+  from msgfmt import Msgfmt
+  mo = Msgfmt(po).get()
 
-where po is list of strings (readlines of a po file) and mo is the compiled mo
-file as string.
+where po is path to a po file as string, an opened po file ready for reading or
+a list of strings (readlines of a po file) and mo is the compiled mo
+file as binary string.
 
 Exceptions:
 
   * IOError if the file couldn't be read
   
-  * PoSyntaxError if the po file has syntax errors
+  * msgfmt.PoSyntaxError if the po file has syntax errors
 
 """
-
+import sys, os
 import struct
 import array
-#from PlacelessTranslationService import log
+from types import FileType, StringType, ListType
+from cStringIO import StringIO
+
+__version__ = "1.1pts"
+
 
 try:
     True
@@ -39,11 +40,6 @@ except NameError:
     True=1
     False=0
 
-__version__ = "1.1pts"
-
-MESSAGES = {}
-
-
 class PoSyntaxError(Exception):
     """ Syntax error in a po file """
     def __init__(self, lno):
@@ -52,157 +48,152 @@ class PoSyntaxError(Exception):
     def __str__(self):
         return 'Po file syntax error on line %d' % self.lno
 
+class Msgfmt:
+    """ """
+    def __init__(self, po):
+        self.po = po
+        self.messages = {}
 
-
-def add(id, str, fuzzy):
-    "Add a non-fuzzy translation to the dictionary."
-    global MESSAGES
-    if not fuzzy and str:
-        MESSAGES[id] = str
+    def readPoData(self):
+        """ read po data from self.po and store it in self.poLines """
+        output = []
+        if type(self.po) is FileType:
+            self.po.seek(0)
+            output = self.po.readlines()
+        if type(self.po) is ListType:
+            output = self.po
+        if type(self.po) is StringType:
+            output = open(self.po, 'r').readlines()
+        if not output:
+            raise ValueError, "self.po is invalid! %s" % type(self.po)
+        return output
+
+    def add(self, id, str, fuzzy):
+        "Add a non-fuzzy translation to the dictionary."
+        if not fuzzy and str:
+            self.messages[id] = str
+
+    def generate(self):
+        "Return the generated output."
+        keys = self.messages.keys()
+        # the keys are sorted in the .mo file
+        keys.sort()
+        offsets = []
+        ids = strs = ''
+        for id in keys:
+            # For each string, we need size and file offset.  Each string is NUL
+            # terminated; the NUL does not count into the size.
+            offsets.append((len(ids), len(id), len(strs), len(self.messages[id])))
+            ids += id + '\0'
+            strs += self.messages[id] + '\0'
+        output = ''
+        # The header is 7 32-bit unsigned integers.  We don't use hash tables, so
+        # the keys start right after the index tables.
+        # translated string.
+        keystart = 7*4+16*len(keys)
+        # and the values start after the keys
+        valuestart = keystart + len(ids)
+        koffsets = []
+        voffsets = []
+        # The string table first has the list of keys, then the list of values.
+        # Each entry has first the size of the string, then the file offset.
+        for o1, l1, o2, l2 in offsets:
+            koffsets += [l1, o1+keystart]
+            voffsets += [l2, o2+valuestart]
+        offsets = koffsets + voffsets
+        output = struct.pack("Iiiiiii",
+                             0x950412deL,       # Magic
+                             0,                 # Version
+                             len(keys),         # # of entries
+                             7*4,               # start of key index
+                             7*4+len(keys)*8,   # start of value index
+                             0, 0)              # size and offset of hash table
+        output += array.array("i", offsets).tostring()
+        output += ids
+        output += strs
+        return output
 
 
-
-def generate():
-    "Return the generated output."
-    global MESSAGES
-    keys = MESSAGES.keys()
-    # the keys are sorted in the .mo file
-    keys.sort()
-    offsets = []
-    ids = strs = ''
-    for id in keys:
-        # For each string, we need size and file offset.  Each string is NUL
-        # terminated; the NUL does not count into the size.
-        offsets.append((len(ids), len(id), len(strs), len(MESSAGES[id])))
-        ids += id + '\0'
-        strs += MESSAGES[id] + '\0'
-    output = ''
-    # The header is 7 32-bit unsigned integers.  We don't use hash tables, so
-    # the keys start right after the index tables.
-    # translated string.
-    keystart = 7*4+16*len(keys)
-    # and the values start after the keys
-    valuestart = keystart + len(ids)
-    koffsets = []
-    voffsets = []
-    # The string table first has the list of keys, then the list of values.
-    # Each entry has first the size of the string, then the file offset.
-    for o1, l1, o2, l2 in offsets:
-        koffsets += [l1, o1+keystart]
-        voffsets += [l2, o2+valuestart]
-    offsets = koffsets + voffsets
-    output = struct.pack("Iiiiiii",
-                         0x950412deL,       # Magic
-                         0,                 # Version
-                         len(keys),         # # of entries
-                         7*4,               # start of key index
-                         7*4+len(keys)*8,   # start of value index
-                         0, 0)              # size and offset of hash table
-    output += array.array("i", offsets).tostring()
-    output += ids
-    output += strs
-    return output
+    def get(self):
+        """ """
+        ID = 1
+        STR = 2
 
-
-#def getCharset(lst):
-#    for item in lst:
-#        item.strip()
-#        if not item:
-#            continue
-#        # remove enclosing '"'
-#        item = item[1:-1]
-#        if ':' in item:
-#            k, v = item.split(':', 1)
-#            k = k.strip().lower()
-#            v = v.strip()
-#            if k == 'content-type':
-#                return v.split('charset=')[1]
+        section = None
+        fuzzy = 0
         
-def make(podata):
-    ID = 1
-    STR = 2
+        lines = self.readPoData()
 
-    section = None
-    fuzzy = 0
+        # Parse the catalog
+        lno = 0
+        #import pdb; pdb.set_trace()
+        for l in lines:
+            lno += 1
+            # If we get a comment line after a msgstr, this is a new entry
+            if l[0] == '#' and section == STR:
+                if msgid == "":
+                    msgstr += lines[lno-2]
+                self.add(msgid, msgstr, fuzzy)
+                #print msgstr
+                #sys.exit(0)
+                section = None
+                fuzzy = 0
+            # Record a fuzzy mark
+            if l[:2] == '#,' and l.find('fuzzy'):
+                fuzzy = 1
+            # Skip comments
+            if l[0] == '#':
+                continue
+            # Now we are in a msgid section, output previous section
+            if l.startswith('msgid'):
+                section = ID
+                l = l[5:]
+                msgid = msgstr = ''
+            # Now we are in a msgstr section
+            elif l.startswith('msgstr'):
+                section = STR
+                l = l[6:]
+            # Skip empty lines
+            l = l.strip()
+            if not l:
+                continue
+            # XXX: Does this always follow Python escape semantics?
+            l = eval(l)
+            #l = l.replace('"', '').strip()
+            #l = l.replace("\\n", "\n")
+            if section == ID:
+                msgid += l
+            elif section == STR:
+                msgstr += l
+            else:
+                raise PoSyntaxError(lno)
 
-    #charset = getCharset(podata)
-    #if charset and charset.lower().startswith('utf'):
-    #    isUTF = True
-    #    #log("isUTF")
-    #else:
-    #    isUTF = False
+        # Add last entry
+        if section == STR:
+            self.add(msgid, msgstr, fuzzy)
 
-    # Parse the catalog
-    lno = 0
-    for l in podata:
-        lno += 1
-        # If we get a comment line after a msgstr, this is a new entry
-        if l[0] == '#' and section == STR:
-            add(msgid, msgstr, fuzzy)
-            section = None
-            fuzzy = 0
-        # Record a fuzzy mark
-        if l[:2] == '#,' and l.find('fuzzy'):
-            fuzzy = 1
-        # Skip comments
-        if l[0] == '#':
-            continue
-        # Now we are in a msgid section, output previous section
-        if l.startswith('msgid'):
-            if section == STR:
-                add(msgid, msgstr, fuzzy)
-            section = ID
-            l = l[5:]
-            msgid = msgstr = ''
-        # Now we are in a msgstr section
-        elif l.startswith('msgstr'):
-            section = STR
-            l = l[6:]
-        # Skip empty lines
-        l = l.strip()
-        if not l:
-            continue
-        # XXX: Does this always follow Python escape semantics?
-        l = eval(l)
-        if section == ID:
-            msgid += l
-        elif section == STR:
-            msgstr += l
-        else:
-            raise PoSyntaxError(lno)
-    # Add last entry
-    if section == STR:
-        add(msgid, msgstr, fuzzy)
+        # Compute output
+        return self.generate()
 
-    # Compute output
-    return generate()
-                      
+    def getAsFile(self):
+        return StringIO(self.get())
 
-def main(pofile='plone-nl.po'):
+    def __call__(self):
+        return self.getAsFile()
+
+def main(pofile='/var/lib/zope/plone/Products/PlacelessTranslationService/plone-nl.po'):
     from gettext import GNUTranslations
-    from tempfile import mktemp
+    from cStringIO import StringIO
     import os
+    #import locale
+    #locale.setlocale(locale.LC_ALL, 'de_DE@euro')
+    po = pofile
+    mo = Msgfmt(po)
     
-    po = open(pofile)
-    compileMo = make
-    moData = compileMo(po)
+    moFile = mo.getAsFile()
     tro = None
-    # I'm using a binary temp file because I had some problems
-    # with cStringIO and unicode encoded data. But don't worry :)
-    # Afaik operations on small temporary files are faster than
-    # cStringIO - at least on linux :)
-    tmp = mktemp(suffix="-%s.mo" % pofile)
-    try:
-        moFile = open(tmp, 'w+b') # open for writing and reading
-        moFile.write(moData)      # write compiled mo data
-        moFile.seek(0)            # rewind
-        tro = GNUTranslations(moFile)
-    finally:
-        # and finally delete the temp file
-        moFile.close()
-        #os.unlink(tmp)
-    return tro._charset    
+    tro = GNUTranslations(moFile)
+    return dir(tro)
 
 if __name__ == '__main__':
     print main()
-    
