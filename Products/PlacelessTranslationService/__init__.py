@@ -16,15 +16,17 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: __init__.py,v 1.8 2004/01/28 13:41:59 tiran Exp $
+$Id: __init__.py,v 1.8.2.1 2004/01/29 20:42:39 tiran Exp $
 '''.strip()
 
 from OFS.Application import get_products
-from AccessControl import ModuleSecurityInfo, allow_module, allow_class, allow_type
+from AccessControl import ModuleSecurityInfo
+from AccessControl.Permissions import view
 from PlacelessTranslationService import PlacelessTranslationService, PTSWrapper, log
+import zLOG
 from Negotiator import negotiator
 from MessageID import MessageIDFactory
-from Products.PageTemplates.GlobalTranslationService import setGlobalTranslationService
+from Products.PageTemplates.GlobalTranslationService import setGlobalTranslationService, getGlobalTranslationService
 import os, fnmatch, zLOG, sys, Zope, Globals, TranslateTags
 
 # in python 2.1 fnmatch doesn't have the filter function
@@ -52,28 +54,47 @@ misc_ = {
     Globals.ImageFile('www/GettextMessageCatalog.png', globals()),
     }
 
-# this is the module-level translation service
-translation_service = PlacelessTranslationService('default')
 
 # set product-wide attrs for importing
-translate = translation_service.translate
-getLanguages = translation_service.getLanguages
-getLanguageName = translation_service.getLanguageName
+security = ModuleSecurityInfo('Products.PlacelessTranslationService')
+
+security.declareProtected(view, 'getTranslationService')
+def getTranslationService():
+    """ returns the PTS Wrapper """
+    return getGlobalTranslationService()
+
+security.declareProtected(view, 'translate')
+def translate(*args, **kwargs):
+    """ see PlaceslessTranslationService.PTSWrapper """
+    return getTranslationService().translate(*args, **kwargs)
+
+security.declareProtected(view, 'utranslate')
+def utranslate(*args, **kwargs):
+    """ see PlaceslessTranslationService.PTSWrapper """
+    return getTranslationService().utranslate(*args, **kwargs)
+
+security.declareProtected(view, 'getLanguages')
+def getLanguages(*args, **kwargs):
+    """ see PlaceslessTranslationService.PTSWrapper """
+    return getTranslationService().getLanguages(*args, **kwargs)
+
+security.declareProtected(view, 'getLanguageName')
+def getLanguageName(*args, **kwargs):
+    """ see PlaceslessTranslationService.PTSWrapper """
+    return getTranslationService().getLanguageName(*args, **kwargs)
+
+negotiateDeprecatedLogged = 0
+security.declareProtected(view, 'negotiate')
 def negotiate(langs, context):
-    # deprecated!
+    """ deprecated! """
+    if not negotiateDeprecatedLogged:
+        log('Products.PlacelessTranslationService.negotiate() is deprecated', zLOG.WARNING)
+        negotiateDeprecatedLogged = 1
     return negotiator.negotiate(langs, context, 'language')
 
-# import permissions
-security = ModuleSecurityInfo('Products.PlacelessTranslationService')
-security.declarePublic('negotiator')
-security.declarePublic('negotiate')
-security.declarePublic('translate')
-security.declarePublic('getLanguages')
-security.declarePublic('getLanguageName')
-
-
 def make_translation_service(cp):
-    # Control_Panel translation service
+    """Control_Panel translation service
+    """
     translation_service = PlacelessTranslationService('default')
     translation_service.id = cp_id
     cp._setObject(cp_id, translation_service)
