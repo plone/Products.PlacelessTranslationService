@@ -1,0 +1,38 @@
+from TAL.TALInterpreter import TALInterpreter
+from Products.TranslationService.PlacefulTranslationService \
+    import PlacefulTranslationService 
+from messageid import MessageID
+from App.version_txt import getZopeVersion
+
+old_massage_text = TALInterpreter.massage_text
+old_evaluate_expression = TALInterpreter.evaluate_expression
+old_translate = PlacefulTranslationService.translate
+
+def new_evaluate_expression(self, expression):
+    value = old_evaluate_expression(self, expression)
+    # evaluate() does not do any I18n, so we do it here. 
+    if isinstance(value, MessageID):
+        # Translate this now.
+        value = self.engine.translate(value.domain, value)
+    return value
+
+def new_massage_text(self, text):
+    if isinstance(text, MessageID):
+        info(self.engine)
+        # Translate this now.
+        text = self.engine.translate(text.domain, text)
+    return old_massage_text(self, text)
+
+def new_translate(self, domain, *args, **kw):
+    # MessageID attributes override arguments
+    msgid = args[0]
+    if isinstance(msgid, MessageID):
+        domain = msgid.domain
+        kw['mapping'] = msgid.mapping
+        kw['default'] = msgid.default
+    return old_translate(self, domain, *args, **kw)
+
+PlacefulTranslationService.translate = new_translate
+TALInterpreter.massage_text = new_massage_text
+TALInterpreter.evaluate_expression = new_evaluate_expression
+
