@@ -1,3 +1,26 @@
+2004-05-05 01:00  tiran
+
+	* debian/changelog: updated debian changelog
+
+2004-05-05 00:59  tiran
+
+	* NEWS.txt: updated history
+
+2004-05-04 23:57  dreamcatcher
+
+	* makefile.in, version.txt: Add makefile. Bump version.
+
+2004-05-04 23:56  dreamcatcher
+
+	* Domain.py, FasterStringIO.py, GettextMessageCatalog.py,
+	  MessageID.py, Negotiator.py, PatchStringIO.py,
+	  PlacelessTranslationService.py, __init__.py, msgfmt.py: Reindent
+	  to the rescue.
+
+2004-04-22 21:33  tiran
+
+	* ChangeLog, NEWS.txt: Updated history and changelog
+
 2004-04-22 21:29  tiran
 
 	* GettextMessageCatalog.py, msgfmt.py: Better debugging message for
