@@ -32,7 +32,7 @@ class LowerDummyDomain:
 
     def translate(self, msgid, mapping=None, context=None,
                   target_language=None, default=None):
-        # This is a fake translation service which simply uppercases non
+        # This is a fake translation service which simply lowercases non
         # ${name} placeholder text in the message id.
         #
         # First, transform a string with ${name} placeholders into a list of
@@ -71,12 +71,6 @@ class Z3I18NCornerTestCase(TestCaseBase):
         self.interpreter()
         self.assertEqual(expected, result.getvalue())
 
-   # def test_content_with_messageid_and_i18nname_and_i18ntranslate(self):
-   #     # Let's tell the user this is incredibly silly!
-   #     self.assertRaises(
-   #         I18NError, self._compile,
-   #         '<span i18n:translate="" tal:content="bar" i18n:name="bar_name"/>')
-
     def test_translate_twodomains(self):
         program, macros = self._compile(
                 '<div i18n:domain="lower" i18n:translate="">TOLOWER</div>'
@@ -95,6 +89,10 @@ class Z3I18NCornerTestCase(TestCaseBase):
                 '<div i18n:domain="upper"><span tal:content="msg" /></div>')
         self._check(program,
                     '<div><span>msgid</span></div>\n')
+        program, macros = self._compile(
+                '<span i18n:domain="upper" tal:content="msg" />')
+        self._check(program,
+                    '<span>msgid</span>\n')
 
     def test_translate_messageid_with_domain_overridden(self):
         program, macros = self._compile(
