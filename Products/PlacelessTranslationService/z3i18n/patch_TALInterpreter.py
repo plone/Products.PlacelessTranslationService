@@ -87,7 +87,6 @@ def new_attrAction_tal(self, item):
         evalue = None
 
     if ok:
-        #import pdb; pdb.set_trace()
         if isinstance(value, MessageID):
             # Translate this now.
             value = translate_msgid_with_engine(value, self.engine)
