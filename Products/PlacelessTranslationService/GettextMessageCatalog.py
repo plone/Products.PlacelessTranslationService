@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.24 2004/07/02 13:45:10 fresh Exp $
+$Id: GettextMessageCatalog.py,v 1.24.2.1 2004/11/25 22:17:40 longsleep Exp $
 """
 
 from gettext import GNUTranslations
@@ -88,6 +88,9 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     """ broken message catalog """
     meta_type = title = 'Broken Gettext Message Catalog'
     icon='p_/broken'
+
+    isPrincipiaFolderish = 0
+    isTopLevelPrincipiaApplicationObject = 0
 
     security = ClassSecurityInfo()
     security.declareObjectProtected(view_management_screens)
@@ -181,6 +184,9 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     """
     meta_type = title = 'Gettext Message Catalog'
     icon = 'misc_/PlacelessTranslationService/GettextMessageCatalog.png'
+
+    isPrincipiaFolderish = 0
+    isTopLevelPrincipiaApplicationObject = 0
 
     security = ClassSecurityInfo()
     security.declareObjectProtected(view_management_screens)

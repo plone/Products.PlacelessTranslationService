@@ -1,9 +1,20 @@
+1.0 - 2004-11-25
+
+    Set MessageCatalog isPrincipiaFolderish to false to avoid infinite
+    recursion of dtml-tree inside the ZMI.  
+
 1.0-rc8 - 2004-07-10
 
-    Removed usage of SESSION
+    This version is no longer a fork, but is the official version now. 
+    Thanks to Lalo Martins for his tireless efforts in writing the 
+    original product.
 
-    Note that the "fork" suffix was removed. We are now the official trunk of
-    PTS.
+    Disabled usage of SESSION
+
+    Re-enabled .missing logging
+
+    Added documentation section, including details of how to use
+    .missing logging to generate .pot files
 
 1.0fork-rc7 - 2004-05-11
 
