@@ -17,15 +17,16 @@ Message Id factor based on the i18n/messageid file of Zope 3.
 
 Adapted for the Placeless Translation Service by Christian Heimes
 
-$Id: MessageID.py,v 1.1.2.1 2004/01/29 20:42:39 tiran Exp $
+$Id: MessageID.py,v 1.1.2.2 2004/01/29 23:56:37 tiran Exp $
 """
 
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from Products.PlacelessTranslationService import translate, utranslate
-from types import BuiltinFunctionType, UnicodeType
+from types import BuiltinFunctionType, UnicodeType, StringType
 
-class MessageID:
+
+class MessageIDBase:
     """Message ID.
 
     This is a string used as a message ID.  It has a domain attribute that is
@@ -40,47 +41,28 @@ class MessageID:
     """
     security = ClassSecurityInfo()
 
-    def __init__(self, ustr, domain=None, default=None, context=None, default_encoding=None):
-        if default_encoding and type(ustr) is not UnicodeType:
-            self.ustr = unicode(ustr, default_encoding)
-        else:
-            self.ustr = unicode(ustr)
+    def __init__(self, ustr, domain=None, default=None, context=None,
+                 default_encoding=None):
+        self.ustr = ustr
         if not context and not hasattr(context, 'REQUEST'):
             raise ValueError("'MessageId' needs a valid context")
         self.context = context
         self.domain  = domain
         if default is None:
-            self.default = ustr
+            self.default = self.ustr
         else:
-            if default_encoding and type(ustr) is not UnicodeType:
-                self.default = unicode(default, default_encoding)
-            else:
-                self.ustr = unicode(default)
+            self.default = default
         self.default_encoding = default_encoding
         self.mapping = {}
 
-    security.declarePublic('translate')
     def translate(self):
-        """translate the message id
-        """
+        pass
 
-        return translate(domain=self.domain, 
-                            msgid=self.ustr, 
-                            context=self.context,
-                            mapping=self.mapping,
-                            default=self.default)
+    def __str__(self):
+        pass
 
-    def utranslate(self):
-        """translate the message id as unicode
-        """
-
-        return utranslate(domain=self.domain, 
-                            msgid=self.ustr, 
-                            context=self.context,
-                            mapping=self.mapping,
-                            default=self.default)
-
-    __str__ = __call__ = translate
+    def __call__(self):
+        return self.translate()
     
     def __getattr__XXX(self, func):
         """try to emulate class MessageID(unicode)
@@ -90,27 +72,77 @@ class MessageID:
             return attr
         raise AttributeError("'MessageId' has no attribute '%s'" % func)
 
-    def __getstate__(self):
-        return self.context, self.ustr, self.domain, self.default, self.mapping
+InitializeClass(MessageIDBase)
 
-    def __setstate__(self, (context, ustr, domain, default, mapping)):
-        self.context = context
-        self.ustr    = ustr
-        self.domain  = domain
-        if default is None:
-            self.default = ustr
-        else:
-            self.default = default
-        self.mapping = mapping
+
+class MessageID(MessageIDBase):
+    """non unicode MessageID
+    """
+    security = ClassSecurityInfo()
+
+    security.declarePublic('translate')
+    def translate(self):
+        """translate the message id
+        """
+        return translate(domain=self.domain, 
+                            msgid=self.ustr, 
+                            context=self.context,
+                            mapping=self.mapping,
+                            default=self.default)
+
+    def __str__(self):
+        return str(self.translate())
 
 InitializeClass(MessageID)
 
+
+class MessageIDUnicode(MessageIDBase):
+    """unicode MessageID
+    """
+    security = ClassSecurityInfo()
+    
+    def __init__(self, ustr, domain=None, default=None, context=None,
+                 default_encoding=None):
+        MessageIDBase.__init__(self, ustr, domain, default, context, 
+                               default_encoding)
+        if default_encoding and type(ustr) is not UnicodeType:
+            ustr = unicode(ustr, default_encoding)
+        else:
+            ustr = unicode(ustr)
+        self.ustr = ustr
+        if default is None:
+            self.default = ustr
+        else:    
+            if default_encoding and type(ustr) is not UnicodeType:
+                self.default = unicode(default, default_encoding)
+            else:
+                self.ustr = unicode(default)
+
+    security.declarePublic('translate')
+    def translate(self):
+        """translate the message id
+        """
+
+        return utranslate(domain=self.domain, 
+                            msgid=self.ustr, 
+                            context=self.context,
+                            mapping=self.mapping,
+                            default=self.default)
+
+    def __str__(self):
+        return unicode(self.translate())
+
+InitializeClass(MessageIDUnicode)
+
+
 class MessageIDFactory:
-    """Factory for creating MessageIDs."""
+    """Factory for creating MessageIDs
+    """
     security = ClassSecurityInfo()
 
-    def __init__(self, domain, default_encoding=None):
+    def __init__(self, domain, as_unicode=False, default_encoding=None):
         self._domain = domain
+        self._as_unicode = as_unicode
         self._default_encoding = default_encoding
 
     def __call__(self, ustr, default=None, context=None):
@@ -120,7 +152,13 @@ class MessageIDFactory:
         ustr - the message id
         default - the default string if the message id isn't the default
         """
-        return MessageID(ustr, domain=self._domain, default=default,
-                   context=context, default_encoding=self._default_encoding)
+        if self._as_unicode:
+            return MessageIDUnicode(ustr, domain=self._domain,
+                                    default=default, context=context, 
+                                    default_encoding=self._default_encoding)
+        else:
+            return MessageID(ustr, domain=self._domain,
+                             default=default, context=context, 
+                             default_encoding=self._default_encoding)
 
 InitializeClass(MessageIDFactory)
