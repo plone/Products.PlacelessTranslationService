@@ -1,3 +1,16 @@
+1.0fork-rc3
+    Changed po file id creation:
+     - id is MyProducts.i18n-pofile or MyProducts.locales-pofile 
+       for po files loaded from a product directory
+     - id is GlobalCatalogs-pofile for po files loaded from
+       INSTANCE_HOME/i18n/
+    
+    Always append fallback catalogs to the catalogs
+    used for translation
+
+    Move GlobalCatalogs from INSTANCE_HOME/i18n/ to the
+    beginning of the catalogs used for translation
+
 1.0fork-rc3 - 2004-03-09
 
     Added a product identifier to the control panel catalog id
