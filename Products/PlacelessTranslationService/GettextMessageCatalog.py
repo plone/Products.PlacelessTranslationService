@@ -17,11 +17,11 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.21 2004/07/01 18:11:09 fresh Exp $
+$Id: GettextMessageCatalog.py,v 1.22 2004/07/01 20:15:04 fresh Exp $
 """
 
 from gettext import GNUTranslations
-import os, sys, types, codecs, traceback
+import os, sys, types, codecs, traceback, time
 import re
 
 from Acquisition import aq_parent, Implicit
@@ -59,17 +59,6 @@ except ImportError:
         if not os.path.splitext(filename)[1]:
             filename = filename + '.pt'
         return PageTemplateFile(filename, '', __name__=id)
-
-# template to use to write missing entries to .missing
-missing_template = u"""msgid "%(id)s"
-msgstr ""
-"""
-
-orig_text_template = u"""
-#. %(text)s
-"""
-
-orig_text_line_joiner = u"\n#. "
 
 permission = 'View management screens'
 
@@ -238,9 +227,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             translationRegistry[self.getId()] = self._v_tro = tro
             missingFileName = self._pofile[:-3] + '.missing'
             if os.access(missingFileName, os.W_OK):
-                self._missing = MissingIds(missingFileName, self._v_tro._charset)
-            else:
-                self._missing = None
+                tro.add_fallback(MissingIds(missingFileName, self._v_tro._charset))
             if self.name:
                 self.title = '%s language (%s) for %s' % (self._language, self.name, self._domain)
             else:
@@ -436,7 +423,18 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
 
 InitializeClass(GettextMessageCatalog)
 
+# template to use to write missing entries to .missing
+missing_template = u'''
+#. Added on %(date)s
+msgid "%(id)s"
+msgstr ""
+'''
+
 class MissingIds(Persistent):
+    """This behaves like a gettext message catalog but always
+    raises a KeyError. However, along the way, it adds the msgid that
+    was missing to the .missing file in .po format.
+    """
 
     security = ClassSecurityInfo()
     security.declareObjectProtected(view_management_screens)
@@ -458,15 +456,16 @@ class MissingIds(Persistent):
                 self._ids[msgid] = 1
         file.close()
 
-    def log(self, msgid, orig_text):
+    def gettext(self, msgid):
         if not self._ids.has_key(msgid):
             if getattr(self, '_v_file', None) is None:
                 self._v_file = codecs.open(self._fileName, 'a', self._charset)
-            if orig_text:
-                orig_text = orig_text_line_joiner.join(orig_text.split('\n'))
-                self._v_file.write(orig_text_template % {'text': orig_text})
-            self._v_file.write(missing_template % {'id':msgid.replace('"', r'\"')})
+            self._v_file.write(missing_template % {
+                'id':msgid.replace('"', r'\"'),
+                'date':time.asctime(),
+                })
             self._v_file.flush()
             self._ids[msgid]=1
+        raise KeyError, msgid
 
 InitializeClass(MissingIds)
