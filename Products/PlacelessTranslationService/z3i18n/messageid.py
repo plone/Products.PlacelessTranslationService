@@ -13,8 +13,12 @@
 ##############################################################################
 """Message IDs.
 
-$Id: messageid.py,v 1.1.2.2 2004/09/18 02:57:44 godchap Exp $
+$Id: messageid.py,v 1.1.2.3 2004/09/18 15:08:05 godchap Exp $
 """
+
+def translate_msgid_with_engine(msgid, engine):
+    return engine.translate(msgid.domain, msgid, mapping=msgid.mapping,
+        default=msgid.default)
 
 class MessageID(unicode):
     """Message ID.
