@@ -14,6 +14,8 @@
     INSTANCE_HOME/locales/ to the beginning of the
     catalogs used for translation
 
+    Cache catalog names in the REQUEST using the domain and language as key
+
 1.0fork-rc3 - 2004-03-09
 
     Added a product identifier to the control panel catalog id

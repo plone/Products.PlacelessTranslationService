@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.29 2004/04/05 01:04:33 tiran Exp $
+$Id: PlacelessTranslationService.py,v 1.30 2004/04/05 12:52:33 tiran Exp $
 """
 
 import sys, re, zLOG, Globals, fnmatch
@@ -390,6 +390,13 @@ class PlacelessTranslationService(Folder):
     def getCatalogsForTranslation(self, context, domain, target_language=None):
         # ZPT passes the object as context.  That's wrong according to spec.
         context = self._getContext(context)
+        
+        # cache catalog names to speed up because this method is called
+        # for every msgid
+        cache_name = 'PTS_catalog_names_%s_%s' % (domain, target_language or 'none')
+        cached_catalog_names = context.get(cache_name, None)
+        if cached_catalog_names:
+            return [translationRegistry[name] for name in cached_catalog_names]
 
         if target_language is None:
             target_language = self.negotiate_language(context, domain)
@@ -408,12 +415,19 @@ class PlacelessTranslationService(Folder):
 
         # move global catalogs to the beginning to allow overwriting
         # message ids by placing a po file in INSTANCE_HOME/i18n
+        # use pos to keep the sort order
+        pos=0
         for i in range(len(catalog_names)):
             catalog_name = catalog_names[i]
             if catalog_name.startswith('GlobalCatalogs-'):
                 del catalog_names[i]
-                catalog_names.insert(0, catalog_name)
-                
+                catalog_names.insert(pos, catalog_name)
+                pos+=1
+
+        # set catalog names cache. Do *not* store a persistent object
+        # in the request. It may cause reference circles and cause memory leaks
+        context.set(cache_name, catalog_names)
+
         return [translationRegistry[name] for name in catalog_names ]
 
     security.declarePrivate('setLanguageFallbacks') 
