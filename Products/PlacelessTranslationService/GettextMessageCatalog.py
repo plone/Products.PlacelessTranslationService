@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.3.2.3 2003/12/23 13:49:27 tiran Exp $
+$Id: GettextMessageCatalog.py,v 1.3.2.4 2003/12/24 23:44:12 tiran Exp $
 """
 
 from gettext import GNUTranslations, NullTranslations
@@ -29,8 +29,7 @@ from Acquisition import Implicit
 from App.Management import Tabs
 import re
 from PlacelessTranslationService import log, Registry
-from tempfile import mktemp
-from msgfmt import make as compileMo
+from msgfmt import Msgfmt
 from DateTime import DateTime
 import Globals
 
@@ -91,22 +90,22 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     title__roles__=__roles__
     
     _file_mod_time = 0
-    _parsed = 0
     
     def __init__(self, pofile):
         """Initialize the message catalog"""
         self._pofile = pofile
-        self.id = os.path.split(self._pofile)[-1].split('.')[0]
+        self.id = os.path.split(self._pofile)[-1]
         self._prepareTranslations()
 
     def _prepareTranslations(self):
         """ """
-        # XXX self._updateFromFS()
+        self._updateFromFS()
         tro = None
         if getattr(self, '_v_tro', None) is None:
             self._v_tro = tro = translationRegistry.get(self.id, None)
         if tro is None:
-            tro = self._getTro()
+            moFile = self._getMoFile()
+            tro = GNUTranslations(moFile)
             self._language = (tro._info.get('language-code', None) # new way
                            or tro._info.get('language', None)) # old way
             self._domain = tro._info.get('domain', None)
@@ -212,65 +211,39 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     def Title(self):
         return self.title
         
-    def _getTro(self):
+    def _getMoFile(self):
         """ returns the translation object """
-        # XXX self._updateFromFS()
-        moData = compileMo(self._readFile())
-        tro = None
-        # I'm using a binary temp file because I had some problems
-        # with cStringIO and unicode encoded data. But don't worry :)
-        # Afaik operations on small temporary files are faster than
-        # cStringIO - at least on linux :)
-        tmp = mktemp(suffix="-%s.mo" % self.getId())
-        try:
-            moFile = open(tmp, 'w+b') # open for writing and reading
-            moFile.write(moData)      # write compiled mo data
-            moFile.seek(0)            # rewind
-            tro = GNUTranslations(moFile)
-        finally:
-            # and finally delete the temp file
-            moFile.close()
-            #os.unlink(tmp)
-            
-        if not tro:
-            return NullTranslations()
-        else:
-            return tro
+        mo = Msgfmt(self._readFile())
+        return mo.getAsFile()
         
     def _readFile(self, reparse=False):
         """Read the data from the filesystem.
         
-        Read the file indicated by exandpath(self._pofile), and parse the
-        data if necessary.  'reparse' is set when reading the second
-        time and beyond.
         """ 
-        file = open(self._pofile, 'rb')
+        file = open(self._pofile, 'r')
+        data = []
         try:
+             # XXX need more checks here
              data = file.readlines()
         finally:
              file.close()
-        #if reparse:
-        #    # XXX right?
-        #    #self.reload()
-        #    pass
         return data 
         
     # Refresh our contents from the filesystem if that is newer and we are
     # running in debug mode.
     def _updateFromFS(self):
-        parsed = self._parsed
-        if not parsed or Globals.DevelopmentMode:
-            # XXX right?
-            #self.reload()
+        """Refresh our contents from the filesystem
+        
+        if that is newer and we are running in debug mode.
+        """
+        if Globals.DevelopmentMode:
             try:
                 mtime=os.stat(self._pofile)[8]
             except:
                 mtime=0
-            if not parsed or mtime != self._file_mod_time:
-                # if we have to read the file again, remove the cache
-                self._readFile(1)
+            if mtime != self._file_mod_time:
                 self._file_mod_time = mtime
-                self._parsed = 1    
+                self.reload()
 
     def get_size(self):
         """Get the size of the underlying file."""
@@ -281,12 +254,11 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
 
         Returns a DateTime instance.
         """
-        # XXX self._updateFromFS()
+        self._updateFromFS()
         return DateTime(self._file_mod_time)
 
     def getObjectFSPath(self):
         """Return the path of the file we represent"""
-        # XXX self._updateFromFS()
         return self._pofile
 
     ############################################################
