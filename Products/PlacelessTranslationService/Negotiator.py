@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
 
-$Id: Negotiator.py,v 1.8 2004/02/16 12:14:17 tiran Exp $
+$Id: Negotiator.py,v 1.9 2004/03/08 09:28:47 longsleep Exp $
 """
 
 import types
@@ -64,6 +64,10 @@ def str_lower(aString):
     """filter"""
     return aString.lower()
 
+def str_strip(aString):
+    """filter"""
+    return aString.strip()
+
 def type_accepted(available, preferred):
     # ex: preferred is text/* and available is text/html
     av = available.split('/')
@@ -84,7 +88,7 @@ class BrowserAccept:
 
     filters = {
         'content-type': (str_lower,),
-        'language': (str_lower, lang_normalize),
+        'language': (str_lower, lang_normalize, str_strip),
     }
 
     def __init__(self, request):
@@ -159,7 +163,7 @@ class BrowserAccept:
 
 
 class SessionAccept:
-    filters = (str_lower, lang_normalize)
+    filters = (str_lower, lang_normalize, str_strip)
 
     def __init__(self, request):
         pass
@@ -194,7 +198,7 @@ def setSessionLanguage(request, lang, REQUEST=None):
 
 
 class RequestGetAccept:
-    filters = (str_lower, lang_normalize)
+    filters = (str_lower, lang_normalize, str_strip)
 
     def __init__(self, request):
         pass
