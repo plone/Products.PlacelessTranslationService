@@ -160,8 +160,8 @@ class Z3I18NCornerTestCase(TestCaseBase):
     def test_translate_attr_messageid_with_domain_overridden_on_tag(self):
         program, macros = self._compile(
                 '<span i18n:domain="upper"'
-                '      tal:content="msg"'
-                '      i18n:translate="" tal:attributes="title msg"/>')
+                '      tal:content="msg" i18n:translate=""'
+                '      tal:attributes="title msg"/>')
         self._check(program,
                     '<span title="msgid">MSGID</span>\n')
         program, macros = self._compile(
