@@ -13,7 +13,8 @@ import shutil
 RE_DOMAIN = re.compile(r"\"Domain: ?([a-zA-Z-_]*)\\n\"")
 RE_LANGUAGE = re.compile(r"\"Language-[cC]ode: ?([a-zA-Z-_]*)\\n\"")
 
-base = os.getcwd()
+#base = os.getcwd()
+base = '.'
 i18n = os.path.join(base, 'i18n')
 locales = os.path.join(base, 'locales')
 po_files = glob.glob(os.path.join(i18n, '*.po'))
@@ -23,6 +24,14 @@ def getLocalsPath(lang, domain):
     po = '%s.po' % domain
     path = os.path.join(locales, lang, 'LC_MESSAGES')
     return path, po
+
+def svnAdd(path):
+    path = path.split(os.sep)
+    for l in range(len(path)):
+        l+=1
+        p = os.path.join(*path[:l])
+        if not os.path.isdir(os.path.join(p, '.svn')):
+            os.system("svn add %s" % p)
 
 for po in po_files:
     fd = open(po, 'r')
@@ -42,10 +51,15 @@ for po in po_files:
     if not os.path.isdir(po_path):
         os.makedirs(po_path)
 
-    shutil.copy(po, os.path.join(po_path, new_po))
+    src = po
+    dst = os.path.join(po_path, new_po)
+    #shutil.copy(src, dst)
+    svnAdd(po_path)
+    os.system("svn mv %s %s" % (src, dst))
     print "Copied %s - %s" % (po_path, new_po)
 
 for pot in pot_files:
-    shutil.copy(pot, locales)
+    #shutil.copy(pot, locales)
+    os.system("svn mv %s %s" % (pot, locales))
     print "Copied %s" % pot
 
