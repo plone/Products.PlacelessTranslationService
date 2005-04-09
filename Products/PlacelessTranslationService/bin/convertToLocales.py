@@ -11,12 +11,13 @@ import glob
 import shutil
 
 RE_DOMAIN = re.compile(r"\"Domain: ?([a-zA-Z-_]*)\\n\"")
-RE_LANGUAGE = re.compile(r"\"Language-code: ?([a-zA-Z-_]*)\\n\"")
+RE_LANGUAGE = re.compile(r"\"Language-[cC]ode: ?([a-zA-Z-_]*)\\n\"")
 
 base = os.getcwd()
 i18n = os.path.join(base, 'i18n')
 locales = os.path.join(base, 'locales')
 po_files = glob.glob(os.path.join(i18n, '*.po'))
+pot_files = glob.glob(os.path.join(i18n, '*.pot'))
 
 def getLocalsPath(lang, domain):
     po = '%s.po' % domain
@@ -42,5 +43,9 @@ for po in po_files:
         os.makedirs(po_path)
 
     shutil.copy(po, os.path.join(po_path, new_po))
-    print "Copied %s to %s" % (new_po, po_path)
+    print "Copied %s - %s" % (po_path, new_po)
+
+for pot in pot_files:
+    shutil.copy(pot, locales)
+    print "Copied %s" % pot
 
