@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
-$Id: GettextMessageCatalog.py,v 1.28 2004/09/05 21:37:17 tiran Exp $
+$Id$
 """
 
 from gettext import GNUTranslations
@@ -29,6 +29,7 @@ from DateTime import DateTime
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view, view_management_screens
 from Globals import InitializeClass
+from Globals import INSTANCE_HOME
 import Globals
 from OFS.Traversable import Traversable
 from Persistence import Persistent, Overridable
@@ -344,8 +345,13 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     def _getMoFile(self):
         """get compiled version of the po file as file object
         """
-        mo = Msgfmt(self._readFile(), self.getId())
-        return mo.getAsFile()
+        useCache = True
+        if useCache:
+            hit, mof = cachedPoFile(self)
+            return mof
+        else:
+            mo = Msgfmt(self._readFile(), self.getId())
+            return mo.getAsFile()
 
     def _readFile(self, reparse=False):
         """Read the data from the filesystem.
@@ -602,3 +608,106 @@ class MissingIds(Persistent):
         raise KeyError, msgid
 
 InitializeClass(MissingIds)
+
+class MoFileCache(object):
+    """Cache for mo files
+    """
+    
+    def __init__(self, path):
+        if not os.path.isdir(path):
+            try:
+                os.makedirs(path)
+            except (IOError, OSError):
+                path = None
+                log("No permission to create directory %s" % path, PROBLEM)
+        self._path = path
+        
+    def storeMoFile(self, catalog):
+        """compile and save to mo file for catalog to disk
+        
+        return value: mo file as file handler
+        """
+        log('Storing mo file for %s' % catalog.getId(), severity=BLATHER)
+        f = self.getPath(catalog)
+        mof = self.compilePo(catalog)
+        if os.access(f, os.W_OK):
+            fd = open(f, 'wb')
+            fd.write(mof.read()) # XXX efficient?
+            fd.close()
+        else:
+            log("No permission to write file %s" % f, PROBLEM)
+        mof.seek(0)
+        return mof
+        
+    def retrieveMoFile(self, catalog):
+        """Load a mo file file for a catalog from disk
+        """
+        log('Cache hit for %s' % catalog.getId(), severity=BLATHER)
+        f = self.getPath(catalog)
+        if os.path.isfile(f):
+            if os.access(f, os.R_OK):
+                return open(f, 'rb')
+            else:
+                log("No permission to read file %s" % f, PROBLEM)
+                return None
+        
+    def getPath(self, catalog):
+        """Get the mo file path (cache path + file name)
+        """
+        id = catalog.getId()
+        if id.endswith('.po'):
+            id = id[:-3]
+        return os.path.join(self._path, '%s.mo' % id)
+        
+    def isCacheHit(self, catalog):
+        """Cache hit?
+        
+        True: file exists and mod time is newer than mod time of the catalog
+        False: file exists but mod time is older
+        None: file doesn't exist
+        """
+        f = self.getPath(catalog)
+        ca_mtime = catalog._getModTime()
+        try:
+            mo_mtime = os.stat(f)[8]
+        except (IOError, OSError):
+            mo_mtime = 0
+        
+        if mo_mtime == 0:
+            return None
+        elif ca_mtime == 0:
+            return None
+        elif mo_mtime > ca_mtime:
+            return True
+        else:
+            return False
+        
+    def compilePo(self, catalog):
+        """compile a po file to mo
+        
+        returns a file handler
+        """
+        mo = Msgfmt(catalog._readFile(), catalog.getId())
+        return mo.getAsFile()
+        
+    def cachedPoFile(self, catalog):
+        """Cache a po file (public api)
+        
+        Returns a file handler on a mo file
+        """
+        path = self._path
+        if path is None:
+            return self.compilePo(catalog)
+        hit = self.isCacheHit(catalog)
+        if hit:
+            mof = self.retrieveMoFile(catalog)
+            if mof is None:
+                mof = self.compilePo(catalog)
+        else:
+            mof = self.storeMoFile(catalog)
+        return hit, mof
+
+
+_moCache = MoFileCache(os.path.join(INSTANCE_HOME, 'var', 'pts'))
+cachedPoFile = _moCache.cachedPoFile
+    

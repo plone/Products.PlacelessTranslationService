@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: utils.py,v 1.4 2004/04/20 23:38:27 tiran Exp $
+$Id$
 '''.strip()
 
 from zLOG import LOG, INFO, BLATHER, PROBLEM, WARNING

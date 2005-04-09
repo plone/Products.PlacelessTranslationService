@@ -3,6 +3,10 @@
     Fixed id generation for po files located in the "locales" directory
     [tiran]
 
+    Added a mo file cache which is storing the compiled files in
+    INSTANCE_HOME/var/pts/${catalog_id}.mo
+    [tiran]
+
 1.2-rc2
 
     ...
