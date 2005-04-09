@@ -17,13 +17,14 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
-$Id: PlacelessTranslationService.py,v 1.40 2004/09/05 20:49:18 tiran Exp $
+$Id$
 """
 
 import sys, os, re, fnmatch
 from types import DictType, StringType, UnicodeType
 
 import Globals
+from ExtensionClass import Base
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view, view_management_screens
 from Globals import InitializeClass
@@ -85,7 +86,7 @@ fbcatalogRegistry = Registry()
 registerFBCatalog = fbcatalogRegistry.register
 
 
-class PTSWrapper:
+class PTSWrapper(Base):
     """
     Wrap the persistent PTS since persistent
     objects cant be passed around threads
@@ -172,7 +173,7 @@ class PlacelessTranslationService(Folder):
     # -3 for alpha, -2 for beta, -1 for release candidate
     # for forked releases internal is always 99
     # use an internal of >99 to recreate the PTS at every startup (development mode)
-    _class_version = (1, 1, 1, -1)
+    _class_version = (1, 1, 2, -1)
     all_meta_types = ()
 
     manage_options = Folder.manage_options + (
@@ -223,7 +224,7 @@ class PlacelessTranslationService(Folder):
         self._p_changed = 1
 
     security.declarePrivate('calculatePoId')
-    def calculatePoId(self, name, popath):
+    def calculatePoId(self, name, popath, language=None, domain=None):
         """Calulate the po id
         """
         # instance, software and global catalog path for i18n and locales
@@ -267,14 +268,17 @@ class PlacelessTranslationService(Folder):
         else:
             pre = 'GlobalCatalogs'
 
-        return '%s-%s' % (pre, name)
+        if language and domain:
+            return "%s-%s-%s.po" % (pre, language, domain)
+        else:
+            return '%s-%s' % (pre, name)
 
     def _load_catalog_file(self, name, popath, language=None, domain=None):
         """
         create catalog instances in ZODB
         """
 
-        id = self.calculatePoId(name, popath)
+        id = self.calculatePoId(name, popath, language=language, domain=domain)
 
         # validate id
         try: self._checkId(id, 1)
