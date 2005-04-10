@@ -630,7 +630,9 @@ class MoFileCache(object):
         log('Storing mo file for %s' % catalog.getId(), severity=BLATHER)
         f = self.getPath(catalog)
         mof = self.compilePo(catalog)
-        if os.access(f, os.W_OK):
+        moExists = os.path.exists(f)
+        if (not moExists and os.access(self._path, os.W_OK)) \
+          or (moExists and os.access(f, os.W_OK)):
             fd = open(f, 'wb')
             fd.write(mof.read()) # XXX efficient?
             fd.close()
