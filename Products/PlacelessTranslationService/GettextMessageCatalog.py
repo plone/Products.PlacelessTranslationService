@@ -699,7 +699,7 @@ class MoFileCache(object):
         """
         path = self._path
         if path is None:
-            return self.compilePo(catalog)
+            return None, self.compilePo(catalog)
         hit = self.isCacheHit(catalog)
         if hit:
             mof = self.retrieveMoFile(catalog)
