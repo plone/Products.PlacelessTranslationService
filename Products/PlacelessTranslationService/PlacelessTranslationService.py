@@ -662,8 +662,11 @@ class PlacelessTranslationService(Folder):
             a = a[1:]
         # wrap the special dtml method Folder.manage_main into a valid
         # acquisition context. Required for Zope 2.8+.
-        manage_main = ImplicitAcquisitionWrapper(Folder.manage_main, self)
-        r = manage_main(self, self, REQUEST, *a, **kw)
+        try:
+            r = Folder.manage_main(self, self, REQUEST, *a, **kw)
+        except AttributeError:
+            manage_main = ImplicitAcquisitionWrapper(Folder.manage_main, self)
+            r = manage_main(self, self, REQUEST, *a, **kw)
         if type(r) is UnicodeType:
             r = r.encode('utf-8')
         REQUEST.RESPONSE.setHeader('Content-type', 'text/html; charset=utf-8')
