@@ -25,6 +25,7 @@ from types import DictType, StringType, UnicodeType
 
 import Globals
 from ExtensionClass import Base
+from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view, view_management_screens
 from Globals import InitializeClass
@@ -659,7 +660,10 @@ class PlacelessTranslationService(Folder):
         if REQUEST is self and a:
             REQUEST = a[0]
             a = a[1:]
-        r = Folder.manage_main(self, self, REQUEST, *a, **kw)
+        # wrap the special dtml method Folder.manage_main into a valid
+        # acquisition context. Required for Zope 2.8+.
+        manage_main = ImplicitAcquisitionWrapper(Folder.manage_main, self)
+        r = manage_main(self, self, REQUEST, *a, **kw)
         if type(r) is UnicodeType:
             r = r.encode('utf-8')
         REQUEST.RESPONSE.setHeader('Content-type', 'text/html; charset=utf-8')
