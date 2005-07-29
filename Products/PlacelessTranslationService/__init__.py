@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 __version__ = '''
-$Id: __init__.py,v 1.18 2004/09/08 14:39:23 tiran Exp $
+$Id$
 '''.strip()
 
 import os, sys
@@ -36,6 +36,7 @@ from PlacelessTranslationService import PTS_IS_RTL
 from utils import log, WARNING, BLATHER, PROBLEM
 from Negotiator import negotiator, setCookieLanguage
 import TranslateTags
+from GettextMessageCatalog import purgeMoFileCache
 
 # in python 2.1 fnmatch doesn't have the filter function
 if not hasattr(fnmatch, 'filter'):
@@ -146,6 +147,7 @@ def initialize(context):
         log('outdated translation service found, recreating',
             detail = '(found %s.%s.%s.%s)\n' % instance_version)
         cp._delObject(cp_id)
+        purgeMoFileCache()
         cp_ts = make_translation_service(cp)
 
 

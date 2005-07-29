@@ -22,6 +22,7 @@ $Id$
 
 from gettext import GNUTranslations
 import os, sys, types, codecs, traceback, time
+import glob
 import re
 
 from Acquisition import aq_parent, Implicit
@@ -708,8 +709,26 @@ class MoFileCache(object):
         else:
             mof = self.storeMoFile(catalog)
         return hit, mof
+        
+    def purgeCache(self):
+        """Purge the cache and remove all compiled mo files
+        """
+        log("Purging mo file cache", INFO)
+        if not os.access(self._path, os.W_OK):
+            log("No write permission on folder %s" % self._path, PROBLEM)
+            return False
+        pattern = os.path.join(self._path, '*.mo')
+        for mo in glob.glob(pattern):
+            if not os.access(mo, os.W_OK):
+                log("No write permission on file %s" % mo, PROBLEM)
+                continue
+            #log("Removing mo file %s" % mo, INFO)
+            os.unlink(mo)
+            
 
 
 _moCache = MoFileCache(os.path.join(INSTANCE_HOME, 'var', 'pts'))
 cachedPoFile = _moCache.cachedPoFile
+purgeMoFileCache = _moCache.purgeCache
+
     

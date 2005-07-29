@@ -1,3 +1,8 @@
+1.2-rc4
+
+    Purge mo file cache when PTS is recreated
+    [tiran]
+
 1.2-rc3
 
     Fixed id generation for po files located in the "locales" directory
