@@ -1,4 +1,4 @@
-1.2-rc4
+1.2.0 - 2005-07-28
 
     Purge mo file cache when PTS is recreated
     [tiran]

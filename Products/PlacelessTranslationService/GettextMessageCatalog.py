@@ -723,8 +723,10 @@ class MoFileCache(object):
                 log("No write permission on file %s" % mo, PROBLEM)
                 continue
             #log("Removing mo file %s" % mo, INFO)
-            os.unlink(mo)
-            
+            try:
+                os.unlink(mo)
+            except IOError:
+                log("Failed to unlink %s" % mo, PROBLEM)
 
 
 _moCache = MoFileCache(os.path.join(INSTANCE_HOME, 'var', 'pts'))
