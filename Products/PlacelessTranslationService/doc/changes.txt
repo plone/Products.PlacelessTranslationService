@@ -1,3 +1,11 @@
+1.2.1 - 2005-08-07
+    
+    fresh tarball for Plone 2.1rc2 (without .svn directories)
+    [batlogg]
+    
+    added greek translation [thx to Nikos Papagrigoriou]
+    [hannosch]
+
 1.2.0 - 2005-07-28
 
     Purge mo file cache when PTS is recreated
