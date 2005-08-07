@@ -1,6 +1,6 @@
 # -*- coding: iso-8859-1 -*-
 #
-# $Id: testTracker.py,v 1.1 2004/07/15 09:19:19 tiran Exp $
+# $Id$
 #
 
 import os, sys

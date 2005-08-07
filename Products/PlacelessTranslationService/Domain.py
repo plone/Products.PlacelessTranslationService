@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
 
-$Id: Domain.py,v 1.4 2004/05/04 21:56:03 dreamcatcher Exp $
+$Id$
 """
 
 class Domain:

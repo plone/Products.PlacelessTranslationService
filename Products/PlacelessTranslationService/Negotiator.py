@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
 
-$Id: Negotiator.py,v 1.12 2004/06/23 14:24:55 tiran Exp $
+$Id$
 """
 
 import types

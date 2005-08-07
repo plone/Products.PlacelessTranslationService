@@ -1,8 +1,8 @@
 # -*- coding: ISO-8859-1 -*-
 #
-# $Id: Tracker.py,v 1.1 2004/07/15 09:19:19 tiran Exp $
+# $Id$
 #
-__version__ = "$Id: Tracker.py,v 1.1 2004/07/15 09:19:19 tiran Exp $"[11:-2]
+__version__ = "$Id$"[11:-2]
 __author__ = "Gilles Lenfant <gilles.lenfant@ingeniweb.com>"
 
 try:
