@@ -17,7 +17,7 @@ Message Id factor based on the i18n/messageid file of Zope 3.
 
 Adapted for the Placeless Translation Service by Christian Heimes
 
-$Id: MessageID.py,v 1.6 2004/05/04 21:56:03 dreamcatcher Exp $
+$Id$
 """
 from types import BuiltinFunctionType, UnicodeType, StringType
 
