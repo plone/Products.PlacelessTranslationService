@@ -1,3 +1,17 @@
+zope-pts (1.0.1) unstable; urgency=low
+
+  * New upstream release
+
+  * Fixed issue with multiple ZEO clients at differen filesystem locations
+
+ -- Simon Eisenmann <simon@longsleep.org>  Wed Feb  9 10:57:54 CET 2005
+
+zope-pts (1.0) unstable; urgency=low
+
+  * New upstream release
+
+ -- Simon Eisenmann <simon@longsleep.org>  Thu Nov 25 23:14:52 CET 2004
+
 zope-pts (1.0.fork-rc7-1) unstable; urgency=low
 
   * New upstream release

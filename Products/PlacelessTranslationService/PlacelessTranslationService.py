@@ -1,5 +1,5 @@
 ##############################################################################
-#    Copyright (C) 2001, 2002, 2003 Lalo Martins <lalo@laranja.org>,
+#    Copyright (C) 2001-2005 Lalo Martins <lalo@laranja.org>,
 #                  Zope Corporation and Contributors
 
 #    This program is free software; you can redistribute it and/or modify
