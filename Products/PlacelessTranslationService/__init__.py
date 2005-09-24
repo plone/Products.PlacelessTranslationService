@@ -121,6 +121,7 @@ def make_translation_service(cp):
     translation_service = PlacelessTranslationService('default')
     translation_service.id = cp_id
     cp._setObject(cp_id, translation_service)
+    translation_service = PTSWrapper(translation_service)
     return getattr(cp, cp_id)
 
 def initialize(context):
@@ -131,7 +132,7 @@ def initialize(context):
         cp_ts = getattr(cp, cp_id)
         # use the ts in the acquisition context of the control panel
         # translation_service = translation_service.__of__(cp)
-        translation_service = cp_ts
+        translation_service = PTSWrapper(cp_ts)
     else:
         cp_ts = make_translation_service(cp)
 

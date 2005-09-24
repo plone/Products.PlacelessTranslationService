@@ -1,5 +1,10 @@
 unreleased
 
+    Replaced storing the persistent PTS at the module level in __init__.py
+    with a PTSWrapper object.  Added isRTL method to PTSWrapper.  Should
+    fix the connection issues.
+    [alecm]
+
     merged missing fix from the 1.0 branch. It's changelog entry was:
     "Fixed issue with multiple ZEO clients at differen filesystem locations."
     This was done by longsleep on Feb 9, 2005
