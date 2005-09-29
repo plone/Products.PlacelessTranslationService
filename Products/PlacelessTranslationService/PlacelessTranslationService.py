@@ -154,7 +154,7 @@ class PTSWrapper(Base):
         service = self.load(context)
         return service.negotiate_language(context.REQUEST,domain)
 
-    security.declarePrivate('negotiate_language')
+    security.declarePublic('isRTL')
     def isRTL(self, context, domain):
         service = self.load(context)
         # Default to LtR
