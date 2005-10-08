@@ -1,4 +1,8 @@
-unreleased
+1.2.3 - unreleased
+
+
+
+1.2.2 - 2005-10-08
 
     Replaced storing the persistent PTS at the module level in __init__.py
     with a PTSWrapper object.  Added isRTL method to PTSWrapper.  Should
