@@ -1,6 +1,10 @@
 1.2.3 - unreleased
 
-
+    Fixed http://plone.org/collector/4799 - upgrade from 2.1 to 2.1.1 breaks all
+    message catalogs. We now increment the internal class version of PTS, which
+    will result in a recreation of the translation_service object in the ZODB,
+    so all contained internal poFile objects get removed and freshly recreated
+    [hannosch]
 
 1.2.2 - 2005-10-08
 
