@@ -1,28 +1,16 @@
 # -*- coding: iso-8859-1 -*-
-#
-# $Id$
-#
 
 import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
 import unittest
-
 from Testing import ZopeTestCase
 
 import Products.PlacelessTranslationService.Tracker as TrackerModule
-
 from Products.PlacelessTranslationService.Tracker import Tracker
 
 ZopeTestCase.installProduct('PlacelessTranslationService')
-
-# Emulate Python 2.3.x
-try:
-    False
-except NameError, e:
-    True = not not (1 == 1)
-    False = not True
 
 
 class BasicTrackerTestCase(unittest.TestCase):
@@ -159,13 +147,14 @@ class PTSTrackerTestCase(ZopeTestCase.ZopeTestCase):
                              ['msg0', 'msg3'])
         return
 
+def test_suite():
+    from unittest import TestSuite, makeSuite
+    suite = TestSuite()
+    suite.addTest(makeSuite(BasicTrackerTestCase))
+    suite.addTest(makeSuite(AdvancedTrackerTestCase))
+    suite.addTest(makeSuite(PTSTrackerTestCase))
+    return suite
+
 if __name__ == '__main__':
     framework()
-else:
-    def test_suite():
-        from unittest import TestSuite, makeSuite
-        suite = TestSuite()
-        suite.addTest(makeSuite(BasicTrackerTestCase))
-        suite.addTest(makeSuite(AdvancedTrackerTestCase))
-        suite.addTest(makeSuite(PTSTrackerTestCase))
-        return suite
+
