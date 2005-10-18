@@ -1,5 +1,9 @@
 1.2.4 - unreleased
 
+    Increased class version again and wrote test to ensure matching class
+    version and version in version.txt
+    [hannosch]
+
 1.2.3 - 2005-10-17
 
     Fixed http://plone.org/collector/4799 - upgrade from 2.1 to 2.1.1 breaks all

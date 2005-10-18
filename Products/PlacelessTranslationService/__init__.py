@@ -25,6 +25,8 @@ import fnmatch
 from Products.PageTemplates.GlobalTranslationService import \
     setGlobalTranslationService, getGlobalTranslationService
 import Globals
+pts_globals = globals()
+
 from OFS.Application import get_products
 from AccessControl import ModuleSecurityInfo, allow_module
 from AccessControl.Permissions import view
