@@ -1,5 +1,9 @@
 1.2.4 - unreleased
 
+    Made some filesystem access code a bit more robust by additionally catching
+    OSErrors. This fixes http://plone.org/collector/4824.
+    [hannosch]
+
     Increased class version again and wrote test to ensure matching class
     version and version in version.txt
     [hannosch]

@@ -24,6 +24,7 @@ from gettext import GNUTranslations
 import os, sys, types, codecs, traceback, time
 import glob
 import re
+from stat import ST_MTIME
 
 from Acquisition import aq_parent, Implicit
 from DateTime import DateTime
@@ -110,8 +111,8 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         """
         """
         try:
-            mtime = os.stat(self._getPoFile())[8]
-        except IOError:
+            mtime = os.stat(self._getPoFile())[ST_MTIME]
+        except (IOError, OSError):
             mtime = 0
         return mtime
 
@@ -402,8 +403,8 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         """
         """
         try:
-            mtime = os.stat(self._getPoFile())[8]
-        except IOError:
+            mtime = os.stat(self._getPoFile())[ST_MTIME]
+        except (IOError, OSError):
             mtime = 0
         return mtime
 
@@ -692,7 +693,7 @@ class MoFileCache(object):
         f = self.getPath(catalog)
         ca_mtime = catalog._getModTime()
         try:
-            mo_mtime = os.stat(f)[8]
+            mo_mtime = os.stat(f)[ST_MTIME]
         except (IOError, OSError):
             mo_mtime = 0
         
