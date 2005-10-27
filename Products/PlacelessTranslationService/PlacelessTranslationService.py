@@ -48,12 +48,6 @@ from GettextMessageCatalog import ptFile
 PTS_IS_RTL = '_pts_is_rtl'
 
 try:
-    True
-except NameError:
-    True=1
-    False=0
-
-try:
     from pax import XML
 except:
     def XML(v):

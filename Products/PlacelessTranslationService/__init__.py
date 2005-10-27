@@ -40,12 +40,6 @@ from Negotiator import negotiator, setCookieLanguage
 import TranslateTags
 from GettextMessageCatalog import purgeMoFileCache
 
-# in python 2.1 fnmatch doesn't have the filter function
-if not hasattr(fnmatch, 'filter'):
-    def fnfilter(names, pattern):
-        return [name for name in names if fnmatch.fnmatch(name, pattern)]
-    fnmatch.filter = fnfilter
-
 # this is for packages that need to initialize stuff after we're done
 notify_initialized = []
 

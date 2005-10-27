@@ -30,13 +30,6 @@ from Products.PlacelessTranslationService import translate, utranslate
 from PatchStringIO import applyRequestPatch
 applyRequestPatch()
 
-try:
-    True
-except NameError:
-    True=1
-    False=0
-
-
 class MessageIDBase:
     """Message ID.
 

@@ -1,5 +1,9 @@
 1.2.4 - unreleased
 
+    Removed some Python 2.1 compatibility code and added first very basic test
+    for loading po files
+    [hannosch]
+
     Made some filesystem access code a bit more robust by additionally catching
     OSErrors. This fixes http://plone.org/collector/4824.
     [hannosch]
