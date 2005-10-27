@@ -12,7 +12,8 @@ from Testing import ZopeTestCase
 
 ZopeTestCase.installProduct('PlacelessTranslationService')
 
-import os
+import os, fnmatch
+from glob import glob
 from OFS.Application import get_products
 from Products.PlacelessTranslationService import pts_globals, getTranslationService
 from Products.PlacelessTranslationService import PlacelessTranslationService as PTS
@@ -56,12 +57,21 @@ class TestLoadI18NFolder(ZopeTestCase.ZopeTestCase):
             if prod[1] == 'PlacelessTranslationService':
                 pts_prod = prod
 
-        pts_i18n_dir = os.path.join(pts_prod[3], pts_prod[1], 'i18n')
+        pts_dir = os.path.join(pts_prod[3], pts_prod[1])
+        self.failUnless(PACKAGE_HOME.startswith(INSTANCE_HOME), \
+                        'PTS is not installed in INSTANCE_HOME: %s, but here: %s' % (INSTANCE_HOME, PACKAGE_HOME))
+        self.failUnless(pts_dir.startswith(INSTANCE_HOME), \
+                        'PTS path found in Zope Control Panel is not installed in INSTANCE_HOME: %s, but here: %s' % (INSTANCE_HOME, pts_dir))
+
+        pts_i18n_dir = os.path.join(pts_dir, 'i18n')
         PTS._load_i18n_dir(self.service, pts_i18n_dir)
 
-        pts_de_name = 'PlacelessTranslationService.i18n-pts-de.po'
-        self.failUnless(pts_de_name in self.service.objectIds())
-        
+        pts_po_files = fnmatch.filter(os.listdir(os.path.join(PACKAGE_HOME, 'i18n')), '*.po')
+        for name in pts_po_files:
+            po = PTS.calculatePoId(self.service, name, pts_i18n_dir)
+            self.failUnless(po in self.service.objectIds(), \
+                            'A po file found on the filesystem (%s) was not loaded. Should have had id: %s' % (name, po))
+
 
 def test_suite():
     from unittest import TestSuite, makeSuite
