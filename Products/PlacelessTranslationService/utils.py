@@ -53,13 +53,13 @@ def make_relative_location(popath):
     # when po is located below ZOPE_HOME
 
     popath = os.path.normpath(popath)
-    instance_home = os.path.normpath(INSTANCE_HOME)
-    zope_home = os.path.normpath(ZOPE_HOME)
+    instance_home = os.path.normpath(INSTANCE_HOME) + os.sep
+    zope_home = os.path.normpath(ZOPE_HOME) + os.sep
 
-    if popath.startswith(zope_home):
-        return ("ZOPE_HOME", popath[len(zope_home)+1:])
-    elif popath.startswith(instance_home):
-        return ("INSTANCE_HOME", popath[len(instance_home)+1:])
+    if popath.startswith(instance_home):
+        return ("INSTANCE_HOME", popath[len(instance_home):])
+    elif popath.startswith(zope_home):
+        return ("ZOPE_HOME", popath[len(zope_home):])
     else:
-        return ("ABSOLUTE", popath) 
+        return ("ABSOLUTE", popath)
 

@@ -1,6 +1,9 @@
 1.2.5 - unreleased
 
-    
+    Fix problems with folder layout where INSTANCE_HOME.startswith(ZOPE_HOME)
+    is True, as reported in http://plone.org/collector/4983. Thanks to ymahe for
+    the patch, which I have slightly modified.
+    [hannosch]
 
 1.2.4 - 2005-11-16
 
