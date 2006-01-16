@@ -132,7 +132,8 @@ def initialize(context):
     else:
         cp_ts = make_translation_service(cp)
 
-    # don't touch - this is the last version that didn't have the attribute (0.4)
+    # don't touch - this is the last version that didn't have the
+    # attribute (0.4)
     instance_version = getattr(cp_ts, '_instance_version', (0, 4, 0, 0))
     if instance_version[3] > 99:
         log('development mode: translation service recreated',
@@ -171,8 +172,9 @@ def initialize(context):
         log('no translations found!', PROBLEM)
 
     # set ZPT's translation service
-    # NOTE: since this registry is a global var we cant register the persistent service itself (zodb connection)
-    #       therefor a wrapper is created around it
+    # NOTE: since this registry is a global var we cant register the
+    #       persistent service itself (zodb connection) therefore a
+    #       wrapper is created around it
     setGlobalTranslationService(PTSWrapper(cp_ts))
 
     # notify anyone who needs it

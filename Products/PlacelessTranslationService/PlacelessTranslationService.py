@@ -113,11 +113,11 @@ class PTSWrapper(Base):
         get the real service and call its translate method
         return default if service couldnt be retrieved
         """
-        
+
         # this is useful for GettextMessageCatalog
-        # see the end of GettextMessageCatalog.py for details        
+        # see the end of GettextMessageCatalog.py for details
         __pts_caller_backcount__ = 1
-        
+
         service = self.load(context)
         if not service: return default
         return service.translate(domain, msgid, mapping, context, target_language, default)
@@ -171,17 +171,20 @@ class PlacelessTranslationService(Folder):
     meta_type = title = 'Placeless Translation Service'
     icon = 'misc_/PlacelessTranslationService/PlacelessTranslationService.png'
     # major, minor, patchlevel, internal
-    # internal is always 0 on releases; if you hack this internally, increment it
+    # internal is always 0 on releases
+    # if you hack this internally, increment it
     # -3 for alpha, -2 for beta, -1 for release candidate
     # for forked releases internal is always 99
-    # use an internal of >99 to recreate the PTS at every startup (development mode)
+    # use an internal of > 99 to recreate the PTS at every startup
+    # (development mode)
     _class_version = (1, 2, 6, 0)
     all_meta_types = ()
 
     manage_options = Folder.manage_options + (
         {'label': 'Tracker', 'action': 'manage_trackerForm'},)
 
-    manage_trackerForm = ptFile('manage_trackerForm', globals(), 'www', 'manage_trackerForm')
+    manage_trackerForm = ptFile(
+        'manage_trackerForm', globals(), 'www', 'manage_trackerForm')
 
     security = ClassSecurityInfo()
 
@@ -200,8 +203,6 @@ class PlacelessTranslationService(Folder):
         self._fallbacks = fallbacks
 
     def _registerMessageCatalog(self, catalog):
-
-
         # dont register broken message catalogs
         if isinstance(catalog, BrokenMessageCatalog): return
 
@@ -217,7 +218,8 @@ class PlacelessTranslationService(Folder):
                 combo.remove(catalog.getIdentifier())
             except ValueError:
                 continue
-            if not combo: # removed the last catalog for a language/domain combination
+            if not combo: # removed the last catalog for a
+                          # language/domain combination
                 del clist[key]
 
     def _unregisterMessageCatalog(self, catalog):
@@ -251,7 +253,8 @@ class PlacelessTranslationService(Folder):
             isGlobalCatalog = True
         else:
             # po file is located at a strange place
-            # calculate the name using the position of the i18n/locales directory
+            # calculate the name using the position of the
+            # i18n/locales directory
             p = popath.split(os.sep)
             try:
                 idx = p.index('i18n')
@@ -330,7 +333,11 @@ class PlacelessTranslationService(Folder):
         depr_names = fnmatch.filter(os.listdir(basepath), '*.mo')
         if depr_names:
             import warnings
-            warnings.warn('Compiled po files (*.mo) found in %s. PlacelessTranslationService now compiles mo files automatically. All mo files have been ignored.' % basepath, DeprecationWarning, stacklevel=4)
+            warnings.warn(
+                'Compiled po files (*.mo) found in %s. '
+                'PlacelessTranslationService now compiles '
+                'mo files automatically. All mo files have '
+                'been ignored.' % basepath, DeprecationWarning, stacklevel=4)
 
         # load po files
         names = fnmatch.filter(os.listdir(basepath), '*.po')
@@ -383,8 +390,8 @@ class PlacelessTranslationService(Folder):
             # try to recover
             log('Using get_request patch.', severity=INFO)
             # XXX: import the get_request method
-            # this will fail the first time we need it if the patch wasn't applied
-            # before
+            # this will fail the first time we need it if the patch
+            # wasn't applied before
             try:
                 from Globals import get_request
             except ImportError:
