@@ -1,5 +1,12 @@
 1.2.6 - unreleased
 
+    Added a environment variable "DISABLE_PTS" to entirely disable
+    loading of translation files and registration of PTS as a
+    translation service without removing the product from the
+    'Products' directory. HINT: One easy way to set environment
+    variables is to use the <environment> 'zope.conf' directive.
+    [dreamcatcher]
+
 1.2.5 - 2005-12-06
 
     Fix problems with folder layout where INSTANCE_HOME.startswith(ZOPE_HOME)
