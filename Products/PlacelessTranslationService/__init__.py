@@ -123,6 +123,11 @@ def make_translation_service(cp):
 def initialize(context):
     # hook into the Control Panel
     global translation_service
+
+    # allow for disabling PTS entirely by setting a environment variable.
+    if bool(os.getenv('DISABLE_PTS')):
+        return
+
     cp = context._ProductContext__app.Control_Panel # argh
     if cp_id in cp.objectIds():
         cp_ts = getattr(cp, cp_id)
