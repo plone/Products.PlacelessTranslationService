@@ -126,6 +126,7 @@ def initialize(context):
 
     # allow for disabling PTS entirely by setting a environment variable.
     if bool(os.getenv('DISABLE_PTS')):
+        log('Disabled by environment variable "DISABLE_PTS".', WARNING)
         return
 
     cp = context._ProductContext__app.Control_Panel # argh
