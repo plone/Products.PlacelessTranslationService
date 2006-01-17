@@ -312,6 +312,8 @@ class PlacelessTranslationService(Folder):
                 self._delObject(id)
             except:
                 pass
+        except KeyboardInterrupt:
+            raise
         except:
             exc=sys.exc_info()
             log('Message Catalog has errors', PROBLEM, name, exc)
