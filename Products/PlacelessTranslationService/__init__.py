@@ -60,7 +60,6 @@ misc_ = {
 # set product-wide attrs for importing
 security = ModuleSecurityInfo('Products.PlacelessTranslationService')
 allow_module('Products.PlacelessTranslationService')
-allow_module('Products.PlacelessTranslationService.MessageID')
 
 security.declareProtected(view, 'getTranslationService')
 def getTranslationService():

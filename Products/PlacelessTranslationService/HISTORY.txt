@@ -1,5 +1,9 @@
 1.2.6 - unreleased
 
+    Removed home-grown MessageID implementation. Using Zope 3 MessageID's is now
+    possible with Zope 2.8 / Five 1.1 or Zope > 2.9.
+    [hannosch]
+
     Moved changes.txt from doc subfolder to main folder and renamed it to
     HISTORY.txt to comply to the standard layout.
     [hannosch]
