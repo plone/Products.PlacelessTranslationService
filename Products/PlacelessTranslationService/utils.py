@@ -24,12 +24,6 @@ from UserDict import UserDict
 from types import UnicodeType
 import sys, os
 
-try:
-    True
-except NameError:
-    True=1
-    False=0
-
 NOISY_DEBUG = False
 
 class Registry(UserDict):
@@ -37,7 +31,7 @@ class Registry(UserDict):
     def register(self, name, value):
         self[name] = value
 
-def log(msg, severity=INFO, detail='', error=None):
+def log(msg, severity=BLATHER, detail='', error=None):
     if not NOISY_DEBUG and severity == BLATHER:
         return
     if type(msg) is UnicodeType:

@@ -1,5 +1,13 @@
 1.2.6 - unreleased
 
+    Moved changes.txt from doc subfolder to main folder and renamed it to
+    HISTORY.txt to comply to the standard layout.
+    [hannosch]
+
+    Changed standard logging level to BLATHER instead of INFO so the startup
+    process isn't bombarded with useless messages.
+    [hannosch]
+
     Added a environment variable "DISABLE_PTS" to entirely disable
     loading of translation files and registration of PTS as a
     translation service without removing the product from the
