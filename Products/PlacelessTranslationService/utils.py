@@ -32,8 +32,6 @@ class Registry(UserDict):
         self[name] = value
 
 def log(msg, severity=BLATHER, detail='', error=None):
-    if not NOISY_DEBUG and severity == BLATHER:
-        return
     if type(msg) is UnicodeType:
         msg = msg.encode(sys.getdefaultencoding(), 'replace')
     if type(detail) is UnicodeType:
