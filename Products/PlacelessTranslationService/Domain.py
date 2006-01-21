@@ -30,7 +30,6 @@ class Domain:
         """Return the domain name"""
         return self._domain
 
-
     def translate(self, msgid, mapping=None, context=None,
                   target_language=None):
         return self._translationService.translate(

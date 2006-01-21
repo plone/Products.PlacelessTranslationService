@@ -5,12 +5,6 @@
 __version__ = "$Id$"[11:-2]
 __author__ = "Gilles Lenfant <gilles.lenfant@ingeniweb.com>"
 
-try:
-    False
-except NameError:
-    True = 1
-    False = 0
-
 import time
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass

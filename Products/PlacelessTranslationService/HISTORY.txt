@@ -1,5 +1,8 @@
 1.2.6 - unreleased
 
+    Removed some Python 2.1 BBB and unused code.
+    [hannosch]
+
     Removed home-grown MessageID implementation. Using Zope 3 MessageID's is now
     possible with Zope 2.8 / Five 1.1 or Zope > 2.9.
     [hannosch]

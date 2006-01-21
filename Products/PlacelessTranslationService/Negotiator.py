@@ -22,12 +22,6 @@ $Id$
 
 import types
 
-try:
-    True
-except NameError:
-    True=1
-    False=0
-
 _langPrefsRegistry = {}
 
 def getAcceptedHelper(self, request, kind='language'):

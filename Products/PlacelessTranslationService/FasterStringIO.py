@@ -34,11 +34,6 @@ Adapted for the PlacelessTranslationService / SpeedPack by Christian Heimes
 
 Thanks to Andreas Jung for his idea to use list.append().
 """
-try:
-    True
-except NameError:
-    True=1
-    False=0
 
 from types import UnicodeType, StringType
 from TAL.TALInterpreter import _write_ValueError
@@ -49,13 +44,8 @@ class FasterStringIO:
     unicode aware and restricted version of StringIO for Zope's TAL
     """
     def __init__(self, buf = ''):
-        ## disabled
-        ## Force self.buf to be a string or unicode
-        ##if type(buf) in (UnicodeType, StringType):
-        ##    buf = str(buf)
         self.buf = []
         self.buf.append(buf)
-        #self.len = len(buf)
         self.linepos = 0
         self.closed = 0
 
@@ -131,10 +121,6 @@ class FasterStringIO:
                 # not an HTTPResponse
                 pass
 
-        #for l in s.split('\n'):
-        #    self.len += len(l) +1
-        #    self.buf.append(l)
-        #self.len += len(s) +1
         self.buf.append(s)
 
     def writelines(self, list):

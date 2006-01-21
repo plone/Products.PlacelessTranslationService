@@ -87,10 +87,6 @@ class PTSWrapper(Base):
     objects cant be passed around threads
     """
 
-    #XXX: better have a real seperation between
-    #     control panel and translation service
-    #     to avoid these zodb traversals
-
     security = ClassSecurityInfo()
 
     def __init__(self, service):
