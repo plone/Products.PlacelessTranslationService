@@ -2,7 +2,7 @@
 # -*- coding: iso-8859-1 -*-
 # Written by Martin v. Loewis <loewis@informatik.hu-berlin.de>
 #
-# Changed by Christian 'Tiran' Heimes <ch@comlounge.net> for the placeless
+# Changed by Christian 'Tiran' Heimes <tiran@cheimes.de> for the placeless
 # translation service (PTS) of zope
 
 """Generate binary message catalog from textual translation description.

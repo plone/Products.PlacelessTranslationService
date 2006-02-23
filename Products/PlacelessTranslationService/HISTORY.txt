@@ -216,7 +216,7 @@
 
     Added a builtin mo compiler based on the msgfmt tool from the python source
     package. No need to compile the po files to mo files. Thanks to
-    Christian 'Tiran' Heimes <ch@comlounge.net>
+    Christian 'Tiran' Heimes <tiran@cheimes.de>
 
     No longer load mo files on startup. Catalogs are automatically compiled.
 
