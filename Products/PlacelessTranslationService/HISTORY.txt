@@ -1,4 +1,4 @@
-1.2.6 - unreleased
+1.2.6 - Released February 25, 2006
 
     Removed some Python 2.1 BBB and unused code.
     [hannosch]
