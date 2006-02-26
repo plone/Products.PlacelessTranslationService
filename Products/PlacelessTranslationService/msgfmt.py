@@ -28,7 +28,6 @@ Exceptions:
   * msgfmt.PoSyntaxError if the po file has syntax errors
 
 """
-import sys, os
 import struct
 import array
 from types import FileType, StringType, ListType

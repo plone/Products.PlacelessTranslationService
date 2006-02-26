@@ -21,7 +21,7 @@ $Id$
 """
 
 import sys, os, re, fnmatch
-from types import DictType, StringType, UnicodeType
+from types import StringType, UnicodeType
 
 import Globals
 from ExtensionClass import Base

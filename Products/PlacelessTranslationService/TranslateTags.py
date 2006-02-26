@@ -19,11 +19,10 @@ __version__ = '''
 $Id$
 '''.strip()
 
-from utils import log
+import string
 from DocumentTemplate.DT_String import String
 from DocumentTemplate.DT_Util import parse_params
-import string, random, Globals, os, glob, zLOG
-from DocumentTemplate import DT_Var, DT_Util
+import Globals
 
 def get(d, k, f):
     try:
@@ -57,7 +56,7 @@ class TranslateTag:
             r.append(section(None, md))
 
         if r:
-            if len(r) > 1: r = "(%s)" % join(r,' ')
+            if len(r) > 1: r = "(%s)" % string.join(r,' ')
             else: r = r[0]
         else:
             r = ''

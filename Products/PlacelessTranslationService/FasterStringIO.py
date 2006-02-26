@@ -35,7 +35,7 @@ Adapted for the PlacelessTranslationService / SpeedPack by Christian Heimes
 Thanks to Andreas Jung for his idea to use list.append().
 """
 
-from types import UnicodeType, StringType
+from types import UnicodeType
 from TAL.TALInterpreter import _write_ValueError
 
 class FasterStringIO:

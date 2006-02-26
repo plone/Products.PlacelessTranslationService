@@ -19,8 +19,7 @@ __version__ = '''
 $Id$
 '''.strip()
 
-import os, sys
-import fnmatch
+import os
 
 from Products.PageTemplates.GlobalTranslationService import \
     setGlobalTranslationService, getGlobalTranslationService

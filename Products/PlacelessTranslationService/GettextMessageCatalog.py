@@ -29,14 +29,13 @@ from stat import ST_MTIME
 from Acquisition import aq_parent, Implicit
 from DateTime import DateTime
 from AccessControl import ClassSecurityInfo
-from AccessControl.Permissions import view, view_management_screens
+from AccessControl.Permissions import view_management_screens
 from Globals import InitializeClass
 from Globals import INSTANCE_HOME
 import Globals
 from OFS.Traversable import Traversable
-from Persistence import Persistent, Overridable
+from Persistence import Persistent
 from App.Management import Tabs
-from OFS.Uninstalled import BrokenClass
 
 from utils import log, make_relative_location, Registry, INFO, BLATHER, PROBLEM
 from msgfmt import Msgfmt
