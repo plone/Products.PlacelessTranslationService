@@ -1,5 +1,9 @@
 1.2.7 - Unreleased
 
+    Added test to show that dtml translation is broken, see
+    http://dev.plone.org/plone/ticket/4895.
+    [hannosch]
+
 1.2.6 - Released February 25, 2006
 
     Removed some Python 2.1 BBB and unused code.
