@@ -1,5 +1,11 @@
 1.2.7 - Unreleased
 
+    Fixed a bug where the translation service would return None for a
+    translation, when it could not find one and the default was None. Changed to
+    use the msgid instead. This has happened for all Zope3 Messages which have
+    no default text.
+    [hannosch] [alecm]
+
     Added test to show that dtml translation is broken, see
     http://dev.plone.org/plone/ticket/4895.
     [hannosch]

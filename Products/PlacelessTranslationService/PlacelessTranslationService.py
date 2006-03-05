@@ -555,6 +555,7 @@ class PlacelessTranslationService(Folder):
 
         # ZPT passes the object as context.  That's wrong according to spec.
         context = self._getContext(context)
+        text = msgid
 
         catalogs = self.getCatalogsForTranslation(context, domain, target_language)
         for catalog in catalogs:
@@ -575,11 +576,9 @@ class PlacelessTranslationService(Folder):
                 text = context.RESPONSE._encode_unicode(text)
             break
         else:
-            # Did the fallback fail?  Sigh, use the default.
-            # OpenTAL provides a default text.
-            # TAL doesn't but will use the default
-            # if None is returned
-            text = default
+            # Did the fallback fail? Sigh, use the default if it is not None.
+            if default is not None:
+                text = default
             if target_language is None:
                 target_language = self.negotiate_language(context, domain)
             global_tracker.recordFailure(domain, msgid, target_language)
