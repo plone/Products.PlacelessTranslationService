@@ -4,6 +4,10 @@
     http://dev.plone.org/plone/ticket/4895.
     [hannosch]
 
+    Do not reset the PTS_IS_RTL flag in a request if it is already set. 
+    http://dev.plone.org/plone/ticket/4631
+    [wichert]
+
 1.2.6 - Released February 25, 2006
 
     Removed some Python 2.1 BBB and unused code.

@@ -479,7 +479,8 @@ class PlacelessTranslationService(Folder):
         context.set(cache_name, catalog_names)
 
         # test for right to left language
-        context.set(PTS_IS_RTL, False)
+        if not context.has_key(PTS_IS_RTL):
+            context.set(PTS_IS_RTL, False)
         for name in catalog_names:
             if rtlRegistry.get(name):
                 context.set(PTS_IS_RTL, True)
