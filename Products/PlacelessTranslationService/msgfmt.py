@@ -4,6 +4,8 @@
 #
 # Changed by Christian 'Tiran' Heimes <tiran@cheimes.de> for the placeless
 # translation service (PTS) of zope
+#
+# Slightly updated by Hanno Schlichting <plone@hannosch.info>
 
 """Generate binary message catalog from textual translation description.
 
@@ -34,13 +36,6 @@ from types import FileType, StringType, ListType
 from cStringIO import StringIO
 
 __version__ = "1.1pts"
-
-
-try:
-    True
-except NameError:
-    True=1
-    False=0
 
 class PoSyntaxError(Exception):
     """ Syntax error in a po file """
@@ -129,7 +124,6 @@ class Msgfmt:
 
         # Parse the catalog
         lno = 0
-        #import pdb; pdb.set_trace()
         for l in lines:
             lno += 1
             # If we get a comment line after a msgstr or a line starting with
@@ -141,7 +135,7 @@ class Msgfmt:
                 section = None
                 fuzzy = 0
             # Record a fuzzy mark
-            if l[:2] == '#,' and l.find('fuzzy'):
+            if l[:2] == '#,' and l.find('fuzzy') > -1:
                 fuzzy = 1
             # Skip comments
             if l[0] == '#':

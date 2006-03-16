@@ -1,5 +1,9 @@
 1.2.7 - Unreleased
 
+    Fixed a bug in msgfmt.py noted by Andrey Lebedev. All comments starting with
+    '#,' where treated as fuzzy.
+    [hannosch]
+
     Fixed a bug where the translation service would return None for a
     translation, when it could not find one and the default was None. Changed to
     use the msgid instead. This has happened for all Zope3 Messages which have
