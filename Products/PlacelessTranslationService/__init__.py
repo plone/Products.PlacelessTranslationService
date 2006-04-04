@@ -1,23 +1,6 @@
-##############################################################################
-#    Copyright (C) 2001-2005 Lalo Martins <lalo@laranja.org>,
-#                  and Contributors
-
-#    This program is free software; you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation; either version 2 of the License, or
-#    (at your option) any later version.
-
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-
-#    You should have received a copy of the GNU General Public License
-#    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
-__version__ = '''
+"""
 $Id$
-'''.strip()
+"""
 
 import os
 
@@ -34,7 +17,10 @@ import PatchStringIO # patch at first
 from PlacelessTranslationService import PlacelessTranslationService
 from PlacelessTranslationService import PTSWrapper
 from PlacelessTranslationService import PTS_IS_RTL
-from utils import log, WARNING, BLATHER, PROBLEM
+
+import logging
+from utils import log
+
 from Negotiator import negotiator, setCookieLanguage
 import TranslateTags
 from GettextMessageCatalog import purgeMoFileCache
@@ -104,7 +90,7 @@ security.declareProtected(view, 'negotiate')
 def negotiate(langs, context):
     """ deprecated! """
     if not negotiateDeprecatedLogged:
-        log('Products.PlacelessTranslationService.negotiate() is deprecated', WARNING)
+        log('Products.PlacelessTranslationService.negotiate() is deprecated', logging.WARNING)
         negotiateDeprecatedLogged = 1
     return negotiator.negotiate(langs, context, 'language')
 
@@ -124,7 +110,7 @@ def initialize(context):
 
     # allow for disabling PTS entirely by setting a environment variable.
     if bool(os.getenv('DISABLE_PTS')):
-        log('Disabled by environment variable "DISABLE_PTS".', WARNING)
+        log('Disabled by environment variable "DISABLE_PTS".', logging.WARNING)
         return
 
     cp = context._ProductContext__app.Control_Panel # argh
@@ -154,7 +140,7 @@ def initialize(context):
 
 
     # sweep products
-    log('products: %r' % get_products(), BLATHER)
+    log('products: %r' % get_products(), logging.DEBUG)
     ploneDir = None
     for prod in get_products():
         # prod is a tuple in the form:
@@ -173,7 +159,7 @@ def initialize(context):
 
     # didn't found any catalogs
     if not cp_ts.objectIds():
-        log('no translations found!', PROBLEM)
+        log('no translations found!', logging.DEBUG)
 
     # set ZPT's translation service
     # NOTE: since this registry is a global var we cant register the

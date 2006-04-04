@@ -135,7 +135,7 @@ class Msgfmt:
                 section = None
                 fuzzy = 0
             # Record a fuzzy mark
-            if l[:2] == '#,' and l.find('fuzzy') > -1:
+            if l[:2] == '#,' and 'fuzzy' in l:
                 fuzzy = 1
             # Skip comments
             if l[0] == '#':

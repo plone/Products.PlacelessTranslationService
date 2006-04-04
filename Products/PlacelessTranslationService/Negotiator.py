@@ -1,22 +1,4 @@
-##############################################################################
-#    Copyright (C) 2001-2005 Lalo Martins <lalo@laranja.org>,
-#                  Zope Corporation and Contributors
-
-#    This program is free software; you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation; either version 2 of the License, or
-#    (at your option) any later version.
-
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-
-#    You should have received a copy of the GNU General Public License
-#    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """
-
 $Id$
 """
 
@@ -122,11 +104,10 @@ class BrowserAccept:
         length=len(req_accepts)
         filters = self.filters.get(kind, ())
 
-        # parse quality strings and build a tuple
-        # like ((float(quality), lang), (float(quality), lang))
-        # which is sorted afterwards
-        # if no quality string is given then the list order
-        # is used as quality indicator
+        # parse quality strings and build a tuple like
+        # ((float(quality), lang), (float(quality), lang))
+        # which is sorted afterwards if no quality string is given then the
+        # list order is used as quality indicator
         for accept in req_accepts:
             for normalizer in filters:
                 accept = normalizer(accept)
@@ -215,7 +196,6 @@ class RequestGetAccept:
                 else:
                     setLanguage = False
             except (ValueError, AttributeError), msg:
-                # XXX log?
                 setLanguage = False
             if setLanguage:
                 setCookieLanguage(request, language)
@@ -259,7 +239,7 @@ class Negotiator:
     def _negotiate(self, choices, request, kind):
 
         userchoices = getLangPrefs(request, kind)
-        # Prioritize on the user preferred choices.  Return the first user
+        # Prioritize on the user preferred choices. Return the first user
         # preferred choice that the object has available.
         test = self.tests.get(kind, _false)
         for choice in userchoices:

@@ -1,20 +1,3 @@
-##############################################################################
-#    Copyright (C) 2001, 2002, 2003 Lalo Martins <lalo@laranja.org>,
-#                  Zope Corporation and Contributors
-
-#    This program is free software; you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation; either version 2 of the License, or
-#    (at your option) any later version.
-
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-
-#    You should have received a copy of the GNU General Public License
-#    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """A simple implementation of a Message Catalog.
 
 $Id$
@@ -37,7 +20,8 @@ from OFS.Traversable import Traversable
 from Persistence import Persistent
 from App.Management import Tabs
 
-from utils import log, make_relative_location, Registry, INFO, BLATHER, PROBLEM
+import logging
+from utils import log, make_relative_location, Registry
 from msgfmt import Msgfmt
 
 try:
@@ -45,12 +29,6 @@ try:
 except ImportError:
     # must be using OpenTAL
     TALESContextClass = None
-
-try:
-    True
-except NameError:
-    True=1
-    False=0
 
 try:
     from Products.OpenPT.OpenPTFile import OpenPTFile as ptFile
@@ -164,7 +142,7 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             raise
         except:
             exc=sys.exc_info()
-            log('Message Catalog has errors', PROBLEM, name, exc)
+            log('Message Catalog has errors', logging.WARNING, name, exc)
             pts.addCatalog(BrokenMessageCatalog(name, pofile, exc))
         self = pts._getOb(name)
         if hasattr(REQUEST, 'RESPONSE'):
@@ -283,11 +261,11 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         pofile=self._getPoFile()
         try:
             self._prepareTranslations(0)
-            log('reloading %s: %s' % (name, self.title), severity=BLATHER)
+            log('reloading %s: %s' % (name, self.title), severity=logging.DEBUG)
         except:
             pts._delObject(name)
             exc=sys.exc_info()
-            log('Message Catalog has errors', PROBLEM, name, exc)
+            log('Message Catalog has errors', logging.WARNING, name, exc)
             pts.addCatalog(BrokenMessageCatalog(name, pofile, exc))
         self = pts._getOb(name)
         if hasattr(REQUEST, 'RESPONSE'):
@@ -423,7 +401,6 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         """Return the path of the file we represent"""
         return self._getPoFile()
 
-    ############################################################
     # Zope/OFS integration
 
     def manage_afterAdd(self, item, container): pass
@@ -436,7 +413,6 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         )
 
     index_html = ptFile('index_html', globals(), 'www', 'catalog_info')
-
     zmi_test = ptFile('zmi_test', globals(), 'www', 'catalog_test')
 
     security.declareProtected(view_management_screens, 'file_exists')
@@ -474,8 +450,6 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             {'name': 'full path', 'value': os.path.join(*self._pofile)},
             {'name': 'last modification', 'value': self.getModTime().ISO()}
             ]
-    #
-    ############################################################
 
 InitializeClass(GettextMessageCatalog)
 
@@ -640,7 +614,7 @@ class MoFileCache(object):
                 os.makedirs(path)
             except (IOError, OSError):
                 path = None
-                log("No permission to create directory %s" % path, PROBLEM)
+                log("No permission to create directory %s" % path, logging.INFO)
         self._path = path
         
     def storeMoFile(self, catalog):
@@ -648,7 +622,6 @@ class MoFileCache(object):
         
         return value: mo file as file handler
         """
-        log('Storing mo file for %s' % catalog.getId(), severity=BLATHER)
         f = self.getPath(catalog)
         mof = self.compilePo(catalog)
         moExists = os.path.exists(f)
@@ -658,20 +631,19 @@ class MoFileCache(object):
             fd.write(mof.read()) # XXX efficient?
             fd.close()
         else:
-            log("No permission to write file %s" % f, PROBLEM)
+            log("No permission to write file %s" % f, logging.INFO)
         mof.seek(0)
         return mof
         
     def retrieveMoFile(self, catalog):
         """Load a mo file file for a catalog from disk
         """
-        log('Cache hit for %s' % catalog.getId(), severity=BLATHER)
         f = self.getPath(catalog)
         if os.path.isfile(f):
             if os.access(f, os.R_OK):
                 return open(f, 'rb')
             else:
-                log("No permission to read file %s" % f, PROBLEM)
+                log("No permission to read file %s" % f, logging.INFO)
                 return None
         
     def getPath(self, catalog):
@@ -733,24 +705,22 @@ class MoFileCache(object):
     def purgeCache(self):
         """Purge the cache and remove all compiled mo files
         """
-        log("Purging mo file cache", INFO)
+        log("Purging mo file cache", logging.INFO)
         if not os.access(self._path, os.W_OK):
-            log("No write permission on folder %s" % self._path, PROBLEM)
+            log("No write permission on folder %s" % self._path, logging.INFO)
             return False
         pattern = os.path.join(self._path, '*.mo')
         for mo in glob.glob(pattern):
             if not os.access(mo, os.W_OK):
-                log("No write permission on file %s" % mo, PROBLEM)
+                log("No write permission on file %s" % mo, logging.INFO)
                 continue
-            #log("Removing mo file %s" % mo, INFO)
             try:
                 os.unlink(mo)
             except IOError:
-                log("Failed to unlink %s" % mo, PROBLEM)
+                log("Failed to unlink %s" % mo, logging.INFO)
 
 
 _moCache = MoFileCache(os.path.join(INSTANCE_HOME, 'var', 'pts'))
 cachedPoFile = _moCache.cachedPoFile
 purgeMoFileCache = _moCache.purgeCache
 
-    

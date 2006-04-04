@@ -1,20 +1,3 @@
-##############################################################################
-#    Copyright (C) 2001-2005 Lalo Martins <lalo@laranja.org>,
-#                  Zope Corporation and Contributors
-
-#    This program is free software; you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation; either version 2 of the License, or
-#    (at your option) any later version.
-
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-
-#    You should have received a copy of the GNU General Public License
-#    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 """Placeless Translation Service for providing I18n to file-based code.
 
 $Id$
@@ -39,7 +22,8 @@ from GettextMessageCatalog import rtlRegistry
 from GettextMessageCatalog import getMessage
 from Negotiator import negotiator
 from Domain import Domain
-from utils import log, Registry, INFO, BLATHER, PROBLEM
+import logging
+from utils import log, Registry
 from msgfmt import PoSyntaxError
 
 from Tracker import global_tracker
@@ -110,8 +94,8 @@ class PTSWrapper(Base):
         return default if service couldnt be retrieved
         """
 
-        # this is useful for GettextMessageCatalog
-        # see the end of GettextMessageCatalog.py for details
+        # this is useful for GettextMessageCatalog see the end of
+        # GettextMessageCatalog.py for details
         __pts_caller_backcount__ = 1
 
         service = self.load(context)
@@ -122,8 +106,7 @@ class PTSWrapper(Base):
     def utranslate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
         """
-        translate a message using unicode
-        see translate()
+        Translate a message using unicode. See translate().
         """
         service = self.load(context)
         if not service: return default
@@ -153,7 +136,7 @@ class PTSWrapper(Base):
 
     def __repr__(self):
         """
-        return a string representation
+        Return a string representation
         """
         return "<PTSWrapper for %s>" % '/'.join(self._path)
 
@@ -170,10 +153,9 @@ class PlacelessTranslationService(Folder):
     # internal is always 0 on releases
     # if you hack this internally, increment it
     # -3 for alpha, -2 for beta, -1 for release candidate
-    # for forked releases internal is always 99
     # use an internal of > 99 to recreate the PTS at every startup
     # (development mode)
-    _class_version = (1, 2, 8, 0)
+    _class_version = (1, 3, 0, 0)
     all_meta_types = ()
 
     manage_options = Folder.manage_options + (
@@ -248,9 +230,8 @@ class PlacelessTranslationService(Folder):
             path = popath[len(gcLocPath):]
             isGlobalCatalog = True
         else:
-            # po file is located at a strange place
-            # calculate the name using the position of the
-            # i18n/locales directory
+            # po file is located at a strange place calculate the name using
+            # the position of the i18n/locales directory
             p = popath.split(os.sep)
             try:
                 idx = p.index('i18n')
@@ -282,8 +263,10 @@ class PlacelessTranslationService(Folder):
         id = self.calculatePoId(name, popath, language=language, domain=domain)
 
         # validate id
-        try: self._checkId(id, 1)
-        except: id=name # fallback mode for borked paths
+        try:
+            self._checkId(id, 1)
+        except:
+            id=name # fallback mode for borked paths
 
         # the po file path
         pofile = os.path.join(popath, name)
@@ -294,15 +277,15 @@ class PlacelessTranslationService(Folder):
                 # remove broken catalog
                 self._delObject(id)
                 ob = _marker
-        except: pass
+        except:
+            pass
         try:
             if ob is _marker:
                 self.addCatalog(GettextMessageCatalog(id, pofile, language, domain))
             else:
                 self.reloadCatalog(ob)
         except IOError:
-            # io error probably cause of missing or
-            # not accessable
+            # io error probably cause of missing or not accessable
             try:
                 # remove false catalog from PTS instance
                 self._delObject(id)
@@ -312,7 +295,7 @@ class PlacelessTranslationService(Folder):
             raise
         except:
             exc=sys.exc_info()
-            log('Message Catalog has errors', PROBLEM, name, exc)
+            log('Message Catalog has errors', logging.WARNING, name, exc)
             self.addCatalog(BrokenMessageCatalog(id, pofile, exc))
 
     def _load_i18n_dir(self, basepath):
@@ -322,9 +305,9 @@ class PlacelessTranslationService(Folder):
             Products/MyProduct/i18n/*.po
         The language and domain are stored in the po file
         """
-        log('looking into ' + basepath, BLATHER)
+        log('looking into ' + basepath, logging.DEBUG)
         if not os.path.isdir(basepath):
-            log('it does not exist', BLATHER)
+            log('it does not exist', logging.DEBUG)
             return
 
         # print deprecation warning for mo files
@@ -340,7 +323,7 @@ class PlacelessTranslationService(Folder):
         # load po files
         names = fnmatch.filter(os.listdir(basepath), '*.po')
         if not names:
-            log('nothing found', BLATHER)
+            log('nothing found', logging.DEBUG)
             return
         for name in names:
             self._load_catalog_file(name, basepath)
@@ -356,9 +339,9 @@ class PlacelessTranslationService(Folder):
         file (e.g. locales/de/LC_MESSAGES/plone.po)
         """
         found=[]
-        log('looking into ' + basepath, BLATHER)
+        log('looking into ' + basepath, logging.DEBUG)
         if not os.path.isdir(basepath):
-            log('it does not exist', BLATHER)
+            log('it does not exist', logging.DEBUG)
             return
 
         for lang in os.listdir(basepath):
@@ -377,7 +360,7 @@ class PlacelessTranslationService(Folder):
                 self._load_catalog_file(name, msgpath, lang, domain)
 
         if not found:
-            log('nothing found', BLATHER)
+            log('nothing found', logging.DEBUG)
             return
         log('Initialized:', detail = repr(found) + (' from %s\n' % basepath))
 
@@ -386,7 +369,7 @@ class PlacelessTranslationService(Folder):
         context = getattr(context, 'REQUEST', context)
         if not isinstance(context, HTTPRequest):
             # try to recover
-            log('Using get_request patch.', severity=INFO)
+            log('Using get_request patch.', severity=logging.INFO)
             # XXX: import the get_request method
             # this will fail the first time we need it if the patch
             # wasn't applied before
@@ -493,7 +476,6 @@ class PlacelessTranslationService(Folder):
         if fallbacks is None:
             fallbacks = LANGUAGE_FALLBACKS
         self._fallbacks = fallbacks
-
 
     security.declareProtected(view, 'getLanguageName')
     def getLanguageName(self, code):
@@ -654,7 +636,7 @@ class PlacelessTranslationService(Folder):
             return text
 
         except:
-            log('interpolation error', PROBLEM, error=sys.exc_info())
+            log('interpolation error', logging.WARNING, error=sys.exc_info())
             return text
 
     security.declareProtected(view_management_screens, 'manage_main')

@@ -1,6 +1,6 @@
 PlacelessTranslationService
 
-   Copyright (C) 2001-2005  Lalo Martins <lalo@laranja.org>,
+   Copyright (C) 2001-2006 Lalo Martins <lalo@laranja.org>,
                  Zope Corporation and Contributors
 
    This program is free software; you can redistribute it and/or modify
@@ -18,18 +18,6 @@ PlacelessTranslationService
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
-
-**WARNING**
-
-These docs are pretty sketchy, I'm just putting down what I know and
-find out in case it helps other people in their travels.
-Hopefully people who know lots about this will email me corrections or
-elaborations to these docs or commit them direct to CVS. Apologies for
-any inaccuracies or missing information.
-
--- chris@simplistix.co.uk 01-Jul-2004
-
-**WARNING**
 
 What is PlacelessTranslationService?
 
@@ -99,11 +87,7 @@ Using PlacelessTranslationService
 
      It can be downloaded from:
 
-     http://sourceforge.net/project/showfiles.php?group_id=66950&package_id=106648
-
-     A guide to its use can be found here:
-
-     http://plone.org/development/teams/i18n/rebuild-i18ndude
+     http://plone.org/products/i18ndude
 
   -- Using PTS itself:
 
@@ -166,7 +150,7 @@ Using PlacelessTranslationService
 3. Prepare Translations of the Template
 
    Preferably, find a translation company that can handle the gettext
-   standards and send them your .pot file. The yshould send back .po
+   standards and send them your .pot file. They should send back .po
    files for the languages you require.
 
    If you're doing it yourself, copy the .pot file to a file on the
@@ -183,7 +167,7 @@ Using PlacelessTranslationService
 
    PTS will look in folders called 'i18n' for .po files to use as
    translations. These 'i18n' folders will be searched if they are in
-   the INSTANCE_HOME or in the driectories of any of the Products you
+   the INSTANCE_HOME or in the directories of any of the Products you
    have installed.
 
    Copy your .po files to a 'i18n' folder of your choice in one of
@@ -192,10 +176,6 @@ Using PlacelessTranslationService
    Once that's done, restart Zope.
 
 Historical Information
-
-  This product was originally written for use with OpenTAL.  It has
-  since been refactored to become compatible with ZPT; however,
-  "compatible" doesn't mean guaranteed.
 
   PlacelessTranslationService is fully unicode-based, so that you may
   write your potfiles in any encoding you want.  ZPT, on the other

@@ -30,7 +30,7 @@ Limitations:
 You need the global request patch from PlacelessTranslationService!
 
 Based on the StringIO module from python 2.3
-Adapted for the PlacelessTranslationService / SpeedPack by Christian Heimes
+Adapted for the PlacelessTranslationService by Christian Heimes
 
 Thanks to Andreas Jung for his idea to use list.append().
 """
