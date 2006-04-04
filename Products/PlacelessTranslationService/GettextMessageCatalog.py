@@ -241,7 +241,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             if not self._domain:
                 self._domain = tro._info.get('domain', None)
             if self._language is None or self._domain is None:
-                raise ValueError, 'potfile has no metadata, PTS needs a language and a message domain!'
+                raise ValueError, 'potfile %s has no metadata, PTS needs a language and a message domain!' % os.path.join(*self._pofile)
             self._language = self._language.lower().replace('_', '-')
             self._other_languages = tro._info.get('x-is-fallback-for', '').split()
             self.preferred_encodings = tro._info.get('preferred-encodings', '').split()

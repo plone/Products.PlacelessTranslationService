@@ -1,5 +1,8 @@
 1.2.8 - Unreleased
 
+    Include the filename of the po in the missing-domain error message
+    [wichert]
+
 1.2.7 - Released March 19, 2006
 
     Fixed a bug in msgfmt.py noted by Andrey Lebedev. All comments starting with
