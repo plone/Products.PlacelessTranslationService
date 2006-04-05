@@ -138,10 +138,8 @@ def initialize(context):
         purgeMoFileCache()
         cp_ts = make_translation_service(cp)
 
-
     # sweep products
     log('products: %r' % get_products(), logging.DEBUG)
-    ploneDir = None
     for prod in get_products():
         # prod is a tuple in the form:
         # (priority, dir_name, index, base_dir) for each Product directory

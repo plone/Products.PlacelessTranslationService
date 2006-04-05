@@ -15,6 +15,7 @@ from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from Globals import InitializeClass
 from Globals import INSTANCE_HOME
+from Globals import package_home
 import Globals
 from OFS.Traversable import Traversable
 from Persistence import Persistent
@@ -24,25 +25,17 @@ import logging
 from utils import log, make_relative_location, Registry
 from msgfmt import Msgfmt
 
-try:
-    from Products.PageTemplates.TALES import Context as TALESContextClass
-except ImportError:
-    # must be using OpenTAL
-    TALESContextClass = None
+from Products.PageTemplates.TALES import Context as TALESContextClass
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
-try:
-    from Products.OpenPT.OpenPTFile import OpenPTFile as ptFile
-except ImportError:
-    from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-    from Globals import package_home
-    def ptFile(id, *filename):
-        if type(filename[0]) is types.DictType:
-            filename = list(filename)
-            filename[0] = package_home(filename[0])
-        filename = os.path.join(*filename)
-        if not os.path.splitext(filename)[1]:
-            filename = filename + '.pt'
-        return PageTemplateFile(filename, '', __name__=id)
+def ptFile(id, *filename):
+    if type(filename[0]) is types.DictType:
+        filename = list(filename)
+        filename[0] = package_home(filename[0])
+    filename = os.path.join(*filename)
+    if not os.path.splitext(filename)[1]:
+        filename = filename + '.pt'
+    return PageTemplateFile(filename, '', __name__=id)
 
 permission = 'View management screens'
 
@@ -508,29 +501,25 @@ class MissingIds(Persistent):
             # The next line provides a way to detect recursion.
             __exception_formatter__ = 1
             
-            if TALESContextClass:
-                # with ZPT TALES, we can provide some context as to
-                # where this message was found
-                
-                # go hunting for the context that called up
-                while f is not None:
-                    locals = f.f_locals
-                    if locals.get('__exception_formatter__'):
-                        # Stop recursion.
-                        context_info = ('Recursion Error while trying to find Context',)
-                        break
-                    Context = locals.get('self')
-                    if isinstance(Context,TALESContextClass):
-                        context_info = (
-                            Context.source_file,
-                            'Line %i, Column %i' % (
-                                       Context.position[0],
-                                       Context.position[1],
-                                       )
-                            )
-                        original = f.f_back.f_locals.get('default')
-                        break
-                    f = f.f_back
+            # go hunting for the context that called up
+            while f is not None:
+                locals = f.f_locals
+                if locals.get('__exception_formatter__'):
+                    # Stop recursion.
+                    context_info = ('Recursion Error while trying to find Context',)
+                    break
+                Context = locals.get('self')
+                if isinstance(Context,TALESContextClass):
+                    context_info = (
+                        Context.source_file,
+                        'Line %i, Column %i' % (
+                                   Context.position[0],
+                                   Context.position[1],
+                                   )
+                        )
+                    original = f.f_back.f_locals.get('default')
+                    break
+                f = f.f_back
 
             if context_info is None:
                 # lets insert details of the thing that called PTS
@@ -575,7 +564,7 @@ class MissingIds(Persistent):
                 # delete frames list reference to (hopefuly) stop
                 # memory leaks
                 frames = None
-                
+
                 # report context info as appropriate
                 if caller_f is None:
                     context_info = ('No context information could be found',)
@@ -585,12 +574,12 @@ class MissingIds(Persistent):
                         caller_co.co_filename,
                         'Line %i, in %s' % (caller_f.f_lineno, caller_co.co_name),
                         )
-                    
+
             # insert default text, also probably pretty fragile ;-)
             default = gm_f.f_locals['orig_text']
             if default is None:
                 '< No original text supplied >'
-                
+
             self._v_file.write(missing_template % {
                 'id':msgid.replace('"', r'\"'),
                 'date':time.asctime(),
@@ -718,7 +707,6 @@ class MoFileCache(object):
                 os.unlink(mo)
             except IOError:
                 log("Failed to unlink %s" % mo, logging.INFO)
-
 
 _moCache = MoFileCache(os.path.join(INSTANCE_HOME, 'var', 'pts'))
 cachedPoFile = _moCache.cachedPoFile

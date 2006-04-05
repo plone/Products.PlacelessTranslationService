@@ -31,12 +31,6 @@ from GettextMessageCatalog import ptFile
 
 PTS_IS_RTL = '_pts_is_rtl'
 
-try:
-    from pax import XML
-except:
-    def XML(v):
-        return str(v)
-
 _marker = []
 
 def map_get(map, name):
@@ -259,7 +253,6 @@ class PlacelessTranslationService(Folder):
         """
         create catalog instances in ZODB
         """
-
         id = self.calculatePoId(name, popath, language=language, domain=domain)
 
         # validate id
@@ -547,13 +540,7 @@ class PlacelessTranslationService(Folder):
                 # it's not in this catalog, try the next one
                 continue
             # found! negotiate output encodings now
-            if hasattr(context, 'pt_output_encoding'):
-                # OpenPT
-                encodings = catalog._info.get('preferred-encodings', '').split()
-                if encodings:
-                    context.pt_output_encoding.restrict(catalog, encodings)
-            elif not as_unicode:
-                # ZPT probably
+            if not as_unicode:
                 # ask HTTPResponse to encode it for us
                 text = context.RESPONSE._encode_unicode(text)
             break
@@ -610,12 +597,6 @@ class PlacelessTranslationService(Folder):
             # Find all the spots we want to substitute
             to_replace = _interp_regex.findall(text)
 
-            # ZPT (string) or OpenPT (unicode)?
-            if type(text) is StringType:
-                conv = str
-            else:
-                conv = XML
-
             # Now substitute with the variables in mapping
             for string in to_replace:
                 var = _get_var_regex.findall(string)[0]
@@ -630,7 +611,7 @@ class PlacelessTranslationService(Folder):
                     # FIXME: we shouldn't do this. We should instead
                     # return a list. But i'm not sure about how to use
                     # the regex to split the text.
-                    value = conv(value)
+                    value = str(value)
                 text = text.replace(string, value)
 
             return text

@@ -1,5 +1,9 @@
 1.3.0 - Unreleased
 
+    Removed OpenTal support in anticipation of having to support Zope3 zope.tal
+    for Zope 2.10. We don't want to support three tal implementations ;)
+    [hannosch]
+
     Big general spring cleaning. Moved to logging module instead of zLOG. The
     logging module is included in Python starting with 2.3. Running an older
     version of Python is therefore not supported anymore. This goes likewise for
