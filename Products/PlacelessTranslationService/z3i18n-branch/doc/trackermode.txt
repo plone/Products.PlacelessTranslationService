@@ -1,0 +1,56 @@
+========================
+Spec of the tracker mode
+========================
+
+:Author: Gilles Lenfant
+:Contact: gilles.lenfant@ingeniweb.com
+
+What's behind the scene
+=======================
+
+When developing i18n products or sites with ZPT i18n namespace usage,
+or translating from Python, I didn't find a good solution or tool to
+find the untranslated messages.
+
+This new feature for the PlacelessTranslationService (PTS later in
+this text) will add one more way to find untranslated keys.
+
+How to use it
+=============
+
+Under the new "Tracker" tab on the PTS there's a form with all
+controls to set the domain, start/stop recording, clear the recorded
+msgids and, of course download or view the resulting files in the
+standard gettext format (.po, .pot).
+
+What changed in the PTS files
+=============================
+
+New files are :
+---------------
+
+Tracker.py -- The Tracker class, that supports most that has been
+added.
+
+www/manage_trackerForm.pt -- The ZMI side of the tracker.
+
+tests/testTracker.py -- tests a standlone Tracker object and
+interacting with a (patched) PTS
+
+tests/framework.py -- Install and read doc from ZopeTestCase
+http://zope.org/Members/shh/ZopeTestCase to guess what it does.
+
+tests/runtest.sh and runtest.bat -- Test runner helper for unix and
+Windows
+
+tests/environ.sh.model environ.bat.model -- Test environment vars for
+Unix and Window. Copy the file for your OS to environ.sh or
+environ.bat then change the values in according to thei respective
+comments.
+
+Modified files :
+----------------
+
+PlacelessTranslationService.py -- Includes ZMI wrapper, patch to
+translate(...) method.
+
