@@ -33,9 +33,6 @@ PTS_IS_RTL = '_pts_is_rtl'
 
 _marker = []
 
-def map_get(map, name):
-    return map.get(name)
-
 # Setting up some regular expressions for finding interpolation variables in
 # the text.
 NAME_RE = r"[a-zA-Z][a-zA-Z0-9_]*"
@@ -578,47 +575,23 @@ class PlacelessTranslationService(Folder):
         """
         Insert the data passed from mapping into the text
         """
-
-        # XXX: why this big try/except?
-        try:
-
-            # If the mapping does not exist, make a "raw translation" without
-            # interpolation.
-            if mapping is None or type(text) not in (StringType, UnicodeType):
-                # silly wabbit!
-                return text
-
-            get = map_get
-            try:
-                mapping.get('')
-            except AttributeError:
-                get = getattr
-
-            # Find all the spots we want to substitute
-            to_replace = _interp_regex.findall(text)
-
-            # Now substitute with the variables in mapping
-            for string in to_replace:
-                var = _get_var_regex.findall(string)[0]
-                value = get(mapping, var)
-                try:
-                    value = value()
-                except (TypeError, AttributeError):
-                    pass
-                if value is None:
-                    value = string
-                if type(value) not in (StringType, UnicodeType):
-                    # FIXME: we shouldn't do this. We should instead
-                    # return a list. But i'm not sure about how to use
-                    # the regex to split the text.
-                    value = str(value)
-                text = text.replace(string, value)
-
+        # If the mapping does not exist or is empty, make a
+        # "raw translation" without interpolation.
+        if not mapping:
             return text
 
-        except:
-            log('interpolation error', logging.WARNING, error=sys.exc_info())
-            return text
+        # Find all the spots we want to substitute
+        to_replace = _interp_regex.findall(text)
+
+        # Now substitute with the variables in mapping
+        for string in to_replace:
+            var = _get_var_regex.findall(string)[0]
+            value = mapping.get(var, None)
+            if value is None:
+                value = string
+            text = text.replace(string, value)
+
+        return text
 
     security.declareProtected(view_management_screens, 'manage_main')
     def manage_main(self, REQUEST, *a, **kw):
