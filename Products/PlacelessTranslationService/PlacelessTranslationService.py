@@ -589,8 +589,10 @@ class PlacelessTranslationService(Folder):
             value = mapping.get(var, None)
             if value is None:
                 value = string
-            text = text.replace(string, value)
-
+            try:
+                text = text.replace(string, value)
+            except UnicodeDecodeError, msg:
+                log('Decoding problem in: %s %s' % (text, msg), logging.WARNING)
         return text
 
     security.declareProtected(view_management_screens, 'manage_main')

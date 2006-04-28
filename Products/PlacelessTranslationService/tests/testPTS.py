@@ -33,7 +33,10 @@ def getFSVersionTuple():
 class TestPTS(ZopeTestCase.ZopeTestCase):
 
     def afterSetUp(self):
-        pass
+        self.wrapper = getTranslationService()
+        self.service_path = self.wrapper._path
+        self.name = ''.join(self.service_path)
+        self.service = self.app.Control_Panel._getOb(self.name)
 
     def testClassVersion(self):
         clv = PTS._class_version
@@ -41,6 +44,30 @@ class TestPTS(ZopeTestCase.ZopeTestCase):
         for i in range(3):
             self.assertEquals(clv[i], fsv[i],
                               'class version (%s) does not match filesystem version (%s)' % (clv, fsv))
+
+    def testInterpolate(self):
+        text = u'foo\xe2'
+        self.assertEquals(self.service.interpolate(text, []), text)
+
+        text = u'${bar}\xe2'
+        mapping = {u'bar' : u'baz'}
+        expected = u'baz\xe2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+        
+        text = '${bar}'
+        mapping = {u'bar' : u'baz'}
+        expected = u'baz'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = '${bar}\xe2'
+        mapping = {u'bar' : u'baz'}
+        expected = '${bar}\xe2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = u'${bar}\xc2'
+        mapping = {u'bar' : 'baz\xc2'}
+        expected = u'${bar}\xc2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
 
 
 class TestLoadI18NFolder(ZopeTestCase.ZopeTestCase):

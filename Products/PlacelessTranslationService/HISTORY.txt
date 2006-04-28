@@ -1,5 +1,11 @@
 1.3.0 - Unreleased
 
+    Fixed a UnicodeDecodeError bug in the interpolate function, when a mapping
+    or the text was Unicode but the other one was not. The function excepts only
+    Unicode as both the text and for all entries of the mapping, as it has no
+    way to guess the encoding of any of them.
+    [hannosch]
+
     Sanitized the interpolate function. It had various major bugs and was just
     unbelievable slow. This closes http://dev.plone.org/plone/ticket/5421.
     [hannosch]
