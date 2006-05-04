@@ -590,6 +590,7 @@ class PlacelessTranslationService(Folder):
             if value is None:
                 value = string
             try:
+                value = u'%s' % value
                 text = text.replace(string, value)
             except UnicodeDecodeError, msg:
                 log('Decoding problem in: %s %s' % (text, msg), logging.WARNING)

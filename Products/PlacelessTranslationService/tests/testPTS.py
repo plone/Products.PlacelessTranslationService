@@ -69,6 +69,11 @@ class TestPTS(ZopeTestCase.ZopeTestCase):
         expected = u'${bar}\xc2'
         self.assertEquals(self.service.interpolate(text, mapping), expected)
 
+        text = u'${bar}\xc2'
+        mapping = {u'bar' : 1}
+        expected = u'1\xc2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)        
+
 
 class TestLoadI18NFolder(ZopeTestCase.ZopeTestCase):
 
