@@ -59,9 +59,14 @@ class TestPTS(ZopeTestCase.ZopeTestCase):
         expected = u'baz'
         self.assertEquals(self.service.interpolate(text, mapping), expected)
 
+        text = '${bar}\xc2'
+        mapping = {'bar' : 1}
+        expected = '1\xc2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)        
+
         text = '${bar}\xe2'
         mapping = {u'bar' : u'baz'}
-        expected = '${bar}\xe2'
+        expected = 'baz\xe2'
         self.assertEquals(self.service.interpolate(text, mapping), expected)
 
         text = u'${bar}\xc2'
