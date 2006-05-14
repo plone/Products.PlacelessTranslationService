@@ -1,4 +1,4 @@
-1.3.0 - Unreleased
+1.3.0 - Released May 15, 2006
 
     Fixed another problem in the interpolate function, where variables where not
     replaced if the string was an old-style normal string and not unicode.
