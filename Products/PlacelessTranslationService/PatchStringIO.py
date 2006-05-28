@@ -60,6 +60,13 @@ applyRequestPatch()
 from Products.PageTemplates.PageTemplate import PageTemplate
 from TAL.TALInterpreter import TALInterpreter
 
+patchZ3 = True
+try:
+    from zope.pagetemplate import pagetemplate
+    from zope.tal.talinterpreter import TALInterpreter
+except ImportError:
+    patchZ3 = False
+
 from FasterStringIO import FasterStringIO
 
 if hasattr(TALInterpreter, 'StringIO'):
@@ -69,3 +76,7 @@ if hasattr(TALInterpreter, 'StringIO'):
         return FasterStringIO()
     TALInterpreter.StringIO = patchedStringIO
     PageTemplate.StringIO = patchedStringIO
+    if patchZ3:
+        TALInterpreter.StringIO = patchedStringIO
+        pagetemplate.StringIO = patchedStringIO
+
