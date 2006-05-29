@@ -63,7 +63,7 @@ from TAL.TALInterpreter import TALInterpreter
 patchZ3 = True
 try:
     from zope.pagetemplate import pagetemplate
-    from zope.tal.talinterpreter import TALInterpreter
+    from zope.tal.talinterpreter import TALInterpreter as Z3TALInterpreter
 except ImportError:
     patchZ3 = False
 
@@ -77,6 +77,6 @@ if hasattr(TALInterpreter, 'StringIO'):
     TALInterpreter.StringIO = patchedStringIO
     PageTemplate.StringIO = patchedStringIO
     if patchZ3:
-        TALInterpreter.StringIO = patchedStringIO
+        Z3TALInterpreter.StringIO = patchedStringIO
         pagetemplate.StringIO = patchedStringIO
 
