@@ -1,3 +1,5 @@
+1.3.1 - Released June 1, 2006
+
     Also apply our evil hack that allows mixing utf-8 encoded strings and
     Unicode to the Zope3 versions of pagetemplate and talinterpreter, so current
     Plone works under Zope 2.10. Note that PTS is slated for destruction and you
