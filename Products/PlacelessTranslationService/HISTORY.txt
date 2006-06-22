@@ -1,3 +1,10 @@
+    Fixed bugs in interpolate function, where mixing of Unicode and encoded
+    strings failed, when the Unicode string contained only ASCII characters.
+    This will work now. Nonetheless you should update your code to use Unicode
+    internally, as support for translating non-Unicode strings will go away once
+    we switch to a Zope3-based TranslationService.
+    [hannosch]
+
 1.3.1 - Released June 1, 2006
 
     Also apply our evil hack that allows mixing utf-8 encoded strings and

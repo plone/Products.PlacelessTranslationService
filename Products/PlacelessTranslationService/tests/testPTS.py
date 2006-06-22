@@ -46,38 +46,122 @@ class TestPTS(ZopeTestCase.ZopeTestCase):
                               'class version (%s) does not match filesystem version (%s)' % (clv, fsv))
 
     def testInterpolate(self):
-        text = u'foo\xe2'
+        # empty mapping
+        text = 'ascii'
         self.assertEquals(self.service.interpolate(text, []), text)
 
-        text = u'${bar}\xe2'
-        mapping = {u'bar' : u'baz'}
-        expected = u'baz\xe2'
-        self.assertEquals(self.service.interpolate(text, mapping), expected)
-        
-        text = '${bar}'
-        mapping = {u'bar' : u'baz'}
-        expected = u'baz'
+        text = 'ascii-with-funky-chars\xe2'
+        self.assertEquals(self.service.interpolate(text, []), text)
+
+        text = u'unicode-with-ascii-only'
+        self.assertEquals(self.service.interpolate(text, []), text)
+
+        text = u'unicode\xe2'
+        self.assertEquals(self.service.interpolate(text, []), text)
+
+        # text is ascii
+        text = '${ascii}'
+        mapping = {u'ascii' : 'ascii'}
+        expected = 'ascii'
         self.assertEquals(self.service.interpolate(text, mapping), expected)
 
-        text = '${bar}\xc2'
-        mapping = {'bar' : 1}
+        text = '${ascii}'
+        mapping = {u'ascii' : 'ascii-with-funky-chars\xe2'}
+        expected = 'ascii-with-funky-chars\xe2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = '${ascii}'
+        mapping = {u'ascii' : u'unicode-with-ascii-only'}
+        expected = u'unicode-with-ascii-only'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = '${ascii}'
+        mapping = {u'ascii' : u'unicode\xe2'}
+        expected = u'unicode\xe2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = '${ascii}'
+        mapping = {'ascii' : 1}
+        expected = '1'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        # text is ascii with funky chars
+        text = '${ascii-with-funky-chars}\xc2'
+        mapping = {u'ascii-with-funky-chars' : 'ascii'}
+        expected = 'ascii\xc2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = '${ascii-with-funky-chars}\xc2'
+        mapping = {u'ascii-with-funky-chars' : 'ascii-with-funky-chars\xe2'}
+        expected = 'ascii-with-funky-chars\xe2\xc2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = '${ascii-with-funky-chars}\xc2'
+        mapping = {u'ascii-with-funky-chars' : u'unicode-with-ascii-only'}
+        expected = '${ascii-with-funky-chars}\xc2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = '${ascii-with-funky-chars}\xc2'
+        mapping = {u'ascii-with-funky-chars' : u'unicode\xe2'}
+        expected = '${ascii-with-funky-chars}\xc2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = '${ascii-with-funky-chars}\xc2'
+        mapping = {'ascii-with-funky-chars' : 1}
         expected = '1\xc2'
-        self.assertEquals(self.service.interpolate(text, mapping), expected)        
-
-        text = '${bar}\xe2'
-        mapping = {u'bar' : u'baz'}
-        expected = 'baz\xe2'
         self.assertEquals(self.service.interpolate(text, mapping), expected)
 
-        text = u'${bar}\xc2'
-        mapping = {u'bar' : 'baz\xc2'}
-        expected = u'${bar}\xc2'
+        # text is unicode with only ascii chars
+        text = u'${unicode-with-ascii-only}'
+        mapping = {u'unicode-with-ascii-only' : 'ascii'}
+        expected = 'ascii'
         self.assertEquals(self.service.interpolate(text, mapping), expected)
 
-        text = u'${bar}\xc2'
-        mapping = {u'bar' : 1}
+        text = u'${unicode-with-ascii-only}'
+        mapping = {u'unicode-with-ascii-only' : 'ascii-with-funky-chars\xe2'}
+        expected = u'${unicode-with-ascii-only}'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = u'${unicode-with-ascii-only}'
+        mapping = {u'unicode-with-ascii-only' : u'unicode-with-ascii-only'}
+        expected = u'unicode-with-ascii-only'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = u'${unicode-with-ascii-only}'
+        mapping = {u'unicode-with-ascii-only' : u'unicode\xe2'}
+        expected = u'unicode\xe2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = u'${unicode-with-ascii-only}'
+        mapping = {u'unicode-with-ascii-only' : 1}
+        expected = u'1'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        # text is real unicode
+        text = u'${unicode}\xc2'
+        mapping = {u'unicode' : 'ascii'}
+        expected = u'ascii\xc2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = u'${unicode}\xc2'
+        mapping = {u'unicode' : 'ascii-with-funky-chars\xe2'}
+        expected = u'${unicode}\xc2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = u'${unicode}\xc2'
+        mapping = {u'unicode' : u'unicode-with-ascii-only'}
+        expected = u'unicode-with-ascii-only\xc2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = u'${unicode}\xc2'
+        mapping = {u'unicode' : u'unicode\xe2'}
+        expected = u'unicode\xe2\xc2'
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+        text = u'${unicode}\xc2'
+        mapping = {'unicode' : 1}
         expected = u'1\xc2'
-        self.assertEquals(self.service.interpolate(text, mapping), expected)        
+        self.assertEquals(self.service.interpolate(text, mapping), expected)
 
 
 class TestLoadI18NFolder(ZopeTestCase.ZopeTestCase):
@@ -119,4 +203,3 @@ def test_suite():
 
 if __name__ == '__main__':
     framework()
-

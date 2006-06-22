@@ -35,7 +35,7 @@ _marker = []
 
 # Setting up some regular expressions for finding interpolation variables in
 # the text.
-NAME_RE = r"[a-zA-Z][a-zA-Z0-9_]*"
+NAME_RE = r"[a-zA-Z][-a-zA-Z0-9_]*"
 _interp_regex = re.compile(r'(?<!\$)(\$(?:%(n)s|{%(n)s}))' %({'n': NAME_RE}))
 _get_var_regex = re.compile(r'%(n)s' %({'n': NAME_RE}))
 
@@ -590,10 +590,10 @@ class PlacelessTranslationService(Folder):
             if value is None:
                 value = string
             try:
+                if not isinstance(value, basestring):
+                    value = str(value)
                 if isinstance(text, unicode):
                     value = u'%s' % value
-                else:
-                    value = str(value)
                 text = text.replace(string, value)
             except UnicodeDecodeError, msg:
                 log('Decoding problem in: %s %s' % (text, msg), logging.WARNING)
