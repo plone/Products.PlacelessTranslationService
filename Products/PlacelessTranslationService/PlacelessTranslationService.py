@@ -146,7 +146,7 @@ class PlacelessTranslationService(Folder):
     # -3 for alpha, -2 for beta, -1 for release candidate
     # use an internal of > 99 to recreate the PTS at every startup
     # (development mode)
-    _class_version = (1, 3, 2, 0)
+    _class_version = (1, 4, 0, 0)
     all_meta_types = ()
 
     manage_options = Folder.manage_options + (
@@ -516,7 +516,7 @@ class PlacelessTranslationService(Folder):
 
     security.declareProtected(view, 'translate')
     def translate(self, domain, msgid, mapping=None, context=None,
-                  target_language=None, default=None, as_unicode=False):
+                  target_language=None, default=None, as_unicode=True):
         """
         translate a message using the default encoding
         """
