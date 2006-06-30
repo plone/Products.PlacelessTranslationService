@@ -285,7 +285,7 @@ class PlacelessTranslationService(Folder):
             raise
         except:
             exc=sys.exc_info()
-            log('Message Catalog has errors', logging.WARNING, name, exc)
+            log('Message Catalog has errors', logging.WARNING, pofile, exc)
             self.addCatalog(BrokenMessageCatalog(id, pofile, exc))
 
     def _load_i18n_dir(self, basepath):

@@ -1,3 +1,8 @@
+    Made the logging of broken message catalogs more verbose. Now both the
+    filename and path are logged, so you actually have a chance of finding those
+    files. Thx limi for the suggestion.
+    [hannosch] 
+
     Fixed bugs in interpolate function, where mixing of Unicode and encoded
     strings failed, when the Unicode string contained only ASCII characters.
     This will work now. Nonetheless you should update your code to use Unicode
