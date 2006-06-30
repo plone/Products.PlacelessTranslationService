@@ -1,11 +1,9 @@
 # -*- coding: iso-8859-1 -*-
 
-import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 import unittest
 from Testing import ZopeTestCase
+
+import os
 
 import Products.PlacelessTranslationService.Tracker as TrackerModule
 from Products.PlacelessTranslationService.Tracker import Tracker
@@ -156,5 +154,4 @@ def test_suite():
     return suite
 
 if __name__ == '__main__':
-    framework()
-
+    unittest.main(defaultTest="test_suite")

@@ -1,5 +1,8 @@
 1.4.0 - Unreleased
 
+    Cleaned up tests and removed custom testrunner (framework/runalltests).
+    [hannosch]
+
     All translation domains which are registered with the Zope3 translation
     service are now ignored by PTS, as PTS wouldn't been queried for these
     anyways.
