@@ -1,5 +1,8 @@
 1.4.0 - Unreleased
 
+    Converted PTS's own translation to new-stype locales folder layout.
+    [hannosch]
+
     Changed translate method of PTS to return Unicode by default to work better
     with Zope 2.10+, which uses the Zope3 tal and pagetemplate machinery which
     expects Unicode in all places.
