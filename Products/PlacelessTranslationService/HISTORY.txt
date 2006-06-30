@@ -1,5 +1,15 @@
 1.4.0 - Unreleased
 
+    All translation domains which are registered with the Zope3 translation
+    service are now ignored by PTS, as PTS wouldn't been queried for these
+    anyways.
+    [hannosch] 
+
+    PTS's translations (for the management screens) are now set up to use the
+    Zope3 translation service. Quite ironic you may think, but this emphasizes
+    even more the path PTS will take.
+    [hannosch] 
+
     Converted PTS's own translation to new-stype locales folder layout.
     [hannosch]
 

@@ -6,6 +6,9 @@ $Id$
 import sys, os, re, fnmatch
 from types import StringType, UnicodeType
 
+from zope.component import getUtilitiesFor
+from zope.i18n.interfaces import ITranslationDomain
+
 import Globals
 from ExtensionClass import Base
 from Acquisition import ImplicitAcquisitionWrapper
@@ -328,6 +331,10 @@ class PlacelessTranslationService(Folder):
         Where ${lang} and ${domain} are the language and the domain of the po
         file (e.g. locales/de/LC_MESSAGES/plone.po)
         """
+        # filter out domains which are registered with the Zope3
+        # translation service, as we won't get queries for these anyways
+        z3domains = [util[0] for util in getUtilitiesFor(ITranslationDomain)]
+
         found=[]
         log('looking into ' + basepath, logging.DEBUG)
         if not os.path.isdir(basepath):
@@ -346,8 +353,9 @@ class PlacelessTranslationService(Folder):
             names = fnmatch.filter(os.listdir(msgpath), '*.po')
             for name in names:
                 domain = name[:-3]
-                found.append('%s:%s' % (lang, domain))
-                self._load_catalog_file(name, msgpath, lang, domain)
+                if not domain in z3domains:
+                    found.append('%s:%s' % (lang, domain))
+                    self._load_catalog_file(name, msgpath, lang, domain)
 
         if not found:
             log('nothing found', logging.DEBUG)
