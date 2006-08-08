@@ -1,5 +1,11 @@
 1.4.0 - Unreleased
 
+    Deprecated the RequestGetAccept language negotiation handler, as it
+    interferes with forms that include a field called language. We do not
+    register the handler in 1.4 anymore. This closes
+    http://dev.plone.org/plone/ticket/4986.
+    [hannosch]
+
     Cleaned up tests and removed custom testrunner (framework/runalltests).
     [hannosch]
 

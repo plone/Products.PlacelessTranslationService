@@ -2,7 +2,9 @@
 $Id$
 """
 
+import logging
 import types
+from utils import log
 
 _langPrefsRegistry = {}
 
@@ -173,12 +175,14 @@ def setCookieLanguage(request, lang, REQUEST=None):
     else:
         return lang
 
-
+# BBB: This handler will be removed in PTS 1.5. It is not registered anymore
+# in 1.4 as it interferes with forms that include a field called language.
 class RequestGetAccept:
     filters = (str_lower, lang_normalize, str_strip)
 
     def __init__(self, request):
-        pass
+        log('DeprecationWarning: The RequestGetAccept handler is deprecated '
+            'and will be removed in PTS 1.5.', logging.WARNING)
 
     def getAccepted(self, request, kind='language'):
         # get
@@ -209,7 +213,6 @@ class RequestGetAccept:
 # in the chain is queried
 registerLangPrefsMethod({'klass':BrowserAccept,   'priority':10 }, 'language')
 registerLangPrefsMethod({'klass':CookieAccept,   'priority':40 }, 'language')
-registerLangPrefsMethod({'klass':RequestGetAccept,'priority':50 }, 'language')
 
 registerLangPrefsMethod({'klass':BrowserAccept,'priority':10 }, 'content-type')
 
