@@ -57,26 +57,31 @@ applyRequestPatch()
 # Fix uses of StringIO with a Unicode-aware StringIO
 #
 
+# BBB
+# ignore deprecation warnings on import for now
+import warnings
+showwarning = warnings.showwarning
+warnings.showwarning = lambda *a, **k: None
+# these old import should remain here until the TAL and PageTemplate packages
+# are completly removed from Zope2
 from Products.PageTemplates.PageTemplate import PageTemplate
 from TAL.TALInterpreter import TALInterpreter
+# restore warning machinery
+warnings.showwarning = showwarning
 
-patchZ3 = True
-try:
-    from zope.pagetemplate import pagetemplate
-    from zope.tal.talinterpreter import TALInterpreter as Z3TALInterpreter
-except ImportError:
-    patchZ3 = False
+from zope.pagetemplate import pagetemplate
+from zope.tal.talinterpreter import TALInterpreter as Z3TALInterpreter
 
 from FasterStringIO import FasterStringIO
 
-if hasattr(TALInterpreter, 'StringIO'):
+def patchedStringIO(self):
+    return FasterStringIO()
+
+if hasattr(Z3TALInterpreter, 'StringIO'):
     # Simply patch the StringIO method of TALInterpreter and PageTemplate
     # on a new Zope
-    def patchedStringIO(self):
-        return FasterStringIO()
-    TALInterpreter.StringIO = patchedStringIO
-    PageTemplate.StringIO = patchedStringIO
-    if patchZ3:
+    if not Z3TALInterpreter.StringIO is patchedStringIO:
         Z3TALInterpreter.StringIO = patchedStringIO
         pagetemplate.StringIO = patchedStringIO
-
+        TALInterpreter.StringIO = patchedStringIO
+        PageTemplate.StringIO = patchedStringIO

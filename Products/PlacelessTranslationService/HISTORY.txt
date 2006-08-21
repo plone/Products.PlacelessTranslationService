@@ -1,5 +1,10 @@
 1.4.0 - Unreleased
 
+    Cleaned up the PatchStringIO a bit, as we require Zope 2.10 now, we always
+    have the Zope3 TAL machinery around and we should suppress the annoying
+    deprecation warnings.
+    [hannosch]
+
     Deprecated the RequestGetAccept language negotiation handler, as it
     interferes with forms that include a field called language. We do not
     register the handler in 1.4 anymore. This closes
