@@ -83,9 +83,7 @@ class PTSWrapper(Base):
     def translate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
         """
-        translate a message using the default encoding
-        get the real service and call its translate method
-        return default if service couldnt be retrieved
+        Translate a message using Unicode.
         """
 
         # this is useful for GettextMessageCatalog see the end of
@@ -93,18 +91,20 @@ class PTSWrapper(Base):
         __pts_caller_backcount__ = 1
 
         service = self.load(context)
-        if not service: return default
+        if not service:
+            return default
         return service.translate(domain, msgid, mapping, context, target_language, default)
 
     security.declareProtected(view, 'utranslate')
     def utranslate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
         """
-        Translate a message using unicode. See translate().
+        Translate a message using Unicode..
         """
         service = self.load(context)
-        if not service: return default
-        return service.utranslate(domain, msgid, mapping, context, target_language, default)
+        if not service:
+            return default
+        return service.translate(domain, msgid, mapping, context, target_language, default)
 
     security.declarePublic(view, 'getLanguageName')
     def getLanguageName(self, code, context):
@@ -517,16 +517,16 @@ class PlacelessTranslationService(Folder):
     def utranslate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
         """
-        translate() using unicode
+        translate() using Unicode.
         """
         return self.translate(domain, msgid, mapping, context,
-                  target_language, default, as_unicode=True)
+                  target_language, default)
 
     security.declareProtected(view, 'translate')
     def translate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None, as_unicode=True):
         """
-        translate a message using the default encoding
+        Translate a message using Unicode.
         """
         global global_tracker
         if not msgid:

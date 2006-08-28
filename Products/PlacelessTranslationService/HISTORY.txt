@@ -1,5 +1,9 @@
 1.4.0 - Unreleased
 
+    Clarified some doc strings on the utranslate methods, these are identical
+    to the translate methods now, don't use them anymore.
+    [hannosch]
+
     Cleaned up the PatchStringIO a bit, as we require Zope 2.10 now, we always
     have the Zope3 TAL machinery around and we should suppress the annoying
     deprecation warnings.

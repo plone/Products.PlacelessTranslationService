@@ -62,7 +62,7 @@ security.declareProtected(view, 'utranslate')
 def utranslate(*args, **kwargs):
     """see PlaceslessTranslationService.PlaceslessTranslationService
     """
-    return getTranslationService().utranslate(*args, **kwargs)
+    return getTranslationService().translate(*args, **kwargs)
 
 security.declareProtected(view, 'getLanguages')
 def getLanguages(*args, **kwargs):
