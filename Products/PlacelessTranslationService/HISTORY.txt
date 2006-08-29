@@ -1,5 +1,9 @@
 1.4.0 - Unreleased
 
+    Removed the FasterStringIO module and the accompanying monkey patch. These
+    are part of CMFPlone/patches now.
+    [hannosch]
+
     Clarified some doc strings on the utranslate methods, these are identical
     to the translate methods now, don't use them anymore.
     [hannosch]

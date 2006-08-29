@@ -74,8 +74,10 @@ class PTSWrapper(Base):
     security.declarePrivate('load')
     def load(self, context):
         # return the real service
-        try: root = context.getPhysicalRoot()
-        except: return None
+        try:
+            root = context.getPhysicalRoot()
+        except:
+            return None
         # traverse the service
         return root.unrestrictedTraverse(self._path, None)
 
