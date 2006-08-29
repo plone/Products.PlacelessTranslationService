@@ -1,5 +1,8 @@
 1.4.0 - Unreleased
 
+    Removed PatchStringIO completely, it apparently wasn't needed anymore.
+    [hannosch]
+
     Removed the FasterStringIO module and the accompanying monkey patch. These
     are part of CMFPlone/patches now.
     [hannosch]

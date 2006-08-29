@@ -13,7 +13,6 @@ from OFS.Application import get_products
 from AccessControl import ModuleSecurityInfo, allow_module
 from AccessControl.Permissions import view
 
-import PatchStringIO # patch at first
 from PlacelessTranslationService import PlacelessTranslationService
 from PlacelessTranslationService import PTSWrapper
 from PlacelessTranslationService import PTS_IS_RTL

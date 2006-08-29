@@ -364,25 +364,6 @@ class PlacelessTranslationService(Folder):
             return
         log('Initialized:', detail = repr(found) + (' from %s\n' % basepath))
 
-    def _getContext(self, context):
-        # ZPT passes the object as context.  That's wrong according to spec.
-        context = getattr(context, 'REQUEST', context)
-        if not isinstance(context, HTTPRequest):
-            # try to recover
-            log('Using get_request patch.', severity=logging.INFO)
-            # XXX: import the get_request method
-            # this will fail the first time we need it if the patch
-            # wasn't applied before
-            try:
-                from Globals import get_request
-            except ImportError:
-                from PatchStringIO import applyRequestPatch
-                applyRequestPatch()
-            else:
-                context = get_request()
-
-        return context
-
     security.declareProtected(view_management_screens, 'manage_renameObject')
     def manage_renameObject(self, id, new_id, REQUEST=None):
         """
@@ -421,7 +402,7 @@ class PlacelessTranslationService(Folder):
     security.declarePrivate('getCatalogsForTranslation')
     def getCatalogsForTranslation(self, context, domain, target_language=None):
         # ZPT passes the object as context.  That's wrong according to spec.
-        context = self._getContext(context)
+        context = getattr(context, 'REQUEST', context)
 
         if target_language is None:
             target_language = self.negotiate_language(context, domain)
@@ -508,7 +489,7 @@ class PlacelessTranslationService(Folder):
     def isRTL(self, context, domain):
         """get RTL settings
         """
-        context = self._getContext(context)
+        context = getattr(context, 'REQUEST', context)
         pts_is_rtl = context.get(PTS_IS_RTL, None)
         if pts_is_rtl is None:
             # call getCatalogsForTranslation to initialize the negotiator
@@ -536,7 +517,7 @@ class PlacelessTranslationService(Folder):
             return default
 
         # ZPT passes the object as context.  That's wrong according to spec.
-        context = self._getContext(context)
+        context = getattr(context, 'REQUEST', context)
         text = msgid
 
         catalogs = self.getCatalogsForTranslation(context, domain, target_language)
