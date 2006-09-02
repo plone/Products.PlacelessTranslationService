@@ -103,12 +103,12 @@ class PTSWrapper(Base):
         if not service: return default
         return service.utranslate(domain, msgid, mapping, context, target_language, default)
 
-    security.declarePublic(view, 'getLanguageName')
+    security.declareProtected(view, 'getLanguageName')
     def getLanguageName(self, code, context):
         service = self.load(context)
         return service.getLanguageName(code)
 
-    security.declarePublic(view, 'getLanguages')
+    security.declareProtected(view, 'getLanguages')
     def getLanguages(self, context, domain=None):
         service = self.load(context)
         return service.getLanguages(domain)
