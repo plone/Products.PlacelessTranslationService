@@ -517,7 +517,7 @@ class PlacelessTranslationService(Folder):
             return default
 
         # ZPT passes the object as context.  That's wrong according to spec.
-        context = getattr(context, 'REQUEST', context)
+        context = context.aq_acquire('REQUEST')
         text = msgid
 
         catalogs = self.getCatalogsForTranslation(context, domain, target_language)
