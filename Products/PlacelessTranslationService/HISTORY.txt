@@ -1,4 +1,4 @@
-1.3.2 - Unreleased
+1.3.2 - Released September 8, 2006
 
     Made the logging of broken message catalogs more verbose. Now both the
     filename and path are logged, so you actually have a chance of finding those
