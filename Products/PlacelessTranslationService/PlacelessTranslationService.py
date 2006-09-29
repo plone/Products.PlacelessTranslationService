@@ -580,6 +580,14 @@ class PlacelessTranslationService(Folder):
         if not mapping:
             return text
 
+        if not isinstance(text, unicode):
+            try:
+                text = unicode(text, 'utf-8')
+            except UnicodeDecodeError:
+                pass
+                # XXX Should log a warning in the future
+                # log('Problem decoding encoded string: %s' % text, logging.ERROR)
+
         # Find all the spots we want to substitute
         to_replace = _interp_regex.findall(text)
 
@@ -593,7 +601,11 @@ class PlacelessTranslationService(Folder):
                 if not isinstance(value, basestring):
                     value = str(value)
                 if isinstance(text, unicode):
-                    value = u'%s' % value
+                    try:
+                        value = u'%s' % value
+                    except UnicodeDecodeError, msg:
+                        # XXX Should log a warning in the future
+                        value = unicode(value, 'utf-8')
                 text = text.replace(string, value)
             except UnicodeDecodeError, msg:
                 log('Decoding problem in: %s %s' % (text, msg), logging.WARNING)

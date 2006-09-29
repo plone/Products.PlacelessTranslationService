@@ -67,7 +67,7 @@ class TestPTS(ZopeTestCase.ZopeTestCase):
 
         text = '${ascii}'
         mapping = {u'ascii' : 'ascii-with-funky-chars\xe2'}
-        expected = 'ascii-with-funky-chars\xe2'
+        expected = u'${ascii}'
         self.assertEquals(self.service.interpolate(text, mapping), expected)
 
         text = '${ascii}'
