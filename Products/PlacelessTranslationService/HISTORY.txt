@@ -1,4 +1,4 @@
-1.3.3 - Unreleased
+1.3.3 - Released September 29, 2006
 
     Provided some more nice fallback in the interpolate function for situations
     where you mixed encoded strings or unicode in the mapping dict compared to
