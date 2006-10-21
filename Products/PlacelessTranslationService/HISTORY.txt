@@ -1,5 +1,12 @@
 1.4.0 - Unreleased
 
+    Fixed translate method to work in an environment where the context is not
+    acquisition wrapped.
+    [hannosch]
+
+    Fixed one more deprecation warning in GettextMessageCatalog.
+    [hannosch]
+
     Removed PatchStringIO completely, it apparently wasn't needed anymore.
     [hannosch]
 

@@ -25,7 +25,7 @@ import logging
 from utils import log, make_relative_location, Registry
 from msgfmt import Msgfmt
 
-from Products.PageTemplates.TALES import Context as TALESContextClass
+from zope.tales.tales import Context as TALESContextClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 def ptFile(id, *filename):

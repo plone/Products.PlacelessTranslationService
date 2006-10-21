@@ -11,6 +11,7 @@ from zope.i18n.interfaces import ITranslationDomain
 
 import Globals
 from ExtensionClass import Base
+from Acquisition import aq_acquire
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view, view_management_screens
@@ -517,7 +518,7 @@ class PlacelessTranslationService(Folder):
             return default
 
         # ZPT passes the object as context.  That's wrong according to spec.
-        context = context.aq_acquire('REQUEST')
+        context = aq_acquire(context, 'REQUEST')
         text = msgid
 
         catalogs = self.getCatalogsForTranslation(context, domain, target_language)
