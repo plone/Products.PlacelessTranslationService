@@ -1,4 +1,4 @@
-1.4.0 - Unreleased
+1.4.0 - Released October 25, 2006
 
     Fixed translate method to work in an environment where the context is not
     acquisition wrapped.
