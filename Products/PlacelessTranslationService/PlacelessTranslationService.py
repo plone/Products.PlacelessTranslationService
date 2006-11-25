@@ -516,7 +516,7 @@ class PlacelessTranslationService(Folder):
 
     security.declareProtected(view, 'translate')
     def translate(self, domain, msgid, mapping=None, context=None,
-                  target_language=None, default=None, as_unicode=False):
+                  target_language=None, default=None, as_unicode=True):
         """
         translate a message using the default encoding
         """

@@ -1,3 +1,11 @@
+1.3.4 - Unreleased
+
+    Changed translate method of PTS to return Unicode by default. This was
+    needed for Plone 2.5 in order to get a sensible behaviour with the
+    FiveTranslationService. This release is probably not compatible with
+    Plone 2.1.
+    [hannosch] 
+
 1.3.3 - Released September 29, 2006
 
     Provided some more nice fallback in the interpolate function for situations
