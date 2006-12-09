@@ -81,18 +81,6 @@ def isRTL(context, domain):
     """
     return getTranslationService().isRTL(context, domain)
 
-security.declareProtected(view, 'setCookieLanguage')
-# imported from the Negotiator
-
-negotiateDeprecatedLogged = 0
-security.declareProtected(view, 'negotiate')
-def negotiate(langs, context):
-    """ deprecated! """
-    if not negotiateDeprecatedLogged:
-        log('Products.PlacelessTranslationService.negotiate() is deprecated', logging.WARNING)
-        negotiateDeprecatedLogged = 1
-    return negotiator.negotiate(langs, context, 'language')
-
 def make_translation_service(cp):
     """Control_Panel translation service
     """

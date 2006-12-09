@@ -512,7 +512,6 @@ class PlacelessTranslationService(Folder):
         """
         Translate a message using Unicode.
         """
-        global global_tracker
         if not msgid:
             # refuse to translate an empty msgid
             return default
@@ -537,9 +536,6 @@ class PlacelessTranslationService(Folder):
             # Did the fallback fail? Sigh, use the default if it is not None.
             if default is not None:
                 text = default
-            if target_language is None:
-                target_language = self.negotiate_language(context, domain)
-            global_tracker.recordFailure(domain, msgid, target_language)
 
         # Now we need to do the interpolation
         return self.interpolate(text, mapping)
