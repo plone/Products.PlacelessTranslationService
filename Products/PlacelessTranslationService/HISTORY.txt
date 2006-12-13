@@ -1,4 +1,4 @@
-1.3.4 - Unreleased
+1.3.4 - Released December 13, 2006
 
     Changed translate method of PTS to return Unicode by default. This was
     needed for Plone 2.5 in order to get a sensible behaviour with the
