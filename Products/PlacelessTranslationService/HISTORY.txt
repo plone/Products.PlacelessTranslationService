@@ -46,7 +46,7 @@
     even more the path PTS will take.
     [hannosch] 
 
-    Converted PTS's own translation to new-stype locales folder layout.
+    Converted PTS's own translation to new-style locales folder layout.
     [hannosch]
 
     Changed translate method of PTS to return Unicode by default to work better
