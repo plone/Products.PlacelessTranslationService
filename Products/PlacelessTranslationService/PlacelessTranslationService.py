@@ -4,6 +4,8 @@ from zope.component import getUtilitiesFor
 from zope.deprecation import deprecate
 from zope.i18n.interfaces import ITranslationDomain
 
+from plone.memoize.view import memoize_contextless
+
 import Globals
 from ExtensionClass import Base
 from Acquisition import aq_acquire
@@ -379,19 +381,10 @@ class PlacelessTranslationService(Folder):
         self._registerMessageCatalog(catalog)
 
     security.declarePrivate('getCatalogsForTranslation')
-    def getCatalogsForTranslation(self, context, domain, target_language=None):
-        # ZPT passes the object as context.  That's wrong according to spec.
-        context = getattr(context, 'REQUEST', context)
-
+    @memoize_contextless
+    def getCatalogsForTranslation(self, request, domain, target_language=None):
         if target_language is None:
-            target_language = self.negotiate_language(context, domain)
-
-        # cache catalog names to speed up because this method is called
-        # for every msgid
-        cache_name = '_pts_catalog_names_%s_%s' % (domain, target_language or 'none')
-        cached_catalog_names = context.get(cache_name, None)
-        if cached_catalog_names:
-            return [translationRegistry[name] for name in cached_catalog_names]
+            target_language = self.negotiate_language(request, domain)
 
         # get the catalogs for translations
         catalog_names = catalogRegistry.get((target_language, domain), ()) or \
@@ -417,16 +410,12 @@ class PlacelessTranslationService(Folder):
                 catalog_names.insert(pos, catalog_name)
                 pos+=1
 
-        # set catalog names cache. Do *not* store a persistent object
-        # in the request. It may cause reference circles and cause memory leaks
-        context.set(cache_name, catalog_names)
-
         # test for right to left language
-        if not context.has_key(PTS_IS_RTL):
-            context.set(PTS_IS_RTL, False)
+        if not request.has_key(PTS_IS_RTL):
+            request.set(PTS_IS_RTL, False)
         for name in catalog_names:
             if rtlRegistry.get(name):
-                context.set(PTS_IS_RTL, True)
+                request.set(PTS_IS_RTL, True)
                 break
 
         return [translationRegistry[name] for name in catalog_names]
@@ -471,12 +460,12 @@ class PlacelessTranslationService(Folder):
     def isRTL(self, context, domain):
         """get RTL settings
         """
-        context = getattr(context, 'REQUEST', context)
-        pts_is_rtl = context.get(PTS_IS_RTL, None)
+        request = getattr(context, 'REQUEST', context)
+        pts_is_rtl = request.get(PTS_IS_RTL, None)
         if pts_is_rtl is None:
             # call getCatalogsForTranslation to initialize the negotiator
-            self.getCatalogsForTranslation(context, domain)
-        return context.get(PTS_IS_RTL, False)
+            self.getCatalogsForTranslation(request, domain)
+        return request.get(PTS_IS_RTL, False)
 
     security.declareProtected(view, 'utranslate')
     @deprecate("The utranslate method of the PTS is deprecated and will be "
@@ -501,10 +490,10 @@ class PlacelessTranslationService(Folder):
             return default
 
         # ZPT passes the object as context.  That's wrong according to spec.
-        context = aq_acquire(context, 'REQUEST')
+        request = aq_acquire(context, 'REQUEST')
         text = msgid
 
-        catalogs = self.getCatalogsForTranslation(context, domain, target_language)
+        catalogs = self.getCatalogsForTranslation(request, domain, target_language)
         for catalog in catalogs:
             try:
                 text = getMessage(catalog, msgid, default)
@@ -522,15 +511,16 @@ class PlacelessTranslationService(Folder):
         return self.interpolate(text, mapping)
 
     security.declarePrivate('negotiate_language')
-    def negotiate_language(self, context, domain):
-        if context is None:
+    @memoize_contextless
+    def negotiate_language(self, request, domain):
+        if request is None:
             raise TypeError, 'No destination language'
         langs = [m[0] for m in catalogRegistry.keys() if m[1] == domain] + \
                 [m[0] for m in fbcatalogRegistry.keys() if m[1] == domain]
         for fallback in self._fallbacks:
             if fallback not in langs:
                 langs.append(fallback)
-        return negotiator.negotiate(langs, context, 'language')
+        return negotiator.negotiate(langs, request, 'language')
 
     security.declareProtected(view, 'getDomain')
     def getDomain(self, domain):

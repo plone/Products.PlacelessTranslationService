@@ -1,5 +1,10 @@
 1.4.1 - Unreleased
 
+    Removed custom cache handling and replaced it by the standard approach
+    from plone.memoize, which in turn is now a dependency of PTS. This results
+    in a major speed increase again.
+    [hannosch]
+
     Removed obsolete as_unicode argument from the translate method.
     [hannosch]
 

@@ -1,7 +1,3 @@
-"""
-$Id$
-"""
-
 import logging
 import types
 from utils import log
@@ -226,21 +222,9 @@ class Negotiator:
 
     def negotiate(self, choices, request, kind='content-type'):
         choices = tuple(choices)
-        cache_name = '_pts_negotiator_cache_%s' % kind
-        try:
-            cache = request.other[cache_name]
-        except KeyError:
-            # Store cache in request object
-            cache = {}
-            request.set(cache_name, cache)
-        try:
-            return cache[choices]
-        except KeyError:
-            cache[choices] = self._negotiate(choices, request, kind)
-        return cache[choices]
+        return self._negotiate(choices, request, kind)
 
     def _negotiate(self, choices, request, kind):
-
         userchoices = getLangPrefs(request, kind)
         # Prioritize on the user preferred choices. Return the first user
         # preferred choice that the object has available.
