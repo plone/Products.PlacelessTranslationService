@@ -492,7 +492,7 @@ class PlacelessTranslationService(Folder):
 
     security.declareProtected(view, 'translate')
     def translate(self, domain, msgid, mapping=None, context=None,
-                  target_language=None, default=None, as_unicode=True):
+                  target_language=None, default=None):
         """
         Translate a message using Unicode.
         """
@@ -511,10 +511,7 @@ class PlacelessTranslationService(Folder):
             except KeyError:
                 # it's not in this catalog, try the next one
                 continue
-            # found! negotiate output encodings now
-            if not as_unicode:
-                # ask HTTPResponse to encode it for us
-                text = context.RESPONSE._encode_unicode(text)
+            # found!
             break
         else:
             # Did the fallback fail? Sigh, use the default if it is not None.

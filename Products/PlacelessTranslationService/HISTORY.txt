@@ -1,5 +1,8 @@
 1.4.1 - Unreleased
 
+    Removed obsolete as_unicode argument from the translate method.
+    [hannosch]
+
     Deprecated a bunch of methods, which don't serve any particular purpose
     anymore.
     [hannosch]
