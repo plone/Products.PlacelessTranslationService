@@ -7,9 +7,6 @@ from Testing import ZopeTestCase
 
 ZopeTestCase.installProduct('PlacelessTranslationService')
 
-import os, fnmatch
-from glob import glob
-from OFS.Application import get_products
 from Products.PlacelessTranslationService import pts_globals, getTranslationService
 from Products.PlacelessTranslationService import PlacelessTranslationService as PTS
 

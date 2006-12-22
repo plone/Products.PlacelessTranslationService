@@ -1,9 +1,4 @@
-"""
-$Id$
-"""
-
 from UserDict import UserDict
-from types import UnicodeType
 import sys, os
 
 import logging
@@ -15,9 +10,9 @@ class Registry(UserDict):
         self[name] = value
 
 def log(msg, severity=logging.DEBUG, detail='', error=None):
-    if type(msg) is UnicodeType:
+    if isinstance(msg, unicode):
         msg = msg.encode(sys.getdefaultencoding(), 'replace')
-    if type(detail) is UnicodeType:
+    if isinstance(detail, unicode):
         detail = detail.encode(sys.getdefaultencoding(), 'replace')
     logger.log(severity, '%s \n%s', msg, detail)
 

@@ -1,12 +1,7 @@
-"""Placeless Translation Service for providing I18n to file-based code.
-
-$Id$
-"""
-
 import sys, os, re, fnmatch
-from types import StringType, UnicodeType
 
 from zope.component import getUtilitiesFor
+from zope.deprecation import deprecate
 from zope.i18n.interfaces import ITranslationDomain
 
 import Globals
@@ -17,7 +12,6 @@ from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view, view_management_screens
 from Globals import InitializeClass
 from OFS.Folder import Folder
-from ZPublisher.HTTPRequest import HTTPRequest
 
 from GettextMessageCatalog import BrokenMessageCatalog
 from GettextMessageCatalog import GettextMessageCatalog
@@ -28,10 +22,6 @@ from Negotiator import negotiator
 from Domain import Domain
 import logging
 from utils import log, Registry
-from msgfmt import PoSyntaxError
-
-from Tracker import global_tracker
-from GettextMessageCatalog import ptFile
 
 PTS_IS_RTL = '_pts_is_rtl'
 
@@ -43,13 +33,6 @@ NAME_RE = r"[a-zA-Z][-a-zA-Z0-9_]*"
 _interp_regex = re.compile(r'(?<!\$)(\$(?:%(n)s|{%(n)s}))' %({'n': NAME_RE}))
 _get_var_regex = re.compile(r'%(n)s' %({'n': NAME_RE}))
 
-
-# The configure.zcml file should specify a list of fallback languages for the
-# site.  If a particular catalog for a negotiated language is not available,
-# then the zcml specified order should be tried.  If that fails, then as a
-# last resort the languages in the following list are tried.  If these fail
-# too, then the msgid is returned.
-#
 # Note that these fallbacks are used only to find a catalog.  If a particular
 # message in a catalog is not translated, tough luck, you get the msgid.
 LANGUAGE_FALLBACKS = list(os.environ.get('LANGUAGE_FALLBACKS', 'en').split(' '))
@@ -88,17 +71,15 @@ class PTSWrapper(Base):
         """
         Translate a message using Unicode.
         """
-
-        # this is useful for GettextMessageCatalog see the end of
-        # GettextMessageCatalog.py for details
-        __pts_caller_backcount__ = 1
-
         service = self.load(context)
         if not service:
             return default
         return service.translate(domain, msgid, mapping, context, target_language, default)
 
     security.declareProtected(view, 'utranslate')
+    @deprecate("The utranslate method of the PTS is deprecated and will be "
+               "removed in the next PTS release. Use the translate method "
+               "instead.")
     def utranslate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
         """
@@ -125,6 +106,9 @@ class PTSWrapper(Base):
         return service.negotiate_language(context.REQUEST,domain)
 
     security.declarePublic('isRTL')
+    @deprecate("The isRTL method of the PTS is deprecated and will be removed "
+               "in the next PTS release. Use the information found in the "
+               "Zope3 locale instead.")
     def isRTL(self, context, domain):
         service = self.load(context)
         # Default to LtR
@@ -154,12 +138,6 @@ class PlacelessTranslationService(Folder):
     # (development mode)
     _class_version = (1, 4, 1, 0)
     all_meta_types = ()
-
-    manage_options = Folder.manage_options + (
-        {'label': 'Tracker', 'action': 'manage_trackerForm'},)
-
-    manage_trackerForm = ptFile(
-        'manage_trackerForm', globals(), 'www', 'manage_trackerForm')
 
     security = ClassSecurityInfo()
 
@@ -487,6 +465,9 @@ class PlacelessTranslationService(Folder):
         return l
 
     security.declareProtected(view, 'isRTL')
+    @deprecate("The isRTL method of the PTS is deprecated and will be removed "
+               "in the next PTS release. Use the information found in the "
+               "Zope3 locale instead.")
     def isRTL(self, context, domain):
         """get RTL settings
         """
@@ -498,6 +479,9 @@ class PlacelessTranslationService(Folder):
         return context.get(PTS_IS_RTL, False)
 
     security.declareProtected(view, 'utranslate')
+    @deprecate("The utranslate method of the PTS is deprecated and will be "
+               "removed in the next PTS release. Use the translate method "
+               "instead.")
     def utranslate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
         """
@@ -603,23 +587,9 @@ class PlacelessTranslationService(Folder):
         except AttributeError:
             manage_main = ImplicitAcquisitionWrapper(Folder.manage_main, self)
             r = manage_main(self, self, REQUEST, *a, **kw)
-        if type(r) is UnicodeType:
+        if isinstance(r, unicode):
             r = r.encode('utf-8')
         REQUEST.RESPONSE.setHeader('Content-type', 'text/html; charset=utf-8')
         return r
-
-    security.declareProtected(view_management_screens, 'manage_tracker')
-    def manage_tracker(self, REQUEST=None):
-        """Defers all to the global_tracker
-        """
-        global global_tracker
-        return global_tracker.manage_tracker(self, REQUEST)
-
-    security.declareProtected(view, 'getTracker')
-    def getTracker(self):
-        """The domain tracker of that PTS (used only for ZMI template)
-        """
-        global global_tracker
-        return global_tracker
 
 InitializeClass(PlacelessTranslationService)

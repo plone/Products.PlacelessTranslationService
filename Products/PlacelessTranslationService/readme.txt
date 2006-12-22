@@ -89,64 +89,6 @@ Using PlacelessTranslationService
 
      http://plone.org/products/i18ndude
 
-  -- Using PTS itself:
-
-     If your software is not only in ZPTs, or if it only exists within
-     the ZODB, then you can generate the PO Template using PTS itself
-     as follows.
-
-     - Create a blank PO file for your native language in the location
-	you have chosen to store your i18n files. This can be done by
-	copying the blank.pot file included in the doc directory of the PTS
-	distribution and changing its extension to .po. 
-	See section 4 below for details of where to put i18n files. 
-	Change the language code and name fields in the copy to be
-	those of your native language. Make sure you also correctly
-	set the domain field.
-	Now create an empty file ending in the same place as you .po
-	and with the same name, but change the extension to .missing
-
-	As an example, if your Zope instance exists at:
-
-	/usr/local/Zope/MySite
-
-	and your native language is english, then create a folder
-	called 'i18n' in 'MySite'. Then copy blank.pot to english.po
-	and change the language code and name to:
-
-	"Language-Code: en\n"
-	"Language-Name: English\n"
-
-	Finally, create an empty file called english.missing in the
-	same folder.
-
-	The full paths of the files you have created would be:
-
-	/usr/local/Zope/MySite/i18n/english.po
-	/usr/local/Zope/MySite/i18n/english.missing
-
-     -  Restart Zope.
-
-     -  Execute all the software containing your i18n'ed markup.
-        This can usually be done by viewing all the pages in your site
-        using either a web browser or a spidering tool like wget.
-	In some cases you may have to do more to get all your i18n'ed
-        code to execute.
-
-     -  Append the .missing file to the end of the .po file and change
-        the extension of the resulting file to be .pot. You now have a
-        PO Template ;-)
-
-	In the example, this file would be:
-
-	/usr/local/Zope/MySite/i18n/english.pot
-
-     -  Finally, delete the .missing file and restart Zope. This is
-        important, otherwise using the Test tab of Message Catalogs in
-        the TranslationService part of the Control Panel will result
-        in entries that aren't found being written to the .missing
-        file.
-
 3. Prepare Translations of the Template
 
    Preferably, find a translation company that can handle the gettext
@@ -174,17 +116,3 @@ Using PlacelessTranslationService
    these locations.
 
    Once that's done, restart Zope.
-
-Historical Information
-
-  PlacelessTranslationService is fully unicode-based, so that you may
-  write your potfiles in any encoding you want.  ZPT, on the other
-  hand, WAS blissfully unicode-ignorant. This may have changed.
-
-  In the past, when it tried to concatenate the translation results to
-  the page-in-progress, depending on your encodings, it may have
-  returned a UnicodeError.  This problem is not exclusive of
-  Placeless; it also happens with Localizer.
-
-  As of more recent releases, this problem seems to have disappeared,
-  thanks to tireless effort of a few contributors. 

@@ -3,9 +3,10 @@ $Id$
 """
 
 import os
+from zope.deprecation import deprecate
 
 from Products.PageTemplates.GlobalTranslationService import \
-    setGlobalTranslationService, getGlobalTranslationService
+    setGlobalTranslationService
 import Globals
 pts_globals = globals()
 
@@ -20,7 +21,6 @@ from PlacelessTranslationService import PTS_IS_RTL
 import logging
 from utils import log
 
-from Negotiator import negotiator, setCookieLanguage
 import TranslateTags
 from GettextMessageCatalog import purgeMoFileCache
 
@@ -52,30 +52,45 @@ def getTranslationService():
     return translation_service
 
 security.declareProtected(view, 'translate')
+@deprecate("The translate method of the PTS package is deprecated and will be "
+           "removed in the next PTS release. Use the translate method of the "
+           "global translation service instead.")
 def translate(*args, **kwargs):
     """see PlaceslessTranslationService.PlaceslessTranslationService
     """
     return getTranslationService().translate(*args, **kwargs)
 
 security.declareProtected(view, 'utranslate')
+@deprecate("The utranslate method of the PTS package is deprecated and will be "
+           "removed in the next PTS release. Use the translate method of the "
+           "global translation service instead.")
 def utranslate(*args, **kwargs):
     """see PlaceslessTranslationService.PlaceslessTranslationService
     """
     return getTranslationService().translate(*args, **kwargs)
 
 security.declareProtected(view, 'getLanguages')
+@deprecate("The getLanguages method of the PTS package is deprecated and will "
+           "be removed in the next PTS release. Use the getLanguages method on "
+           "the translation service instead.")
 def getLanguages(*args, **kwargs):
     """see PlaceslessTranslationService.PlaceslessTranslationService
     """
     return getTranslationService().getLanguages(*args, **kwargs)
 
 security.declareProtected(view, 'getLanguageName')
+@deprecate("The getLanguageName method of the PTS package is deprecated and "
+           "will be removed in the next PTS release. Use the getLanguageName "
+           "method on the translation service instead.")
 def getLanguageName(*args, **kwargs):
     """see PlaceslessTranslationService.PTSWrapper
     """
     return getTranslationService().getLanguageName(*args, **kwargs)
 
 security.declareProtected(view, 'isRTL')
+@deprecate("The isRTL method of the PTS package is deprecated and will be "
+           "removed in the next PTS release. Use the information found in the "
+           "Zope3 locale instead.")
 def isRTL(context, domain):
     """Returns true for a rtl language and false for a ltr language
     """

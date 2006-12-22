@@ -8,12 +8,10 @@ import os
 import os.path
 import re
 import glob
-import shutil
 
 RE_DOMAIN = re.compile(r"\"Domain: ?([a-zA-Z-_]*)\\n\"")
 RE_LANGUAGE = re.compile(r"\"Language-[cC]ode: ?([a-zA-Z-_]*)\\n\"")
 
-#base = os.getcwd()
 base = '.'
 i18n = os.path.join(base, 'i18n')
 locales = os.path.join(base, 'locales')
@@ -53,13 +51,11 @@ for po in po_files:
 
     src = po
     dst = os.path.join(po_path, new_po)
-    #shutil.copy(src, dst)
     svnAdd(po_path)
     os.system("svn mv %s %s" % (src, dst))
     print "Copied %s - %s" % (po_path, new_po)
 
 for pot in pot_files:
-    #shutil.copy(pot, locales)
     os.system("svn mv %s %s" % (pot, locales))
     print "Copied %s" % pot
 

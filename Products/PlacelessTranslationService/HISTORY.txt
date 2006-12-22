@@ -1,3 +1,13 @@
+1.4.1 - Unreleased
+
+    Deprecated a bunch of methods, which don't serve any particular purpose
+    anymore.
+    [hannosch]
+
+    Removed the .missing tracking facilities. These were unmaintained and not
+    tested in any way.
+    [hannosch]
+
 1.4.0 - Released October 25, 2006
 
     Removed the tracker functionality of automatically recording missing

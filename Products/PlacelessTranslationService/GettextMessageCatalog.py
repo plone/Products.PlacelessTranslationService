@@ -4,9 +4,8 @@ $Id$
 """
 
 from gettext import GNUTranslations
-import os, sys, types, codecs, traceback, time
+import os, sys, types, traceback
 import glob
-import re
 from stat import ST_MTIME
 
 from Acquisition import aq_parent, Implicit
@@ -25,7 +24,6 @@ import logging
 from utils import log, make_relative_location, Registry
 from msgfmt import Msgfmt
 
-from zope.tales.tales import Context as TALESContextClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 def ptFile(id, *filename):
@@ -231,9 +229,6 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
                 raise ValueError, 'Unsupported value for X-Is-RTL' % is_rtl
             rtlRegistry[self.getId()] = self.isRTL()
 
-            missingFileName = self._getPoFile()[:-3] + '.missing'
-            if os.access(missingFileName, os.W_OK):
-                tro.add_fallback(MissingIds(missingFileName, self._v_tro._charset))
             if self.name:
                 self.title = '%s language (%s) for %s' % (self._language, self.name, self._domain)
             else:
@@ -446,152 +441,6 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
 
 InitializeClass(GettextMessageCatalog)
 
-# template to use to write missing entries to .missing
-missing_template = u'''
-#. Added on %(date)s
-#.
-#: %(reference)s%(context)s
-#.
-#. Orginal text:%(original)s
-msgid "%(id)s"
-msgstr ""
-'''
-
-class MissingIds(Persistent):
-    """This behaves like a gettext message catalog but always
-    raises a KeyError. However, along the way, it adds the msgid that
-    was missing to the .missing file in .po format.
-    """
-
-    security = ClassSecurityInfo()
-    security.declareObjectProtected(view_management_screens)
-
-    def __init__(self, fileName, charset):
-        self._fileName = fileName
-        self._charset = charset
-        self._ids = {}
-        self._pattern = re.compile('msgid "(.*)"$')
-        self.parseFile()
-        self._v_file = None
-
-    def parseFile(self):
-        file = codecs.open(self._fileName, 'r', self._charset)
-        for line in file.xreadlines():
-            match = self._pattern.search(line)
-            if match:
-                msgid = match.group(1)
-                self._ids[msgid] = 1
-        file.close()
-
-    def gettext(self, msgid):
-        if not self._ids.has_key(msgid):
-            if getattr(self, '_v_file', None) is None:
-                self._v_file = codecs.open(self._fileName, 'a', self._charset)
-            context_info = None
-
-            # raise an exception so we can get a stack frame
-            try:
-                raise ZeroDivisionError
-            except ZeroDivisionError:
-                f = sys.exc_info()[2].tb_frame.f_back
-                # gm_f is the frame in which the getMessage in this
-                # file executes. 
-                gm_f = f.f_back
-
-            # The next line provides a way to detect recursion.
-            __exception_formatter__ = 1
-            
-            # go hunting for the context that called up
-            while f is not None:
-                locals = f.f_locals
-                if locals.get('__exception_formatter__'):
-                    # Stop recursion.
-                    context_info = ('Recursion Error while trying to find Context',)
-                    break
-                Context = locals.get('self')
-                if isinstance(Context,TALESContextClass):
-                    context_info = (
-                        Context.source_file,
-                        'Line %i, Column %i' % (
-                                   Context.position[0],
-                                   Context.position[1],
-                                   )
-                        )
-                    original = f.f_back.f_locals.get('default')
-                    break
-                f = f.f_back
-
-            if context_info is None:
-                # lets insert details of the thing that called PTS
-                # you can indicate a thing to use instead of PTS
-                # by putting:
-                #
-                # __pts_caller_backcount__ = 1
-                #
-                # ...in the thing.
-                # This is handy, for example, if you have a generic
-                # external method or python script that does
-                # translations and you want to record what is calling
-                # it, and  not just the thing itself.
-                #
-                # The value is the number of stack frames to count
-                # back to find the caller.
-                # For external methods, this should be 2
-                # For python scripts, it might be 1
-                # XXX please add to and correct as appropriate
-
-                # build an inverse list of frames
-                frames = []
-                f = gm_f
-                while 1:
-                    frames.append(f)
-                    f = f.f_back
-                    if f is None:
-                        break
-                frames.reverse()
-                
-                caller_f = None
-                # look for __pts_caller_backcount__
-                for f in frames:
-                    backcount = f.f_locals.get('__pts_caller_backcount__')
-                    if backcount is not None:
-                        while backcount:
-                            f = f.f_back
-                            backcount -= 1
-                        caller_f = f
-                        break
-
-                # delete frames list reference to (hopefuly) stop
-                # memory leaks
-                frames = None
-
-                # report context info as appropriate
-                if caller_f is None:
-                    context_info = ('No context information could be found',)
-                else:                    
-                    caller_co = caller_f.f_code
-                    context_info = (
-                        caller_co.co_filename,
-                        'Line %i, in %s' % (caller_f.f_lineno, caller_co.co_name),
-                        )
-
-            # insert default text, also probably pretty fragile ;-)
-            default = gm_f.f_locals['orig_text']
-            if default is None:
-                '< No original text supplied >'
-
-            self._v_file.write(missing_template % {
-                'id':msgid.replace('"', r'\"'),
-                'date':time.asctime(),
-                'reference':context_info[0],
-                'context':''.join(['\n#. '+line for line in context_info[1:]]),
-                'original':''.join(['\n#. '+line for line in default.split('\n')])
-                })
-            self._v_file.flush()
-            self._ids[msgid]=1
-        raise KeyError, msgid
-
-InitializeClass(MissingIds)
 
 class MoFileCache(object):
     """Cache for mo files
