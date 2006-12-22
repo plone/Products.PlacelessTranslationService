@@ -1,10 +1,12 @@
 import sys, os, re, fnmatch
+import logging
 
 from zope.component import getUtilitiesFor
+from zope.component import getUtility
+from zope.component import queryUtility
 from zope.deprecation import deprecate
 from zope.i18n.interfaces import ITranslationDomain
-
-from plone.memoize.view import memoize_contextless
+from zope.interface import implements
 
 import Globals
 from ExtensionClass import Base
@@ -22,7 +24,8 @@ from GettextMessageCatalog import rtlRegistry
 from GettextMessageCatalog import getMessage
 from Negotiator import negotiator
 from Domain import Domain
-import logging
+from interfaces import IPlacelessTranslationService
+from memoize import memoize
 from utils import log, Registry
 
 PTS_IS_RTL = '_pts_is_rtl'
@@ -44,28 +47,12 @@ registerCatalog = catalogRegistry.register
 fbcatalogRegistry = Registry()
 registerFBCatalog = fbcatalogRegistry.register
 
-
 class PTSWrapper(Base):
     """
     Wrap the persistent PTS since persistent
-    objects cant be passed around threads
+    objects can't be passed around threads.
     """
-
     security = ClassSecurityInfo()
-
-    def __init__(self, service):
-        # get path from service
-        self._path=service.getPhysicalPath()
-
-    security.declarePrivate('load')
-    def load(self, context):
-        # return the real service
-        try:
-            root = context.getPhysicalRoot()
-        except:
-            return None
-        # traverse the service
-        return root.unrestrictedTraverse(self._path, None)
 
     security.declareProtected(view, 'translate')
     def translate(self, domain, msgid, mapping=None, context=None,
@@ -73,9 +60,7 @@ class PTSWrapper(Base):
         """
         Translate a message using Unicode.
         """
-        service = self.load(context)
-        if not service:
-            return default
+        service = getUtility(IPlacelessTranslationService)
         return service.translate(domain, msgid, mapping, context, target_language, default)
 
     security.declareProtected(view, 'utranslate')
@@ -87,24 +72,22 @@ class PTSWrapper(Base):
         """
         Translate a message using Unicode..
         """
-        service = self.load(context)
-        if not service:
-            return default
+        service = getUtility(IPlacelessTranslationService)
         return service.translate(domain, msgid, mapping, context, target_language, default)
 
     security.declarePublic(view, 'getLanguageName')
     def getLanguageName(self, code, context):
-        service = self.load(context)
+        service = getUtility(IPlacelessTranslationService)
         return service.getLanguageName(code)
 
     security.declarePublic(view, 'getLanguages')
     def getLanguages(self, context, domain=None):
-        service = self.load(context)
+        service = getUtility(IPlacelessTranslationService)
         return service.getLanguages(domain)
 
     security.declarePrivate('negotiate_language')
     def negotiate_language(self, context, domain):
-        service = self.load(context)
+        service = getUtility(IPlacelessTranslationService)
         return service.negotiate_language(context.REQUEST,domain)
 
     security.declarePublic('isRTL')
@@ -112,16 +95,8 @@ class PTSWrapper(Base):
                "in the next PTS release. Use the information found in the "
                "Zope3 locale instead.")
     def isRTL(self, context, domain):
-        service = self.load(context)
-        # Default to LtR
-        if service is None: return False
+        service = getUtility(IPlacelessTranslationService)
         return service.isRTL(context.REQUEST,domain)
-
-    def __repr__(self):
-        """
-        Return a string representation
-        """
-        return "<PTSWrapper for %s>" % '/'.join(self._path)
 
 InitializeClass(PTSWrapper)
 
@@ -129,6 +104,7 @@ class PlacelessTranslationService(Folder):
     """
     The Placeless Translation Service
     """
+    implements(IPlacelessTranslationService)
 
     meta_type = title = 'Placeless Translation Service'
     icon = 'misc_/PlacelessTranslationService/PlacelessTranslationService.png'
@@ -381,7 +357,7 @@ class PlacelessTranslationService(Folder):
         self._registerMessageCatalog(catalog)
 
     security.declarePrivate('getCatalogsForTranslation')
-    @memoize_contextless
+    @memoize
     def getCatalogsForTranslation(self, request, domain, target_language=None):
         if target_language is None:
             target_language = self.negotiate_language(request, domain)
@@ -511,10 +487,8 @@ class PlacelessTranslationService(Folder):
         return self.interpolate(text, mapping)
 
     security.declarePrivate('negotiate_language')
-    @memoize_contextless
+    @memoize
     def negotiate_language(self, request, domain):
-        if request is None:
-            raise TypeError, 'No destination language'
         langs = [m[0] for m in catalogRegistry.keys() if m[1] == domain] + \
                 [m[0] for m in fbcatalogRegistry.keys() if m[1] == domain]
         for fallback in self._fallbacks:

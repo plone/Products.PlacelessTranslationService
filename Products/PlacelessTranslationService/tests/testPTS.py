@@ -7,13 +7,16 @@ from Testing import ZopeTestCase
 
 ZopeTestCase.installProduct('PlacelessTranslationService')
 
-from Products.PlacelessTranslationService import pts_globals, getTranslationService
+from zope.component import getUtility
+
+from Products.CMFPlone.utils import versionTupleFromString
+
+from Products.PlacelessTranslationService import pts_globals
 from Products.PlacelessTranslationService import PlacelessTranslationService as PTS
+from Products.PlacelessTranslationService.interfaces import IPlacelessTranslationService
 
 from Globals import package_home
 PACKAGE_HOME = package_home(pts_globals)
-
-from Products.CMFPlone.utils import versionTupleFromString
 
 def getFSVersionTuple():
     """Reads version.txt and returns version tuple"""
@@ -25,10 +28,7 @@ def getFSVersionTuple():
 class TestPTS(ZopeTestCase.ZopeTestCase):
 
     def afterSetUp(self):
-        self.wrapper = getTranslationService()
-        self.service_path = self.wrapper._path
-        self.name = ''.join(self.service_path)
-        self.service = self.app.Control_Panel._getOb(self.name)
+        self.service = getUtility(IPlacelessTranslationService)
 
     def testClassVersion(self):
         clv = PTS._class_version

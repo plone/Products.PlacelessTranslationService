@@ -1,8 +1,14 @@
 1.4.1 - Unreleased
 
+    Register the PlacelessTranslationService object as a global utility during
+    initialization. This allows us to get rid of all the magic acquistion code
+    in PTSWrapper, which traversed to the real PTS object for every translate
+    method call. We can now do a simple getUtility call instead.
+    [hannosch]
+
     Removed custom cache handling and replaced it by the standard approach
-    from plone.memoize, which in turn is now a dependency of PTS. This results
-    in a major speed increase again.
+    based on ideas from plone.memoize. The code can be found in memoize module.
+    This results in a major speed increase again.
     [hannosch]
 
     Removed obsolete as_unicode argument from the translate method.
