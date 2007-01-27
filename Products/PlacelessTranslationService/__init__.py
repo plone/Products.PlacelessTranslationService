@@ -22,12 +22,8 @@ from PlacelessTranslationService import PTS_IS_RTL
 import logging
 from utils import log
 
-import TranslateTags
 from GettextMessageCatalog import purgeMoFileCache
 from interfaces import IPlacelessTranslationService
-
-# this is for packages that need to initialize stuff after we're done
-notify_initialized = []
 
 # id to use in the Control Panel
 cp_id = 'TranslationService'
@@ -172,8 +168,3 @@ def initialize(context):
     #       persistent service itself (zodb connection) therefore a
     #       wrapper is created around it
     setGlobalTranslationService(PTSWrapper())
-
-    # notify anyone who needs it
-    TranslateTags.initialize()
-    for function in notify_initialized:
-        function()

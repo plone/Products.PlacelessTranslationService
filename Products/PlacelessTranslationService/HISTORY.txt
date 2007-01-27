@@ -1,5 +1,10 @@
 1.4.1 - Unreleased
 
+    Removed TranslateTags and dtml translation features. They weren't working
+    anymore for ages and noone was able to fix or maintain those.
+    See http://dev.plone.org/plone/ticket/4895 for the whole story.
+    [hannosch]
+
     Register the PlacelessTranslationService object as a global utility during
     initialization. This allows us to get rid of all the magic acquistion code
     in PTSWrapper, which traversed to the real PTS object for every translate
