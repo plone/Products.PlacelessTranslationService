@@ -1,4 +1,4 @@
-1.3.5 - Unreleased
+1.3.5 - Released January 27, 2006
 
     The recent change to return Unicode exposed another place in the TAL
     interpreter that combines text, which wasn't yet patched to allow a mixture
