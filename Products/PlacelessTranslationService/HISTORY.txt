@@ -1,4 +1,4 @@
-1.4.1 - Unreleased
+1.4.1 - Released February 10, 2007
 
     Removed TranslateTags and dtml translation features. They weren't working
     anymore for ages and noone was able to fix or maintain those.
