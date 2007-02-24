@@ -3,7 +3,6 @@ import logging
 
 from zope.component import getUtilitiesFor
 from zope.component import getUtility
-from zope.component import queryUtility
 from zope.deprecation import deprecate
 from zope.i18n.interfaces import ITranslationDomain
 from zope.interface import implements
@@ -25,6 +24,7 @@ from GettextMessageCatalog import getMessage
 from Negotiator import negotiator
 from Domain import Domain
 from interfaces import IPlacelessTranslationService
+from interfaces import IPTSTranslationDomain
 from memoize import memoize
 from utils import log, Registry
 
@@ -292,7 +292,10 @@ class PlacelessTranslationService(Folder):
         """
         # filter out domains which are registered with the Zope3
         # translation service, as we won't get queries for these anyways
+        # but ignore those registered as PTS surrogate domains
         z3domains = [util[0] for util in getUtilitiesFor(ITranslationDomain)]
+        ptsdomains = [util[0] for util in getUtilitiesFor(IPTSTranslationDomain)]
+        z3domain = [domain for domain in z3domains if not domain in ptsdomains]
 
         found=[]
         log('looking into ' + basepath, logging.DEBUG)

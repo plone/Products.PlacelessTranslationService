@@ -1,3 +1,11 @@
+1.4.2 Unreleased
+
+    Added IPTSTranslationDomain interface and utility. These can be used to
+    proxy a translation domain that is still handled by PTS to make it available
+    as a Zope3 translation domain as well, so it can be used in pure Zope3 page
+    templates for example.
+    [hannosch, philiKON]
+
 1.4.1 - Released February 10, 2007
 
     Removed TranslateTags and dtml translation features. They weren't working
