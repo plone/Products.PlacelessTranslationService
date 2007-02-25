@@ -1,5 +1,7 @@
 from zope.interface import implements
 from zope.component import queryUtility
+from zope.i18n import interpolate
+from zope.i18nmessageid import Message
 
 from interfaces import IPlacelessTranslationService
 from interfaces import IPTSTranslationDomain
@@ -21,4 +23,5 @@ class PTSTranslationDomain(object):
         if pts:
             return pts.translate(self.domain, msgid, mapping, context,
                                  target_language, default)
-        return default
+
+        return interpolate(default, mapping)
