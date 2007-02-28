@@ -20,7 +20,7 @@ class PTSTranslationDomain(object):
     def translate(self, msgid, mapping=None, context=None,
                   target_language=None, default=None):
         pts = queryUtility(IPlacelessTranslationService)
-        if pts:
+        if pts is not None:
             return pts.translate(self.domain, msgid, mapping, context,
                                  target_language, default)
 

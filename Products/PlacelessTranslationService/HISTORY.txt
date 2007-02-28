@@ -1,5 +1,9 @@
 1.4.2 Unreleased
 
+    Small optimization. Check if the context passed to the translate function
+    is already a request, so we don't need to acquire it from the context.
+    [hannosch]
+
     Added IPTSTranslationDomain interface and utility. These can be used to
     proxy a translation domain that is still handled by PTS to make it available
     as a Zope3 translation domain as well, so it can be used in pure Zope3 page

@@ -6,6 +6,7 @@ from zope.component import getUtility
 from zope.deprecation import deprecate
 from zope.i18n.interfaces import ITranslationDomain
 from zope.interface import implements
+from zope.publisher.interfaces.browser import IBrowserRequest
 
 import Globals
 from ExtensionClass import Base
@@ -469,10 +470,11 @@ class PlacelessTranslationService(Folder):
             return default
 
         # ZPT passes the object as context.  That's wrong according to spec.
-        request = aq_acquire(context, 'REQUEST')
+        if not IBrowserRequest.providedBy(context):
+            context = aq_acquire(context, 'REQUEST')
         text = msgid
 
-        catalogs = self.getCatalogsForTranslation(request, domain, target_language)
+        catalogs = self.getCatalogsForTranslation(context, domain, target_language)
         for catalog in catalogs:
             try:
                 text = getMessage(catalog, msgid, default)
