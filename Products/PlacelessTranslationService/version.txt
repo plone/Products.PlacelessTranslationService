@@ -1,1 +1,1 @@
-1.4.2 (svn/unreleased)
+1.4.2b1
