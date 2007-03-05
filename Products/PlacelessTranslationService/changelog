@@ -1,0 +1,663 @@
+This file is closed, please use HISTORY.txt
+
+2004-09-05 23:37  tiran
+
+	* GettextMessageCatalog.py: Removed debugging code
+
+2004-09-05 23:30  tiran
+
+	* GettextMessageCatalog.py: info keys are always lower case
+
+2004-09-05 22:49  tiran
+
+	* PlacelessTranslationService.py, __init__.py: Added isRTL method
+	  to the product module and PTS instance
+
+2004-09-05 21:33  tiran
+
+	* GettextMessageCatalog.py, PlacelessTranslationService.py: Added
+	  support for RTL to PTS
+
+2004-07-18 20:33  tiran
+
+	* GettextMessageCatalog.py, NEWS.txt: Set MessageCatalog
+	  isPrincipiaFolderish to false to avoid infinite recursion of
+	  dtml-tree inside the ZMI.
+
+2004-07-15 11:19  tiran
+
+	* NEWS.txt, PlacelessTranslationService.py, TRACKERMODE.txt,
+	  Tracker.py, version.txt, tests/environ.bat,
+	  tests/environ.bat.model, tests/environ.sh.model,
+	  tests/framework.py, tests/runtest.bat, tests/runtest.sh,
+	  tests/testTracker.py, www/manage_trackerForm.pt: New feature
+	  msgid tracker (thanks to ingeniweb)
+
+2004-07-10 10:52  tiran
+
+	* NEWS.txt, PlacelessTranslationService.py: Preparing rc8
+	  Resurrected NEWS.txt
+
+2004-07-09 20:43  tiran
+
+	* TranslateTags.py: Fixed [ 967179 ] Leading space in dtml - bug in
+	  PTS I hope this fixes are ok. I don't know anything about dtml :)
+
+2004-07-03 15:03  limi
+
+	* doc/changes.txt, doc/readme.txt, version.txt: Updated docs and
+	  version string. PTS is no longer a fork, it's the official
+	  version now. ;)
+
+	  Thanks to Lalo for the original product.
+
+2004-07-02 15:45  fresh
+
+	* GettextMessageCatalog.py, PlacelessTranslationService.py: Much
+	  more context information in the stuff spit out to .missing files
+	  making them infinitely mroe useful.  Probably even better than
+	  i18ndude ;-)
+
+2004-07-02 13:50  fresh
+
+	* GettextMessageCatalog.py: Context is now reported in .missing
+	  files for ZPT's. Woohoo :-)
+
+2004-07-01 23:00  fresh
+
+	* doc/changes.txt: Note recent changes.
+
+2004-07-01 22:59  fresh
+
+	* COPYING.txt, ChangeLog, NEWS.txt, README.ZPT, doc/changes.txt,
+	  doc/license.txt, doc/readme.txt: Documentation cleanup.
+
+2004-07-01 22:32  fresh
+
+	* PlacelessTranslationService.py: Expose negotiate_language via the
+	  PTSWrapper.
+
+2004-07-01 22:15  fresh
+
+	* GettextMessageCatalog.py: Got .missing reporting working again.
+
+2004-07-01 20:11  fresh
+
+	* GettextMessageCatalog.py: remove fosilized methods. thansk for
+	  gettign rid of these when you broke them sidnei ;-)
+
+2004-07-01 16:35  fresh
+
+	* PlacelessTranslationService.py: Bixed fug in __repr__
+
+2004-07-01 12:38  fresh
+
+	* GettextMessageCatalog.py: one-character-out fix and test commit.
+
+2004-06-23 16:24  tiran
+
+	* Negotiator.py: BadBrainError ...  Fixed a typo
+
+2004-06-23 14:09  tiran
+
+	* NEWS.txt, Negotiator.py, __init__.py: Removed usage of SESSION
+	  Thx to geir who has pointed me to the problem
+
+2004-05-11 12:21  tiran
+
+	* version.txt: Preparing rc7
+
+2004-05-11 12:20  tiran
+
+	* NEWS.txt, PatchStringIO.py, debian/changelog: Reenabled
+	  getRequest patch Preparing rc7
+
+2004-05-05 01:05  tiran
+
+	* version.txt: cvs is cvs/unreleased
+
+2004-05-05 01:01  tiran
+
+	* ChangeLog: Updated changelog for rc6 release
+
+2004-05-05 01:00  tiran
+
+	* debian/changelog: updated debian changelog
+
+2004-05-05 00:59  tiran
+
+	* NEWS.txt: updated history
+
+2004-05-04 23:57  dreamcatcher
+
+	* makefile.in, version.txt: Add makefile. Bump version.
+
+2004-05-04 23:56  dreamcatcher
+
+	* Domain.py, FasterStringIO.py, GettextMessageCatalog.py,
+	  MessageID.py, Negotiator.py, PatchStringIO.py,
+	  PlacelessTranslationService.py, __init__.py, msgfmt.py: Reindent
+	  to the rescue.
+
+2004-04-22 21:33  tiran
+
+	* ChangeLog, NEWS.txt: Updated history and changelog
+
+2004-04-22 21:29  tiran
+
+	* GettextMessageCatalog.py, msgfmt.py: Better debugging message for
+	  PoSyntaxError
+
+2004-04-21 01:40  tiran
+
+	* ChangeLog, debian/changelog: updating ChangeLog and debian
+	  package
+
+2004-04-21 01:38  tiran
+
+	* FasterStringIO.py, GettextMessageCatalog.py, MessageID.py,
+	  NEWS.txt, PatchStringIO.py, PlacelessTranslationService.py,
+	  __init__.py, utils.py: Changed logging to get use the methods and
+	  vars from utils.py Cleaned up the imports an seperate them into
+	  python, zope and PTS imports Removed the dependency and auto
+	  loading of the get_request patch.
+
+2004-04-15 03:55  panjunyong
+
+	* PlacelessTranslationService.py: use list to avoid exceptions
+	  like:   AttributeError: 'tuple' object has no attribute 'append'
+
+2004-04-05 15:05  tiran
+
+	* NEWS.txt, debian/changelog: Updated news and debian changelog
+
+2004-04-05 14:52  tiran
+
+	* NEWS.txt, PlacelessTranslationService.py: Keep sort order when
+	  moving GlobalCatalogs Cache catalog names using the domain and
+	  language as key
+
+2004-04-05 03:04  tiran
+
+	* PlacelessTranslationService.py: Forgot to reset the patch number
+
+2004-04-05 02:42  tiran
+
+	* NEWS.txt, PlacelessTranslationService.py, __init__.py: Support
+	  INSTANCE_HOME/locales/ Rewrote calculation of the po id again -
+	  now it's secure and shouldn't break
+
+2004-04-05 01:45  tiran
+
+	* PlacelessTranslationService.py: Do not add a catalog multiple
+	  times
+
+2004-04-05 01:45  tiran
+
+	* NEWS.txt: ups, it's rc4
+
+2004-04-05 01:32  tiran
+
+	* GettextMessageCatalog.py: Added TODO reminder
+
+2004-04-05 01:24  tiran
+
+	* NEWS.txt: updated history
+
+2004-04-05 01:21  tiran
+
+	* PlacelessTranslationService.py: Changed po file id creation
+	  Always append fallback catalogs to the catalogs used for
+	  translation Move GlobalCatalogs from INSTANCE_HOME/i18n/ to the
+	  beginning of the catalogs used for translation
+
+2004-03-27 23:25  tiran
+
+	* GettextMessageCatalog.py: Adding a broken catalog with reload()
+	  was broken
+
+2004-03-21 17:11  tiran
+
+	* debian/changelog: New debian version
+
+2004-03-18 22:03  psol
+
+	* PlacelessTranslationService.py: hasattr(req,session) creates the
+	  session if it doesnt exist
+
+2004-03-09 12:16  longsleep
+
+	* ChangeLog: added a changelog to keep track
+
+2004-03-09 12:12  longsleep
+
+	* NEWS.txt: updated NEWS and prepare for next release
+
+2004-03-09 12:03  longsleep
+
+	* PlacelessTranslationService.py: we need to kill old catalogs from
+	  control panel
+
+2004-03-08 22:19  longsleep
+
+	* GettextMessageCatalog.py, PlacelessTranslationService.py: fixed a
+	  couple of issues with the last checking which popped up after
+	  testing :)
+
+2004-03-08 11:07  longsleep
+
+	* GettextMessageCatalog.py, PlacelessTranslationService.py: add
+	  product to the id of the zodb catalog to allow same filenames of
+	  po files in different products
+
+2004-03-08 10:28  longsleep
+
+	* Negotiator.py: fixed collector #910529 thanks to Nicolas Ledez
+	  for the report and the patch
+
+2004-03-02 10:34  longsleep
+
+	* __init__.py: minor cleanups
+
+2004-03-02 10:27  longsleep
+
+	* PlacelessTranslationService.py: code review prepare for rc2
+	  release
+
+2004-03-02 10:10  longsleep
+
+	* NEWS.txt: removed plone2 note
+
+2004-03-02 10:10  longsleep
+
+	* version.txt: please dont check in version.txt into cvs .. make
+	  cvs tags instead
+
+2004-03-01 11:33  tiran
+
+	* NEWS.txt, version.txt: preparing 1.0fork-rc2 for plone2
+
+2004-03-01 11:32  tiran
+
+	* GettextMessageCatalog.py, PlacelessTranslationService.py: Added
+	  support for locales directory (zope 3 style)
+
+2004-02-25 20:22  tiran
+
+	* FasterStringIO.py: Removed \n from the join in the read() method
+
+2004-02-18 01:22  jimroepcke
+
+	* PatchStringIO.py: corrected encoding for the python file
+
+2004-02-17 08:11  dtremea
+
+	* GettextMessageCatalog.py: 2nd round: fixed security setting. Now
+	  Title, file_exists and getError can be still called from
+	  'www/catalog_broken.pt'.
+
+2004-02-17 07:47  dtremea
+
+	* GettextMessageCatalog.py: Fixed security setting. Now Title,
+	  file_exists, getEncoding and displayInfo can be still called from
+	  'www/catalog_info.pt'.
+
+2004-02-16 19:21  dtremea
+
+	* __init__.py: Fixed a _load_i18n_dir call to reflect the last
+	  changes.
+
+2004-02-16 13:14  tiran
+
+	* GettextMessageCatalog.py, MessageID.py, Negotiator.py,
+	  PlacelessTranslationService.py, __init__.py, debian/changelog:
+	  Added security informations Added get_transaction() as fallback
+	  to get a valid REQUEST object Prepared zope3 style locales
+	  loading Added/Fixed comments
+
+2004-02-11 12:56  ajung
+
+	* PlacelessTranslationService.py: 'return' forgotten
+
+2004-02-11 02:30  tiran
+
+	* PlacelessTranslationService.py, version.txt: back to development
+
+2004-02-11 02:27  tiran
+
+	* NEWS.txt, PlacelessTranslationService.py, version.txt: preparing
+	  1.0rc1 (for plone 2.0final)
+
+2004-02-11 01:15  pupq
+
+	* FasterStringIO.py, MessageID.py, utils.py: Used 'False' without
+	  defining it; incompatible with older versions of Python. Fixed by
+	  creating fallback definitions of False.
+
+2004-02-04 16:51  tiran
+
+	* FasterStringIO.py: I lost from Globals import get_request somehow
+	  and it wasn't detected by my tests :((
+
+2004-02-04 15:12  tiran
+
+	* FasterStringIO.py: reverted a change
+
+2004-02-04 08:30  tiran
+
+	* FasterStringIO.py: don't use str() for unicode
+
+2004-02-04 06:39  tiran
+
+	* FasterStringIO.py, debian/changelog: bugfix for py2.1 and 2.2
+
+2004-02-03 23:18  tiran
+
+	* debian/: README.Debian, changelog, compat, config, control,
+	  copyright, postinst, prerm, rules, templates: added debian
+	  package directory
+
+2004-02-03 23:14  tiran
+
+	* FasterStringIO.py, GettextMessageCatalog.py, MessageID.py,
+	  NEWS.txt, Negotiator.py, PatchStringIO.py,
+	  PlacelessTranslationService.py, TranslateTags.py, __init__.py,
+	  msgfmt.py, utils.py, version.txt: merged my negotiator branch to
+	  the HEAD
+
+2004-02-03 22:06  tiran
+
+	* FasterStringIO.py, MessageID.py, PatchStringIO.py, utils.py: *
+	  FasterStringIO based on the original StringIO modul and a
+	  suggestion from MacYet * using Globals.get_request() for
+	  MessageID * added a missing import
+
+2004-01-30 16:45  tiran
+
+	* GettextMessageCatalog.py, Negotiator.py,
+	  PlacelessTranslationService.py, TranslateTags.py, __init__.py,
+	  utils.py: moved log() and Registry to utils to avoid method level
+	  imports added setSessionLanguage changed to use PTS instance in
+	  the acquisition context of the control panel some cleanups
+
+2004-01-30 01:41  tiran
+
+	* msgfmt.py: catch eval errors and raise PoSyntaxError
+
+2004-01-30 01:25  tiran
+
+	* Negotiator.py: oops ... enable the caching again
+
+2004-01-30 01:04  tiran
+
+	* Negotiator.py: higher number = higher priority
+
+2004-01-30 00:56  tiran
+
+	* MessageID.py: seperated into MessageID and MessageIDUnicode
+
+2004-01-30 00:56  tiran
+
+	* __init__.py: revert to module level ts added allow_module for
+	  MessageID
+
+2004-01-29 21:47  tiran
+
+	* __init__.py: fixed
+
+2004-01-29 21:42  tiran
+
+	* MessageID.py, __init__.py: changed PTS api to use the wrapper
+	  instead of a modul level instance
+
+2004-01-29 21:38  tiran
+
+	* GettextMessageCatalog.py: prepared security informations
+
+2004-01-29 21:38  tiran
+
+	* Negotiator.py: reenable default negotiator
+
+2004-01-29 21:37  tiran
+
+	* PlacelessTranslationService.py: added security informations
+	  reduced debugging
+
+2004-01-29 01:06  tiran
+
+	* Negotiator.py: added new negotiation methods (thx to Claus
+	  Rosenberger for his idea)
+
+2004-01-29 00:59  tiran
+
+	* msgfmt.py: added comment
+
+2004-01-28 14:48  tiran
+
+	* PlacelessTranslationService.py: never change code between testing
+	  and a cvs ci
+
+2004-01-28 14:41  tiran
+
+	* MessageID.py, __init__.py: added Zope3 like message id factory
+	  (still under heavy construction)
+
+2004-01-28 14:41  tiran
+
+	* PlacelessTranslationService.py: added utranslate() methods to PTS
+	  Wrapper and PTS (using as_unicode from any code outside from PTS
+	  is deprecated. This argument will disapear sooner or later)
+
+2004-01-28 09:56  longsleep
+
+	* NEWS.txt: prepare for release
+
+2004-01-28 09:53  longsleep
+
+	* GettextMessageCatalog.py, PlacelessTranslationService.py,
+	  msgfmt.py: prepare for release code beautyfication better read
+	  all files with rb instead of just r
+
+2004-01-28 00:18  longsleep
+
+	* PlacelessTranslationService.py: synced with savannah changes
+
+2004-01-28 00:14  longsleep
+
+	* msgfmt.py: synced with changes from savannah
+
+2004-01-28 00:07  longsleep
+
+	* GettextMessageCatalog.py, PlacelessTranslationService.py,
+	  _FORK_IS_CLOSED.txt, www/catalog_broken.pt: catch errors from
+	  broken po files show broken catalog in control panel including
+	  traceback
+
+2004-01-12 22:13  tiran
+
+	* _FORK_IS_CLOSED.txt: closing fork
+
+2004-01-09 18:10  dtremea
+
+	* PatchStringIO.py: Fixed python encoding as PEP-0263 regex
+	  request.
+
+2004-01-07 22:28  longsleep
+
+	* NEWS.txt: prepare for release
+
+2004-01-07 12:25  longsleep
+
+	* GettextMessageCatalog.py, www/catalog_info.pt,
+	  www/catalog_test.pt: fixed encoding issues with catalog info and
+	  test pages
+
+2004-01-07 11:11  longsleep
+
+	* NEWS.txt: updated news
+
+2004-01-07 11:08  longsleep
+
+	* PlacelessTranslationService.py, __init__.py: deprecation warning
+	  when mo files were found
+
+2004-01-07 10:53  longsleep
+
+	* PlacelessTranslationService.py: removed NOISY_DEBUG hack (ppl can
+	  set zopes env var to not display BLATHER debug messages)
+	  incremented class version to get existing pts instances replaced
+
+2004-01-07 10:47  longsleep
+
+	* __init__.py: deprecated use of INSTANCEHOME/i18n folder
+
+2004-01-07 10:33  longsleep
+
+	* GettextMessageCatalog.py, NEWS.txt, PatchStringIO.py,
+	  PlacelessTranslationService.py, __init__.py, msgfmt.py,
+	  test_PlacelessExports.py, version.txt,
+	  tests/test_PlacelessExports.py: merged with tiran-pts-mocompiler
+	  branch
+
+2003-12-26 22:07  tiran
+
+	* PlacelessTranslationService.py: remove false catalog on startup
+
+2003-12-26 22:03  tiran
+
+	* NEWS.txt, version.txt: changelog
+
+2003-12-26 22:01  tiran
+
+	* msgfmt.py: add some informations
+
+2003-12-26 22:00  tiran
+
+	* __init__.py: Do not load INSTANCE_HOME/i18n if CMFPlone/i18n is
+	  available to avoid double loading
+
+2003-12-26 21:58  tiran
+
+	* GettextMessageCatalog.py: changed mod_time status
+
+2003-12-25 20:38  tiran
+
+	* GettextMessageCatalog.py: more cleanups
+
+2003-12-25 01:27  tiran
+
+	* msgfmt.py: l.startswith('msgid') is needed because not all
+	  msgid/msgstr pairs in the plone pos have a leading comment
+
+2003-12-25 00:44  tiran
+
+	* GettextMessageCatalog.py: some tweaks only - it's running :))
+	  Happy XMAS
+
+2003-12-25 00:07  tiran
+
+	* PatchStringIO.py: add py file encoding
+
+2003-12-24 23:53  tiran
+
+	* msgfmt.py: recoded as class
+
+2003-12-23 14:49  tiran
+
+	* GettextMessageCatalog.py, msgfmt.py: mpf
+
+2003-12-23 14:31  tiran
+
+	* GettextMessageCatalog.py, msgfmt.py: still not working for utf8
+	  encoded files :|
+
+2003-12-22 19:12  tiran
+
+	* GettextMessageCatalog.py, PlacelessTranslationService.py,
+	  msgfmt.py: first (nearly) working version of the online mo
+	  compiler version
+
+2003-12-22 17:46  tiran
+
+	* msgfmt.py: fixed a bug and added a small test routine
+
+2003-12-22 17:38  tiran
+
+	* msgfmt.py: add msgfmt script to compile po files on the fly
+	  (taken from plone-2.3.2/Tools/i18n and modified)
+
+2003-11-24 21:58  longsleep
+
+	* NEWS.txt: prepare for release
+
+2003-11-24 21:57  longsleep
+
+	* PlacelessTranslationService.py: mark the forked class and
+	  prepeare for release
+
+2003-11-24 21:43  longsleep
+
+	* PlacelessTranslationService.py, __init__.py: no longer register a
+	  persitent object at pt service registry .. instead register a non
+	  persistent wrapper
+
+2003-11-20 22:26  longsleep
+
+	* NEWS.txt: updated NEWS file
+
+2003-11-20 22:22  longsleep
+
+	* i18n/pts-de.po: added german translation
+
+2003-11-20 22:16  longsleep
+
+	* Negotiator.py: reimplemented the negotiator hook for custom
+	  classes with backwards compatibilty to existing negotiations
+
+2003-11-20 17:14  tesdal
+
+	* COPYING.txt, Domain.py, GettextMessageCatalog.py, MOVED,
+	  NEWS.txt, Negotiator.py, PatchStringIO.py,
+	  PlacelessTranslationService.py, README.ZPT, TranslateTags.py,
+	  __init__.py, test_PlacelessExports.py,
+	  i18n/PlacelessTranslationService.pot, i18n/pts-pt-br.po,
+	  www/GettextMessageCatalog.png,
+	  www/PlacelessTranslationService-32.png,
+	  www/PlacelessTranslationService.png, www/catalog_info.pt,
+	  www/catalog_test.pt: PlacelessTranslationService in Collective
+	  again. We need it where the developers are, and it fits nicely
+	  with PloneLanguageTool and I18NLayer.
+
+2003-01-17 02:12  lalo
+
+	* Domain.py, GettextMessageCatalog.py, MOVED, Negotiator.py,
+	  PlacelessTranslationService.py, SimpleTranslationService.py,
+	  __init__.py: moving out
+
+2003-01-09 17:32  lalo
+
+	* Negotiator.py: fixing Negotiator to allow for "submatching", eg,
+	  returning pt-br when user asked for pt
+
+2003-01-03 18:38  dreamcatcher
+
+	* Negotiator.py: Fix a bad interaction with zope2.6 zpt, that
+	  doesnt pass a good context
+
+2003-01-02 20:58  lalo
+
+	* PlacelessTranslationService.py: first experiment in exposing more
+	  info about the available translations
+
+2003-01-02 16:29  lalo
+
+	* .cvsignore, Domain.py, GettextMessageCatalog.py, Negotiator.py,
+	  PlacelessTranslationService.py, SimpleTranslationService.py,
+	  __init__.py: Initial revision
+
+2003-01-02 16:29  lalo
+
+	* .cvsignore, Domain.py, GettextMessageCatalog.py, Negotiator.py,
+	  PlacelessTranslationService.py, SimpleTranslationService.py,
+	  __init__.py: splitting this off from AltPTi18n
+
