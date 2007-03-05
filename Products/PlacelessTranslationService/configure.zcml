@@ -5,8 +5,8 @@
 
     <i18n:registerTranslations directory="locales" />
 
-    <five:registerPackage
+    <!--<five:registerPackage
         package="."
-        initialize=".initialize" />
+        initialize=".initialize" />-->
 
 </configure>
