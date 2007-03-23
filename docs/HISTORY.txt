@@ -1,4 +1,11 @@
-1.4.2 Unreleased
+1.4.2b2 - Released March 23, 2007
+
+    Commented out the five:registerPackage for now, as it lead to ugly
+    ConnectionStateErrors during tests, as PTS would have been set up as part
+    of the ZCML layer.
+    [hannosch]
+
+1.4.2b1 - Released March 5, 2007
 
     Small optimization. Check if the context passed to the translate function
     is already a request, so we don't need to acquire it from the context.

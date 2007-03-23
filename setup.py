@@ -28,7 +28,4 @@ setup(name='Products.PlacelessTranslationService',
       install_requires=[
         'setuptools',
       ],
-      entry_points="""
-      # -*- Entry points: -*-
-      """,
 )
