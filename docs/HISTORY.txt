@@ -102,12 +102,42 @@
     expects Unicode in all places.
     [hannosch] 
 
-1.3.2 - Unreleased
+1.3.6 - Released April 22, 2007
+
+    Yet another Unicode error was fixed which was caused by non unicode
+    characters in page template source (utf encoded string in page template
+    source). This closes http://dev.plone.org/plone/ticket/6238.
+    [naro, hannosch]
+
+1.3.5 - Released January 27, 2006
+
+    The recent change to return Unicode exposed another place in the TAL
+    interpreter that combines text, which wasn't yet patched to allow a mixture
+    of Unicode and utf-8 encoded text. A new monkey-patch has been introduced
+    to fix this problem. This closes http://dev.plone.org/plone/ticket/6068.
+    [hannosch]
+
+1.3.4 - Released December 13, 2006
+
+    Changed translate method of PTS to return Unicode by default. This was
+    needed for Plone 2.5 in order to get a sensible behaviour with the
+    FiveTranslationService. This release is probably not compatible with
+    Plone 2.1.
+    [hannosch] 
+
+1.3.3 - Released September 29, 2006
+
+    Provided some more nice fallback in the interpolate function for situations
+    where you mixed encoded strings or unicode in the mapping dict compared to
+    the text itself. We handle utf-8 encoded strings gracefully in all cases now.
+    [hannosch]
+
+1.3.2 - Released September 8, 2006
 
     Made the logging of broken message catalogs more verbose. Now both the
     filename and path are logged, so you actually have a chance of finding those
     files. Thx limi for the suggestion.
-    [hannosch]
+    [hannosch] 
 
     Fixed bugs in interpolate function, where mixing of Unicode and encoded
     strings failed, when the Unicode string contained only ASCII characters.
