@@ -1,3 +1,8 @@
+1.3.7 - Released April 24, 2007
+
+    Don't loose quotes, see http://dev.plone.org/plone/ticket/6238#comment:3
+    [nouri]
+
 1.3.6 - Released April 22, 2007
 
     Yet another Unicode error was fixed which was caused by non unicode
