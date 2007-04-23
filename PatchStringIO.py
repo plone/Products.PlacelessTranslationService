@@ -178,7 +178,7 @@ def patched_attrAction_tal(self, item):
         else:
             value = cgi.escape(value, quote=1)
         # use _nulljoin defined in this module (PTS/PatchStringIO.py)
-        value = _nulljoin((name, '=', "%s" % value))
+        value = _nulljoin((name, '=', '"%s"' % value))
     return ok, name, value
 
 # Deal with the another case where Unicode and encoded strings occur on the same tag.
