@@ -1,4 +1,4 @@
-1.4.2b3 - Unreleased
+1.4.3 - Released May 1, 2007
 
     Added new mo file generation logic, which will automatically generate and
     update the mo files in all locales folders instead of in the var/pts cache,
