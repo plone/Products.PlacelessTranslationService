@@ -1,3 +1,16 @@
+1.4.2b3 - Unreleased
+
+    Added new mo file generation logic, which will automatically generate and
+    update the mo files in all locales folders instead of in the var/pts cache,
+    so these can be picked up by the Zope3 translation machinery directly. You
+    need to make sure that the user running the Zope process has write
+    permissions in all locales folders for this feature to work. Folders
+    following the i18n folder layout will be treated the same way as before.
+    [hannosch]
+
+    Removed mo files for the PTS domain.
+    [hannosch]
+
 1.4.2b2 - Released March 23, 2007
 
     Commented out the five:registerPackage for now, as it lead to ugly
