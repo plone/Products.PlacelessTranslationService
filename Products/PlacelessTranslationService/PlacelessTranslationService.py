@@ -1,9 +1,14 @@
 import sys, os, re, fnmatch
 import logging
+from stat import ST_MTIME
 
-from zope.component import getUtilitiesFor
+from zope.component import getGlobalSiteManager
 from zope.component import getUtility
+from zope.component import queryUtility
 from zope.deprecation import deprecate
+from zope.i18n.gettextmessagecatalog import \
+    GettextMessageCatalog as Z3GettextMessageCatalog
+from zope.i18n.translationdomain import TranslationDomain
 from zope.i18n.interfaces import ITranslationDomain
 from zope.interface import implements
 from zope.publisher.interfaces.browser import IBrowserRequest
@@ -25,8 +30,8 @@ from GettextMessageCatalog import getMessage
 from Negotiator import negotiator
 from Domain import Domain
 from interfaces import IPlacelessTranslationService
-from interfaces import IPTSTranslationDomain
 from memoize import memoize
+from msgfmt import Msgfmt
 from utils import log, Registry
 
 PTS_IS_RTL = '_pts_is_rtl'
@@ -283,6 +288,54 @@ class PlacelessTranslationService(Folder):
 
         log('Initialized:', detail = repr(names) + (' from %s\n' % basepath))
 
+    def _updateMoFile(self, name, msgpath, lang, domain):
+        """
+        Creates or updates a mo file in the locales folder. Returns True if a
+        new file was created.
+        """
+        pofile = os.path.normpath(os.path.join(msgpath, name))
+        mofile = os.path.normpath(os.path.join(msgpath, domain+'.mo'))
+        create = False
+        update = False
+
+        try:
+            po_mtime = os.stat(pofile)[ST_MTIME]
+        except (IOError, OSError):
+            po_mtime = 0
+
+        if os.path.exists(mofile):
+            # Update mo file?
+            try:
+                mo_mtime = os.stat(mofile)[ST_MTIME]
+            except (IOError, OSError):
+                mo_mtime = 0
+
+            if po_mtime > mo_mtime:
+                # Update mo file
+                update = True
+            else:
+                # Mo file is current
+                return
+        else:
+            # Create mo file
+            create = True
+
+        if create or update:
+            try:
+                mo = Msgfmt(pofile, domain).getAsFile()
+                fd = open(mofile, 'wb')
+                fd.write(mo.read())
+                fd.close()
+
+            except (IOError, OSError):
+                log('Error while compiling %s' % pofile, logging.WARNING)
+                return
+
+            if create:
+                return True
+
+        return None
+
     def _load_locales_dir(self, basepath):
         """
         Loads an locales directory (Zope3 format)
@@ -291,13 +344,6 @@ class PlacelessTranslationService(Folder):
         Where ${lang} and ${domain} are the language and the domain of the po
         file (e.g. locales/de/LC_MESSAGES/plone.po)
         """
-        # filter out domains which are registered with the Zope3
-        # translation service, as we won't get queries for these anyways
-        # but ignore those registered as PTS surrogate domains
-        z3domains = [util[0] for util in getUtilitiesFor(ITranslationDomain)]
-        ptsdomains = [util[0] for util in getUtilitiesFor(IPTSTranslationDomain)]
-        z3domain = [domain for domain in z3domains if not domain in ptsdomains]
-
         found=[]
         log('looking into ' + basepath, logging.DEBUG)
         if not os.path.isdir(basepath):
@@ -316,9 +362,21 @@ class PlacelessTranslationService(Folder):
             names = fnmatch.filter(os.listdir(msgpath), '*.po')
             for name in names:
                 domain = name[:-3]
-                if not domain in z3domains:
-                    found.append('%s:%s' % (lang, domain))
-                    self._load_catalog_file(name, msgpath, lang, domain)
+                found.append('%s:%s' % (lang, domain))
+                result = self._updateMoFile(name, msgpath, lang, domain)
+                if result:
+                    # Newly created file, the Z3 domain might not exist
+                    mofile = os.path.join(msgpath, domain + '.mo')
+                    if queryUtility(ITranslationDomain, name=domain) is None:
+                        ts_domain = TranslationDomain(domain)
+                        sm = getGlobalSiteManager()
+                        sm.registerUtility(ts_domain, ITranslationDomain, name=domain)
+
+                    util = queryUtility(ITranslationDomain, name=domain)
+                    if util is not None:
+                        # Add message catalog
+                        cat = Z3GettextMessageCatalog(lang, domain, mofile)
+                        util.addCatalog(cat)
 
         if not found:
             log('nothing found', logging.DEBUG)
