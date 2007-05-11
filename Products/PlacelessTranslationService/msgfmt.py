@@ -32,7 +32,6 @@ Exceptions:
 """
 import struct
 import array
-from types import FileType, StringType, ListType
 from cStringIO import StringIO
 
 __version__ = "1.1pts"
@@ -55,20 +54,20 @@ class Msgfmt:
     def readPoData(self):
         """ read po data from self.po and store it in self.poLines """
         output = []
-        if type(self.po) is FileType:
+        if isinstance(self.po, file):
             self.po.seek(0)
             output = self.po.readlines()
-        if type(self.po) is ListType:
+        if isinstance(self.po, list):
             output = self.po
-        if type(self.po) is StringType:
+        if isinstance(self.po, str):
             output = open(self.po, 'rb').readlines()
         if not output:
             raise ValueError, "self.po is invalid! %s" % type(self.po)
         return output
 
     def add(self, id, str, fuzzy):
-        "Add a non-fuzzy translation to the dictionary."
-        if not fuzzy and str:
+        "Add a non-empty and non-fuzzy translation to the dictionary."
+        if str and not fuzzy:
             self.messages[id] = str
 
     def generate(self):
@@ -131,7 +130,7 @@ class Msgfmt:
             # XXX: l.startswith('msgid') is needed because not all msgid/msgstr
             # pairs in the plone pos have a leading comment
             if (l[0] == '#' or l.startswith('msgid')) and section == STR:
-                self.add(msgid, msgstr, fuzzy)
+                # self.add(msgid, msgstr, fuzzy)
                 section = None
                 fuzzy = 0
             # Record a fuzzy mark
