@@ -130,7 +130,7 @@ class Msgfmt:
             # XXX: l.startswith('msgid') is needed because not all msgid/msgstr
             # pairs in the plone pos have a leading comment
             if (l[0] == '#' or l.startswith('msgid')) and section == STR:
-                # self.add(msgid, msgstr, fuzzy)
+                self.add(msgid, msgstr, fuzzy)
                 section = None
                 fuzzy = 0
             # Record a fuzzy mark
