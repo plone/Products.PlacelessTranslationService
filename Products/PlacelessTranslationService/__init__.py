@@ -15,6 +15,7 @@ from OFS.Application import get_products
 from AccessControl import ModuleSecurityInfo, allow_module
 from AccessControl.Permissions import view
 
+from Products.PlacelessTranslationService.memoize import memoize_second
 from PlacelessTranslationService import PlacelessTranslationService
 from PlacelessTranslationService import PTSWrapper
 from PlacelessTranslationService import PTS_IS_RTL
@@ -162,6 +163,10 @@ def initialize(context):
     # Register the persistent PTS as a utility, so we can get it easily
     sm = getGlobalSiteManager()
     sm.registerUtility(cp_ts, IPlacelessTranslationService)
+
+    # Patch the Zope3 negotiator to cache the negotiated languages
+    from zope.i18n.negotiator import Negotiator
+    Negotiator.getLanguage = memoize_second(Negotiator.getLanguage)
 
     # set ZPT's translation service
     # NOTE: since this registry is a global var we can't register the
