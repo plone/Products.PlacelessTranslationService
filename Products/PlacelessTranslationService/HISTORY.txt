@@ -1,4 +1,4 @@
-1.4.4 - Unreleased
+1.4.4 - Released July 9, 2007
 
     Added new memoize function, which is used to patch the Zope3 negotiator to
     store the results of the language negotiation on the request.

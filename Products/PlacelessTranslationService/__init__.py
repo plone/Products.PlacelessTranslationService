@@ -160,7 +160,7 @@ def initialize(context):
     if not cp_ts.objectIds():
         log('no translations found!', logging.DEBUG)
 
-    # Register the persistent PTS as a utility, so we can get it easily
+    # Register the persistent PTS as a utility, so we can easily get it
     sm = getGlobalSiteManager()
     sm.registerUtility(cp_ts, IPlacelessTranslationService)
 
