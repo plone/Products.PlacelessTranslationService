@@ -94,19 +94,11 @@ class PlacelessTranslationService(Folder):
 
     meta_type = title = 'Placeless Translation Service'
     icon = 'misc_/PlacelessTranslationService/PlacelessTranslationService.png'
-    # major, minor, patchlevel, internal
-    # internal is always 0 on releases
-    # if you hack this internally, increment it
-    # -3 for alpha, -2 for beta, -1 for release candidate
-    # use an internal of > 99 to recreate the PTS at every startup
-    # (development mode)
-    _class_version = (1, 4, 5, 0)
     all_meta_types = ()
 
     security = ClassSecurityInfo()
 
     def __init__(self, default_domain='global', fallbacks=None):
-        self._instance_version = self._class_version
         # XXX We haven't specified that ITranslationServices have a default
         # domain.  So far, we've required the domain argument to .translate()
         self._domain = default_domain
