@@ -1,5 +1,8 @@
 1.5a1 - Unreleased
 
+    Stopped adding BrokenMessageCatalog objects to PTS.
+    [hannosch]
+
     Removed self recreation code when updating to newer versions of PTS.
     [hannosch]
 

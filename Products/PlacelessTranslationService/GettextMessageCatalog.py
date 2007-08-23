@@ -134,7 +134,6 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         except:
             exc=sys.exc_info()
             log('Message Catalog has errors', logging.WARNING, name, exc)
-            pts.addCatalog(BrokenMessageCatalog(name, pofile, exc))
         self = pts._getOb(name)
         if hasattr(REQUEST, 'RESPONSE'):
             if not REQUEST.form.has_key('noredir'):
@@ -254,7 +253,6 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             pts._delObject(name)
             exc=sys.exc_info()
             log('Message Catalog has errors', logging.WARNING, name, exc)
-            pts.addCatalog(BrokenMessageCatalog(name, pofile, exc))
         self = pts._getOb(name)
         if hasattr(REQUEST, 'RESPONSE'):
             if not REQUEST.form.has_key('noredir'):
