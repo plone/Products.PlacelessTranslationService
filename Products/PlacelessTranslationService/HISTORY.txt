@@ -1,3 +1,11 @@
+1.5a1 - Unreleased
+
+    Removed self recreation code when updating to newer versions of PTS.
+    [hannosch]
+
+    Removed deprecated methods.
+    [hannosch]
+
 1.4.4 - Released July 9, 2007
 
     Added new memoize function, which is used to patch the Zope3 negotiator to

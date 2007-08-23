@@ -5,7 +5,6 @@ from stat import ST_MTIME
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
 from zope.component import queryUtility
-from zope.deprecation import deprecate
 from zope.i18n.gettextmessagecatalog import \
     GettextMessageCatalog as Z3GettextMessageCatalog
 from zope.i18n.translationdomain import TranslationDomain
@@ -69,18 +68,6 @@ class PTSWrapper(Base):
         service = getUtility(IPlacelessTranslationService)
         return service.translate(domain, msgid, mapping, context, target_language, default)
 
-    security.declareProtected(view, 'utranslate')
-    @deprecate("The utranslate method of the PTS is deprecated and will be "
-               "removed in the next PTS release. Use the translate method "
-               "instead.")
-    def utranslate(self, domain, msgid, mapping=None, context=None,
-                  target_language=None, default=None):
-        """
-        Translate a message using Unicode..
-        """
-        service = getUtility(IPlacelessTranslationService)
-        return service.translate(domain, msgid, mapping, context, target_language, default)
-
     security.declarePublic(view, 'getLanguageName')
     def getLanguageName(self, code, context):
         service = getUtility(IPlacelessTranslationService)
@@ -95,14 +82,6 @@ class PTSWrapper(Base):
     def negotiate_language(self, context, domain):
         service = getUtility(IPlacelessTranslationService)
         return service.negotiate_language(context.REQUEST,domain)
-
-    security.declarePublic('isRTL')
-    @deprecate("The isRTL method of the PTS is deprecated and will be removed "
-               "in the next PTS release. Use the information found in the "
-               "Zope3 locale instead.")
-    def isRTL(self, context, domain):
-        service = getUtility(IPlacelessTranslationService)
-        return service.isRTL(context.REQUEST,domain)
 
 InitializeClass(PTSWrapper)
 
@@ -490,32 +469,6 @@ class PlacelessTranslationService(Folder):
             l = [k[0] for k in catalogRegistry.keys() if k[1] == domain]
         l.sort()
         return l
-
-    security.declareProtected(view, 'isRTL')
-    @deprecate("The isRTL method of the PTS is deprecated and will be removed "
-               "in the next PTS release. Use the information found in the "
-               "Zope3 locale instead.")
-    def isRTL(self, context, domain):
-        """get RTL settings
-        """
-        request = getattr(context, 'REQUEST', context)
-        pts_is_rtl = request.get(PTS_IS_RTL, None)
-        if pts_is_rtl is None:
-            # call getCatalogsForTranslation to initialize the negotiator
-            self.getCatalogsForTranslation(request, domain)
-        return request.get(PTS_IS_RTL, False)
-
-    security.declareProtected(view, 'utranslate')
-    @deprecate("The utranslate method of the PTS is deprecated and will be "
-               "removed in the next PTS release. Use the translate method "
-               "instead.")
-    def utranslate(self, domain, msgid, mapping=None, context=None,
-                  target_language=None, default=None):
-        """
-        translate() using Unicode.
-        """
-        return self.translate(domain, msgid, mapping, context,
-                  target_language, default)
 
     security.declareProtected(view, 'translate')
     def translate(self, domain, msgid, mapping=None, context=None,

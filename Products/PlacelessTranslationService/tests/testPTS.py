@@ -30,13 +30,6 @@ class TestPTS(ZopeTestCase.ZopeTestCase):
     def afterSetUp(self):
         self.service = getUtility(IPlacelessTranslationService)
 
-    def testClassVersion(self):
-        clv = PTS._class_version
-        fsv = getFSVersionTuple()
-        for i in range(3):
-            self.assertEquals(clv[i], fsv[i],
-                              'class version (%s) does not match filesystem version (%s)' % (clv, fsv))
-
     def testInterpolate(self):
         # empty mapping
         text = 'ascii'

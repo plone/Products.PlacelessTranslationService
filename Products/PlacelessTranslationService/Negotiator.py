@@ -171,38 +171,6 @@ def setCookieLanguage(request, lang, REQUEST=None):
     else:
         return lang
 
-# BBB: This handler will be removed in PTS 1.5. It is not registered anymore
-# in 1.4 as it interferes with forms that include a field called language.
-class RequestGetAccept:
-    filters = (str_lower, lang_normalize, str_strip)
-
-    def __init__(self, request):
-        log('DeprecationWarning: The RequestGetAccept handler is deprecated '
-            'and will be removed in PTS 1.5.', logging.WARNING)
-
-    def getAccepted(self, request, kind='language'):
-        # get
-        form = request.form
-        language=form.get('language', None)
-        setLanguage=form.get('setlanguage', None)
-
-        if language:
-            #filter
-            for filter in self.filters:
-                language = filter(language)
-            try:
-                if setLanguage == 1 or setLanguage.lower() in ('1','true', 'yes'):
-                    setLanguage = True
-                else:
-                    setLanguage = False
-            except (ValueError, AttributeError), msg:
-                setLanguage = False
-            if setLanguage:
-                setCookieLanguage(request, language)
-            return (language,)
-        else:
-            return ()
-
 
 # higher number = higher priority
 # if a acceptor returns a false value (() or None) then the next acceptor
