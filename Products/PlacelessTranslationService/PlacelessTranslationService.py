@@ -2,6 +2,8 @@ import sys, os, re, fnmatch
 import logging
 from stat import ST_MTIME
 
+from pythongettext.msgfmt import Msgfmt
+
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
 from zope.component import queryUtility
@@ -30,7 +32,6 @@ from Negotiator import negotiator
 from Domain import Domain
 from interfaces import IPlacelessTranslationService
 from memoize import memoize
-from msgfmt import Msgfmt
 from utils import log, Registry
 
 PTS_IS_RTL = '_pts_is_rtl'

@@ -8,6 +8,8 @@ import os, sys, types, traceback
 import glob
 from stat import ST_MTIME
 
+from pythongettext.msgfmt import Msgfmt
+
 from Acquisition import aq_parent, Implicit
 from DateTime import DateTime
 from AccessControl import ClassSecurityInfo
@@ -22,7 +24,6 @@ from App.Management import Tabs
 
 import logging
 from utils import log, make_relative_location, Registry
-from msgfmt import Msgfmt
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 

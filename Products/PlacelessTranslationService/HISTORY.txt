@@ -1,5 +1,9 @@
 1.5a1 - Unreleased
 
+    Removed our own copy of the msgfmt module and use the one from the
+    python-gettext package instead.
+    [hannosch]
+
     Stopped adding BrokenMessageCatalog objects to PTS.
     [hannosch]
 
