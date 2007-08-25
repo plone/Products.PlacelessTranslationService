@@ -1,14 +1,14 @@
 """A simple implementation of a Message Catalog.
-
-$Id$
 """
 
 from gettext import GNUTranslations
 import os, sys, types, traceback
-import glob
+import logging
 from stat import ST_MTIME
 
 from pythongettext.msgfmt import Msgfmt
+
+import zope.deprecation
 
 from Acquisition import aq_parent, Implicit
 from DateTime import DateTime
@@ -22,8 +22,10 @@ from OFS.Traversable import Traversable
 from Persistence import Persistent
 from App.Management import Tabs
 
-import logging
-from utils import log, make_relative_location, Registry
+from Products.PlacelessTranslationService import CACHE_PATH
+from Products.PlacelessTranslationService.load import _remove_mo_cache
+from Products.PlacelessTranslationService.utils import (
+    log, make_relative_location, Registry)
 
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
@@ -320,13 +322,8 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
     def _getMoFile(self):
         """get compiled version of the po file as file object
         """
-        useCache = True
-        if useCache:
-            hit, mof = cachedPoFile(self)
-            return mof
-        else:
-            mo = Msgfmt(self._readFile(), self.getId())
-            return mo.getAsFile()
+        mo = Msgfmt(self._readFile(), self.getId())
+        return mo.getAsFile()
 
     def _getPoFile(self):
         """get absolute path of the po file as string
@@ -445,118 +442,47 @@ class MoFileCache(object):
     """Cache for mo files
     """
     
-    def __init__(self, path):
-        if not os.path.isdir(path):
-            try:
-                os.makedirs(path)
-            except (IOError, OSError):
-                path = None
-                log("No permission to create directory %s" % path, logging.INFO)
+    def __init__(self, path=None):
         self._path = path
-        
+
     def storeMoFile(self, catalog):
-        """compile and save to mo file for catalog to disk
-        
-        return value: mo file as file handler
-        """
-        f = self.getPath(catalog)
-        mof = self.compilePo(catalog)
-        moExists = os.path.exists(f)
-        if (not moExists and os.access(self._path, os.W_OK)) \
-          or (moExists and os.access(f, os.W_OK)):
-            fd = open(f, 'wb')
-            fd.write(mof.read()) # XXX efficient?
-            fd.close()
-        else:
-            log("No permission to write file %s" % f, logging.INFO)
-        mof.seek(0)
-        return mof
-        
+        """compile and save to mo file for catalog to disk."""
+        return None
+
     def retrieveMoFile(self, catalog):
-        """Load a mo file file for a catalog from disk
-        """
-        f = self.getPath(catalog)
-        if os.path.isfile(f):
-            if os.access(f, os.R_OK):
-                return open(f, 'rb')
-            else:
-                log("No permission to read file %s" % f, logging.INFO)
-                return None
-        
+        """Load a mo file file for a catalog from disk."""
+        return None
+
     def getPath(self, catalog):
-        """Get the mo file path (cache path + file name)
-        """
-        id = catalog.getId()
-        if id.endswith('.po'):
-            id = id[:-3]
-        return os.path.join(self._path, '%s.mo' % id)
-        
+        """Get the mo file path (cache path + file name)."""
+        return None
+
     def isCacheHit(self, catalog):
-        """Cache hit?
-        
-        True: file exists and mod time is newer than mod time of the catalog
-        False: file exists but mod time is older
-        None: file doesn't exist
-        """
-        f = self.getPath(catalog)
-        ca_mtime = catalog._getModTime()
-        try:
-            mo_mtime = os.stat(f)[ST_MTIME]
-        except (IOError, OSError):
-            mo_mtime = 0
-        
-        if mo_mtime == 0:
-            return None
-        elif ca_mtime == 0:
-            return None
-        elif mo_mtime > ca_mtime:
-            return True
-        else:
-            return False
-        
+        """Cache hit?"""
+        return None
+
     def compilePo(self, catalog):
-        """compile a po file to mo
-        
-        returns a file handler
-        """
+        """Compile a po file to mo. Returns a file handler."""
         mo = Msgfmt(catalog._readFile(), catalog.getId())
         return mo.getAsFile()
-        
-    def cachedPoFile(self, catalog):
-        """Cache a po file (public api)
-        
-        Returns a file handler on a mo file
-        """
-        path = self._path
-        if path is None:
-            return None, self.compilePo(catalog)
-        hit = self.isCacheHit(catalog)
-        if hit:
-            mof = self.retrieveMoFile(catalog)
-            if mof is None:
-                mof = self.compilePo(catalog)
-        else:
-            mof = self.storeMoFile(catalog)
-        return hit, mof
-        
-    def purgeCache(self):
-        """Purge the cache and remove all compiled mo files
-        """
-        log("Purging mo file cache", logging.INFO)
-        if not os.access(self._path, os.W_OK):
-            log("No write permission on folder %s" % self._path, logging.INFO)
-            return False
-        pattern = os.path.join(self._path, '*.mo')
-        for mo in glob.glob(pattern):
-            if not os.access(mo, os.W_OK):
-                log("No write permission on file %s" % mo, logging.INFO)
-                continue
-            try:
-                os.unlink(mo)
-            except IOError:
-                log("Failed to unlink %s" % mo, logging.INFO)
 
-_moCache = MoFileCache(os.path.join(INSTANCE_HOME, 'var', 'pts'))
+    def cachedPoFile(self, catalog):
+        """Cache a po file (public api)."""
+        return None, self.compilePo(catalog)
+
+    def purgeCache(self):
+        """Purge the cache and remove all compiled mo files."""
+        return _remove_mo_cache(CACHE_PATH)
+
+
+_moCache = MoFileCache()
 cachedPoFile = _moCache.cachedPoFile
 purgeMoFileCache = _moCache.purgeCache
 
+zope.deprecation.deprecated(
+   ('MoFileCache', 'GettextMessageCatalog', 'BrokenMessageCatalog',
+    'cachedPoFile', 'purgeMoFileCache', 'ptFile', 'getMessage'),
+    "PlacelessTranslationService's implementation of Message catalogs and "
+    "the MoFileCache is deprecated and will be removed in the next major "
+    "version of PTS."
+   )

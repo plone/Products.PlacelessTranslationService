@@ -4,10 +4,14 @@ import sys, os
 import logging
 logger = logging.getLogger('PlacelessTranslationService')
 
+import zope.deprecation
+
+
 class Registry(UserDict):
 
     def register(self, name, value):
         self[name] = value
+
 
 def log(msg, severity=logging.DEBUG, detail='', error=None):
     if isinstance(msg, unicode):
@@ -15,6 +19,7 @@ def log(msg, severity=logging.DEBUG, detail='', error=None):
     if isinstance(detail, unicode):
         detail = detail.encode(sys.getdefaultencoding(), 'replace')
     logger.log(severity, '%s \n%s', msg, detail)
+
 
 def make_relative_location(popath):
     # return ("INSTANCE_HOME", stripped po path)
@@ -33,3 +38,9 @@ def make_relative_location(popath):
     else:
         return ("ABSOLUTE", popath)
 
+
+zope.deprecation.deprecated(
+   ('Registry', 'make_relative_location'),
+    "PlacelessTranslationService.utils Registry and make_relative_location "
+    "are deprecated and will be removed in the next major version of PTS."
+   )

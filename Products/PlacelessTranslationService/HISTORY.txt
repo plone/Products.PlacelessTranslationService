@@ -1,5 +1,8 @@
 1.5a1 - Unreleased
 
+    Deprecated all translation domain and service related methods and classes.
+    [hannosch]
+
     Removed the var/pts mo file cache in favor of compiling all mo files
     inplace. Also removed registration of catalogs with PTS and register them
     as Zope3 ITranslationDomain utilities instead.

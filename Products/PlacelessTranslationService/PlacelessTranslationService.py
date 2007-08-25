@@ -1,16 +1,12 @@
-import sys, os, re, fnmatch
+import sys, os, re
 import logging
-from stat import ST_MTIME
 
-from pythongettext.msgfmt import Msgfmt
-
-from zope.component import getGlobalSiteManager
-from zope.component import getUtility
+import zope.deprecation
 from zope.component import queryUtility
-from zope.i18n.gettextmessagecatalog import \
-    GettextMessageCatalog as Z3GettextMessageCatalog
-from zope.i18n.translationdomain import TranslationDomain
-from zope.i18n.interfaces import ITranslationDomain
+from zope.i18n import interpolate as z3interpolate
+from zope.i18n import translate as z3translate
+from zope.i18n import _interp_regex
+from zope.i18n import NAME_RE
 from zope.interface import implements
 from zope.publisher.interfaces.browser import IBrowserRequest
 
@@ -23,25 +19,23 @@ from AccessControl.Permissions import view, view_management_screens
 from Globals import InitializeClass
 from OFS.Folder import Folder
 
-from GettextMessageCatalog import BrokenMessageCatalog
-from GettextMessageCatalog import GettextMessageCatalog
-from GettextMessageCatalog import translationRegistry
-from GettextMessageCatalog import rtlRegistry
-from GettextMessageCatalog import getMessage
-from Negotiator import negotiator
-from Domain import Domain
-from interfaces import IPlacelessTranslationService
-from memoize import memoize
-from utils import log, Registry
+from Products.PlacelessTranslationService.GettextMessageCatalog import (
+    BrokenMessageCatalog, GettextMessageCatalog,
+    translationRegistry, rtlRegistry)
+from Products.PlacelessTranslationService.Negotiator import negotiator
+from Products.PlacelessTranslationService.Domain import Domain
+from Products.PlacelessTranslationService.interfaces import \
+    IPlacelessTranslationService
+from Products.PlacelessTranslationService.load import (_load_i18n_dir,
+    _updateMoFile, _register_catalog_file, _load_locales_dir)
+from Products.PlacelessTranslationService.memoize import memoize
+from Products.PlacelessTranslationService.utils import log, Registry
 
 PTS_IS_RTL = '_pts_is_rtl'
 
 _marker = []
 
-# Setting up some regular expressions for finding interpolation variables in
-# the text.
-NAME_RE = r"[a-zA-Z][-a-zA-Z0-9_]*"
-_interp_regex = re.compile(r'(?<!\$)(\$(?:%(n)s|{%(n)s}))' %({'n': NAME_RE}))
+# Setting up regular expression for finding interpolation variables in the text.
 _get_var_regex = re.compile(r'%(n)s' %({'n': NAME_RE}))
 
 # Note that these fallbacks are used only to find a catalog.  If a particular
@@ -66,25 +60,32 @@ class PTSWrapper(Base):
         """
         Translate a message using Unicode.
         """
-        service = getUtility(IPlacelessTranslationService)
-        return service.translate(domain, msgid, mapping, context, target_language, default)
+        return z3translate(msgid, domain, mapping, context,
+                           target_language, default)
 
     security.declarePublic(view, 'getLanguageName')
     def getLanguageName(self, code, context):
-        service = getUtility(IPlacelessTranslationService)
-        return service.getLanguageName(code)
+        service = queryUtility(IPlacelessTranslationService)
+        if service is not None:
+            return service.getLanguageName(code)
+        return None
 
     security.declarePublic(view, 'getLanguages')
     def getLanguages(self, context, domain=None):
-        service = getUtility(IPlacelessTranslationService)
-        return service.getLanguages(domain)
+        service = queryUtility(IPlacelessTranslationService)
+        if service is not None:
+            return service.getLanguages(domain)
+        return None
 
     security.declarePrivate('negotiate_language')
     def negotiate_language(self, context, domain):
-        service = getUtility(IPlacelessTranslationService)
-        return service.negotiate_language(context.REQUEST,domain)
+        service = queryUtility(IPlacelessTranslationService)
+        if service is not None:
+            return service.negotiate_language(context.REQUEST,domain)
+        return None
 
 InitializeClass(PTSWrapper)
+
 
 class PlacelessTranslationService(Folder):
     """
@@ -99,7 +100,7 @@ class PlacelessTranslationService(Folder):
     security = ClassSecurityInfo()
 
     def __init__(self, default_domain='global', fallbacks=None):
-        # XXX We haven't specified that ITranslationServices have a default
+        # We haven't specified that ITranslationServices have a default
         # domain.  So far, we've required the domain argument to .translate()
         self._domain = default_domain
         # _catalogs maps (language, domain) to identifiers
@@ -226,142 +227,20 @@ class PlacelessTranslationService(Folder):
             log('Message Catalog has errors', logging.WARNING, pofile, exc)
 
     def _load_i18n_dir(self, basepath):
-        """
-        Loads an i18n directory (Zope3 PTS format)
-        Format:
-            Products/MyProduct/i18n/*.po
-        The language and domain are stored in the po file
-        """
-        log('looking into ' + basepath, logging.DEBUG)
-        if not os.path.isdir(basepath):
-            log('it does not exist', logging.DEBUG)
-            return
-
-        # load po files
-        names = fnmatch.filter(os.listdir(basepath), '*.po')
-        if not names:
-            log('nothing found', logging.DEBUG)
-            return
-        for name in names:
-            lang = None
-            domain = None
-            pofile = os.path.normpath(os.path.join(basepath, name))
-            # XXX Only parse the header and not the whole file
-            po = Msgfmt(pofile, None)
-            po.read()
-            header = po.messages.get('', None)
-            if header is not None:
-                mime_header = {}
-                pairs = [l.split(':', 1) for l in header.split('\n') if l]
-                for key, value in pairs:
-                    mime_header[key.strip().lower()] = value.strip()
-                lang = mime_header.get('language-code', None)
-                domain = mime_header.get('domain', None)
-                if lang is not None and domain is not None:
-                    self._register_catalog_file(name, basepath, lang, domain, True)
-
-        log('Initialized:', detail = repr(names) + (' from %s\n' % basepath))
+        """Loads an i18n directory (Zope3 PTS format)."""
+        _load_i18n_dir(basepath)
 
     def _updateMoFile(self, name, msgpath, lang, domain):
-        """
-        Creates or updates a mo file in the locales folder. Returns True if a
-        new file was created.
-        """
-        pofile = os.path.normpath(os.path.join(msgpath, name))
-        mofile = os.path.normpath(os.path.join(msgpath,
-                                  os.path.splitext(name)[0]+'.mo'))
-        create = False
-        update = False
-
-        try:
-            po_mtime = os.stat(pofile)[ST_MTIME]
-        except (IOError, OSError):
-            po_mtime = 0
-
-        if os.path.exists(mofile):
-            # Update mo file?
-            try:
-                mo_mtime = os.stat(mofile)[ST_MTIME]
-            except (IOError, OSError):
-                mo_mtime = 0
-
-            if po_mtime > mo_mtime:
-                # Update mo file
-                update = True
-            else:
-                # Mo file is current
-                return
-        else:
-            # Create mo file
-            create = True
-
-        if create or update:
-            try:
-                mo = Msgfmt(pofile, domain).getAsFile()
-                fd = open(mofile, 'wb')
-                fd.write(mo.read())
-                fd.close()
-
-            except (IOError, OSError):
-                log('Error while compiling %s' % pofile, logging.WARNING)
-                return
-
-            if create:
-                return True
-
-        return None
+        """Creates or updates a mo file in the locales folder."""
+        return _updateMoFile(name, msgpath, lang, domain)
 
     def _register_catalog_file(self, name, msgpath, lang, domain, update=False):
         """Registers a catalog file as an ITranslationDomain."""
-        result = self._updateMoFile(name, msgpath, lang, domain)
-        if result or update:
-            # Newly created file or one from a i18n folder,
-            # the Z3 domain utility does not exist
-            mofile = os.path.join(msgpath, os.path.splitext(name)[0] + '.mo')
-            if queryUtility(ITranslationDomain, name=domain) is None:
-                ts_domain = TranslationDomain(domain)
-                sm = getGlobalSiteManager()
-                sm.registerUtility(ts_domain, ITranslationDomain, name=domain)
-
-            util = queryUtility(ITranslationDomain, name=domain)
-            if util is not None and os.path.exists(mofile):
-                # Add message catalog
-                cat = Z3GettextMessageCatalog(lang, domain, mofile)
-                util.addCatalog(cat)
+        _register_catalog_file(name, msgpath, lang, domain, update=update)
 
     def _load_locales_dir(self, basepath):
-        """
-        Loads an locales directory (Zope3 format)
-        Format:
-            Products/MyProduct/locales/${lang}/LC_MESSAGES/${domain}.po
-        Where ${lang} and ${domain} are the language and the domain of the po
-        file (e.g. locales/de/LC_MESSAGES/plone.po)
-        """
-        found=[]
-        log('looking into ' + basepath, logging.DEBUG)
-        if not os.path.isdir(basepath):
-            log('it does not exist', logging.DEBUG)
-            return
-
-        for lang in os.listdir(basepath):
-            langpath = os.path.join(basepath, lang)
-            if not os.path.isdir(langpath):
-                # it's not a directory
-                continue
-            msgpath = os.path.join(langpath, 'LC_MESSAGES')
-            if not os.path.isdir(msgpath):
-                # it doesn't contain a LC_MESSAGES directory
-                continue
-            names = fnmatch.filter(os.listdir(msgpath), '*.po')
-            for name in names:
-                domain = name[:-3]
-                found.append('%s:%s' % (lang, domain))
-                self._register_catalog_file(name, msgpath, lang, domain)
-
-        if not found:
-            log('nothing found', logging.DEBUG)
-            return
-        log('Initialized:', detail = repr(found) + (' from %s\n' % basepath))
+        """Loads an locales directory (Zope3 format)."""
+        _load_locales_dir(basepath)
 
     security.declareProtected(view_management_screens, 'manage_renameObject')
     def manage_renameObject(self, id, new_id, REQUEST=None):
@@ -486,22 +365,8 @@ class PlacelessTranslationService(Folder):
             context = aq_acquire(context, 'REQUEST')
         text = msgid
 
-        catalogs = self.getCatalogsForTranslation(context, domain, target_language)
-        for catalog in catalogs:
-            try:
-                text = getMessage(catalog, msgid, default)
-            except KeyError:
-                # it's not in this catalog, try the next one
-                continue
-            # found!
-            break
-        else:
-            # Did the fallback fail? Sigh, use the default if it is not None.
-            if default is not None:
-                text = default
-
-        # Now we need to do the interpolation
-        return self.interpolate(text, mapping)
+        return z3translate(msgid, domain, mapping, context,
+                           target_language, default)
 
     security.declarePrivate('negotiate_language')
     @memoize
@@ -530,24 +395,7 @@ class PlacelessTranslationService(Folder):
         if not mapping:
             return text
 
-        # Find all the spots we want to substitute
-        to_replace = _interp_regex.findall(text)
-
-        # Now substitute with the variables in mapping
-        for string in to_replace:
-            var = _get_var_regex.findall(string)[0]
-            value = mapping.get(var, None)
-            if value is None:
-                value = string
-            try:
-                if not isinstance(value, basestring):
-                    value = str(value)
-                if isinstance(text, unicode):
-                    value = u'%s' % value
-                text = text.replace(string, value)
-            except UnicodeDecodeError, msg:
-                log('Decoding problem in: %s %s' % (text, msg), logging.WARNING)
-        return text
+        return z3interpolate(text, mapping=mapping)
 
     security.declareProtected(view_management_screens, 'manage_main')
     def manage_main(self, REQUEST, *a, **kw):
@@ -571,3 +419,12 @@ class PlacelessTranslationService(Folder):
         return r
 
 InitializeClass(PlacelessTranslationService)
+
+
+zope.deprecation.deprecated(
+   ('PlacelessTranslationService', 'PTSWrapper', 'PTS_IS_RTL', 'NAME_RE',
+    'LANGUAGE_FALLBACKS', '_get_var_regex', '_interp_regex', 'catalogRegistry',
+    'registerCatalog', 'fbcatalogRegistry', 'registerFBCatalog'),
+    "The PlacelessTranslationService itself is deprecated and will be "
+    "removed in the next major version of PTS."
+   )

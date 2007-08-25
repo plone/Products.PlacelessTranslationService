@@ -1,6 +1,6 @@
-"""
-$Id$
-"""
+import zope.deprecation
+from zope.i18n import translate as z3translate
+
 
 class Domain:
 
@@ -14,5 +14,12 @@ class Domain:
 
     def translate(self, msgid, mapping=None, context=None,
                   target_language=None):
-        return self._translationService.translate(
-            self._domain, msgid, mapping, context, target_language)
+        return z3translate(msgid, self._domain, mapping, context,
+                           target_language)
+
+
+zope.deprecation.deprecated(
+   ('Domain', ),
+    "PlacelessTranslationService.Domain is deprecated and will be "
+    "removed in the next major version of PTS."
+   )

@@ -1,3 +1,5 @@
+import zope.deprecation
+
 from zope.interface import implements
 from zope.component import queryUtility
 from zope.i18n import interpolate
@@ -25,3 +27,10 @@ class PTSTranslationDomain(object):
                                  target_language, default)
 
         return interpolate(default, mapping)
+
+
+zope.deprecation.deprecated(
+   ('PTSTranslationDomain', ),
+    "PlacelessTranslationService.PTSTranslationDomain is deprecated and will "
+    "be removed in the next major version of PTS."
+   )

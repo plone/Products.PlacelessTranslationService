@@ -1,27 +1,32 @@
-"""
-$Id$
-"""
-
+import logging
 import os
-from zope.component import getGlobalSiteManager
+
+from zope.deprecation import deprecate
 
 import Globals
 pts_globals = globals()
+
+CACHE_PATH = os.path.join(INSTANCE_HOME, 'var', 'pts')
 
 from OFS.Application import get_products
 from AccessControl import ModuleSecurityInfo, allow_module
 from AccessControl.Permissions import view
 
+from Products.PlacelessTranslationService.load import (
+    _load_i18n_dir, _load_locales_dir, _remove_mo_cache)
+from Products.PlacelessTranslationService.utils import log
 from Products.PlacelessTranslationService.memoize import memoize_second
-from PlacelessTranslationService import PlacelessTranslationService
-from PlacelessTranslationService import PTSWrapper
-from PlacelessTranslationService import PTS_IS_RTL
 
-import logging
-from utils import log
 
-from GettextMessageCatalog import purgeMoFileCache
-from interfaces import IPlacelessTranslationService
+# BBB
+import warnings
+showwarning = warnings.showwarning
+warnings.showwarning = lambda *a, **k: None
+# ignore deprecation warnings on import
+from Products.PlacelessTranslationService.PlacelessTranslationService import (
+    PlacelessTranslationService, PTSWrapper, PTS_IS_RTL)
+# restore warning machinery
+warnings.showwarning = showwarning
 
 # id to use in the Control Panel
 cp_id = 'TranslationService'
@@ -42,11 +47,15 @@ security = ModuleSecurityInfo('Products.PlacelessTranslationService')
 allow_module('Products.PlacelessTranslationService')
 
 security.declareProtected(view, 'getTranslationService')
+@deprecate("The getTranslationService method of PTS is deprecated and "
+           "will be removed in the next major version of PTS.")
 def getTranslationService():
     """returns the PTS instance
     """
     return translation_service
 
+@deprecate("The make_translation_service method of PTS is deprecated and "
+           "will be removed in the next major version of PTS.")
 def make_translation_service(cp):
     """Control_Panel translation service
     """
@@ -58,36 +67,27 @@ def make_translation_service(cp):
     return getattr(cp, cp_id)
 
 def initialize(context):
-    # hook into the Control Panel
-    global translation_service
-
     # allow for disabling PTS entirely by setting a environment variable.
     if bool(os.getenv('DISABLE_PTS')):
         log('Disabled by environment variable "DISABLE_PTS".', logging.WARNING)
         return
 
     cp = context._ProductContext__app.Control_Panel # argh
+    cp_ts = None
     if cp_id in cp.objectIds():
-        cp_ts = getattr(cp, cp_id)
-        # use the ts in the acquisition context of the control panel
-        # translation_service = translation_service.__of__(cp)
-        translation_service = PTSWrapper()
-    else:
-        cp_ts = make_translation_service(cp)
+        cp_ts = getattr(cp, cp_id, None)
 
     # Clean up ourselves
-    if len(cp_ts.objectIds()) > 0:
+    if cp_ts is not None:
         cp._delObject(cp_id)
-        purgeMoFileCache()
-        cp_ts = make_translation_service(cp)
+        _remove_mo_cache(CACHE_PATH)
 
-    # sweep products
-    log('products: %r' % get_products(), logging.DEBUG)
+    # load translation files from all products
     for prod in get_products():
         # prod is a tuple in the form:
         # (priority, dir_name, index, base_dir) for each Product directory
-        cp_ts._load_i18n_dir(os.path.join(prod[3], prod[1], 'i18n'))
-        cp_ts._load_locales_dir(os.path.join(prod[3], prod[1], 'locales'))
+        _load_i18n_dir(os.path.join(prod[3], prod[1], 'i18n'))
+        _load_locales_dir(os.path.join(prod[3], prod[1], 'locales'))
 
     # XXX These aren't supported anymore, point to CustomizableTranslations
     # or plone.app.i18n...
@@ -95,19 +95,11 @@ def initialize(context):
     # sweep the i18n directory for local catalogs
     # instance_i18n = os.path.join(INSTANCE_HOME, 'i18n')
     # if os.path.isdir(instance_i18n):
-    #     cp_ts._load_i18n_dir(instance_i18n)
+    #     _load_i18n_dir(instance_i18n)
     # 
     # instance_locales = os.path.join(INSTANCE_HOME, 'locales')
     # if os.path.isdir(instance_locales):
-    #     cp_ts._load_locales_dir(instance_locales)
-
-    # didn't found any catalogs
-    if not cp_ts.objectIds():
-        log('no translations found!', logging.DEBUG)
-
-    # Register the persistent PTS as a utility, so we can easily get it
-    sm = getGlobalSiteManager()
-    sm.registerUtility(cp_ts, IPlacelessTranslationService)
+    #     _load_locales_dir(instance_locales)
 
     # Patch the Zope3 negotiator to cache the negotiated languages
     from zope.i18n.negotiator import Negotiator
