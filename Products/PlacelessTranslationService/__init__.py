@@ -5,8 +5,6 @@ $Id$
 import os
 from zope.component import getGlobalSiteManager
 
-from Products.PageTemplates.GlobalTranslationService import \
-    setGlobalTranslationService
 import Globals
 pts_globals = globals()
 
@@ -77,6 +75,12 @@ def initialize(context):
     else:
         cp_ts = make_translation_service(cp)
 
+    # Clean up ourselves
+    if len(cp_ts.objectIds()) > 0:
+        cp._delObject(cp_id)
+        purgeMoFileCache()
+        cp_ts = make_translation_service(cp)
+
     # sweep products
     log('products: %r' % get_products(), logging.DEBUG)
     for prod in get_products():
@@ -85,14 +89,17 @@ def initialize(context):
         cp_ts._load_i18n_dir(os.path.join(prod[3], prod[1], 'i18n'))
         cp_ts._load_locales_dir(os.path.join(prod[3], prod[1], 'locales'))
 
-    # sweep the i18n directory for local catalogs
-    instance_i18n = os.path.join(INSTANCE_HOME, 'i18n')
-    if os.path.isdir(instance_i18n):
-        cp_ts._load_i18n_dir(instance_i18n)
+    # XXX These aren't supported anymore, point to CustomizableTranslations
+    # or plone.app.i18n...
 
-    instance_locales = os.path.join(INSTANCE_HOME, 'locales')
-    if os.path.isdir(instance_locales):
-        cp_ts._load_locales_dir(instance_locales)
+    # sweep the i18n directory for local catalogs
+    # instance_i18n = os.path.join(INSTANCE_HOME, 'i18n')
+    # if os.path.isdir(instance_i18n):
+    #     cp_ts._load_i18n_dir(instance_i18n)
+    # 
+    # instance_locales = os.path.join(INSTANCE_HOME, 'locales')
+    # if os.path.isdir(instance_locales):
+    #     cp_ts._load_locales_dir(instance_locales)
 
     # didn't found any catalogs
     if not cp_ts.objectIds():
@@ -105,9 +112,3 @@ def initialize(context):
     # Patch the Zope3 negotiator to cache the negotiated languages
     from zope.i18n.negotiator import Negotiator
     Negotiator.getLanguage = memoize_second(Negotiator.getLanguage)
-
-    # set ZPT's translation service
-    # NOTE: since this registry is a global var we can't register the
-    #       persistent service itself (zodb connection) therefore a
-    #       wrapper is created around it
-    setGlobalTranslationService(PTSWrapper())

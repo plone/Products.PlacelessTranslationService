@@ -187,9 +187,7 @@ class PlacelessTranslationService(Folder):
             return '%s-%s' % (pre, name)
 
     def _load_catalog_file(self, name, popath, language=None, domain=None):
-        """
-        create catalog instances in ZODB
-        """
+        """Create catalog instances in ZODB"""
         id = self.calculatePoId(name, popath, language=language, domain=domain)
 
         # validate id
@@ -239,23 +237,28 @@ class PlacelessTranslationService(Folder):
             log('it does not exist', logging.DEBUG)
             return
 
-        # print deprecation warning for mo files
-        depr_names = fnmatch.filter(os.listdir(basepath), '*.mo')
-        if depr_names:
-            import warnings
-            warnings.warn(
-                'Compiled po files (*.mo) found in %s. '
-                'PlacelessTranslationService now compiles '
-                'mo files automatically. All mo files have '
-                'been ignored.' % basepath, DeprecationWarning, stacklevel=4)
-
         # load po files
         names = fnmatch.filter(os.listdir(basepath), '*.po')
         if not names:
             log('nothing found', logging.DEBUG)
             return
         for name in names:
-            self._load_catalog_file(name, basepath)
+            lang = None
+            domain = None
+            pofile = os.path.normpath(os.path.join(basepath, name))
+            # XXX Only parse the header and not the whole file
+            po = Msgfmt(pofile, None)
+            po.read()
+            header = po.messages.get('', None)
+            if header is not None:
+                mime_header = {}
+                pairs = [l.split(':', 1) for l in header.split('\n') if l]
+                for key, value in pairs:
+                    mime_header[key.strip().lower()] = value.strip()
+                lang = mime_header.get('language-code', None)
+                domain = mime_header.get('domain', None)
+                if lang is not None and domain is not None:
+                    self._register_catalog_file(name, basepath, lang, domain, True)
 
         log('Initialized:', detail = repr(names) + (' from %s\n' % basepath))
 
@@ -265,7 +268,8 @@ class PlacelessTranslationService(Folder):
         new file was created.
         """
         pofile = os.path.normpath(os.path.join(msgpath, name))
-        mofile = os.path.normpath(os.path.join(msgpath, domain+'.mo'))
+        mofile = os.path.normpath(os.path.join(msgpath,
+                                  os.path.splitext(name)[0]+'.mo'))
         create = False
         update = False
 
@@ -307,6 +311,24 @@ class PlacelessTranslationService(Folder):
 
         return None
 
+    def _register_catalog_file(self, name, msgpath, lang, domain, update=False):
+        """Registers a catalog file as an ITranslationDomain."""
+        result = self._updateMoFile(name, msgpath, lang, domain)
+        if result or update:
+            # Newly created file or one from a i18n folder,
+            # the Z3 domain utility does not exist
+            mofile = os.path.join(msgpath, os.path.splitext(name)[0] + '.mo')
+            if queryUtility(ITranslationDomain, name=domain) is None:
+                ts_domain = TranslationDomain(domain)
+                sm = getGlobalSiteManager()
+                sm.registerUtility(ts_domain, ITranslationDomain, name=domain)
+
+            util = queryUtility(ITranslationDomain, name=domain)
+            if util is not None and os.path.exists(mofile):
+                # Add message catalog
+                cat = Z3GettextMessageCatalog(lang, domain, mofile)
+                util.addCatalog(cat)
+
     def _load_locales_dir(self, basepath):
         """
         Loads an locales directory (Zope3 format)
@@ -334,20 +356,7 @@ class PlacelessTranslationService(Folder):
             for name in names:
                 domain = name[:-3]
                 found.append('%s:%s' % (lang, domain))
-                result = self._updateMoFile(name, msgpath, lang, domain)
-                if result:
-                    # Newly created file, the Z3 domain might not exist
-                    mofile = os.path.join(msgpath, domain + '.mo')
-                    if queryUtility(ITranslationDomain, name=domain) is None:
-                        ts_domain = TranslationDomain(domain)
-                        sm = getGlobalSiteManager()
-                        sm.registerUtility(ts_domain, ITranslationDomain, name=domain)
-
-                    util = queryUtility(ITranslationDomain, name=domain)
-                    if util is not None:
-                        # Add message catalog
-                        cat = Z3GettextMessageCatalog(lang, domain, mofile)
-                        util.addCatalog(cat)
+                self._register_catalog_file(name, msgpath, lang, domain)
 
         if not found:
             log('nothing found', logging.DEBUG)

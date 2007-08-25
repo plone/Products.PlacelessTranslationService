@@ -1,5 +1,10 @@
 1.5a1 - Unreleased
 
+    Removed the var/pts mo file cache in favor of compiling all mo files
+    inplace. Also removed registration of catalogs with PTS and register them
+    as Zope3 ITranslationDomain utilities instead.
+    [hannosch]
+
     Removed our own copy of the msgfmt module and use the one from the
     python-gettext package instead.
     [hannosch]
