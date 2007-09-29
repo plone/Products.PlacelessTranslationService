@@ -1,5 +1,8 @@
 1.5a1 - Unreleased
 
+    Optimized startup logging. Now we don't spam the debug level anymore.
+    [hannosch]
+
     Deprecated all translation domain and service related methods and classes.
     [hannosch]
 

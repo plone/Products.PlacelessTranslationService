@@ -1,6 +1,8 @@
 import fnmatch
 import logging
 import os
+from os.path import isdir
+from os.path import join
 import shutil
 from stat import ST_MTIME
 
@@ -21,20 +23,20 @@ def _load_i18n_dir(basepath):
         Products/MyProduct/i18n/*.po
     The language and domain are stored in the po file
     """
-    log('looking into ' + basepath, logging.DEBUG)
-    if not os.path.isdir(basepath):
-        log('it does not exist', logging.DEBUG)
+    if not isdir(basepath):
         return
 
     # load po files
+    basepath = os.path.normpath(basepath)
     names = fnmatch.filter(os.listdir(basepath), '*.po')
     if not names:
-        log('nothing found', logging.DEBUG)
+        log('Nothing found in ' + basepath, logging.DEBUG)
         return
+    registered = []
     for name in names:
         lang = None
         domain = None
-        pofile = os.path.normpath(os.path.join(basepath, name))
+        pofile = join(basepath, name)
         # XXX Only parse the header and not the whole file
         po = Msgfmt(pofile, None)
         po.read()
@@ -48,17 +50,18 @@ def _load_i18n_dir(basepath):
             domain = mime_header.get('domain', None)
             if lang is not None and domain is not None:
                 _register_catalog_file(name, basepath, lang, domain, True)
+                registered.append(name)
 
-    log('Initialized:', detail = repr(names) + (' from %s\n' % basepath))
+    log('Initialized:', detail = str(len(registered)) +
+        (' message catalogs in %s\n' % basepath))
 
 def _updateMoFile(name, msgpath, lang, domain):
     """
     Creates or updates a mo file in the locales folder. Returns True if a
     new file was created.
     """
-    pofile = os.path.normpath(os.path.join(msgpath, name))
-    mofile = os.path.normpath(os.path.join(msgpath,
-                              os.path.splitext(name)[0]+'.mo'))
+    pofile = os.path.normpath(join(msgpath, name))
+    mofile = os.path.normpath(join(msgpath, os.path.splitext(name)[0]+'.mo'))
     create = False
     update = False
 
@@ -106,7 +109,7 @@ def _register_catalog_file(name, msgpath, lang, domain, update=False):
     if result or update:
         # Newly created file or one from a i18n folder,
         # the Z3 domain utility does not exist
-        mofile = os.path.join(msgpath, os.path.splitext(name)[0] + '.mo')
+        mofile = join(msgpath, os.path.splitext(name)[0] + '.mo')
         if queryUtility(ITranslationDomain, name=domain) is None:
             ts_domain = TranslationDomain(domain)
             sm = getGlobalSiteManager()
@@ -127,18 +130,15 @@ def _load_locales_dir(basepath):
     file (e.g. locales/de/LC_MESSAGES/plone.po)
     """
     found=[]
-    log('looking into ' + basepath, logging.DEBUG)
-    if not os.path.isdir(basepath):
-        log('it does not exist', logging.DEBUG)
+    if not isdir(basepath):
         return
-
     for lang in os.listdir(basepath):
-        langpath = os.path.join(basepath, lang)
-        if not os.path.isdir(langpath):
+        langpath = join(basepath, lang)
+        if not isdir(langpath):
             # it's not a directory
             continue
-        msgpath = os.path.join(langpath, 'LC_MESSAGES')
-        if not os.path.isdir(msgpath):
+        msgpath = join(langpath, 'LC_MESSAGES')
+        if not isdir(msgpath):
             # it doesn't contain a LC_MESSAGES directory
             continue
         names = fnmatch.filter(os.listdir(msgpath), '*.po')
@@ -148,10 +148,10 @@ def _load_locales_dir(basepath):
             _register_catalog_file(name, msgpath, lang, domain)
 
     if not found:
-        log('nothing found', logging.DEBUG)
+        log('Nothing found in ' + basepath, logging.DEBUG)
         return
-    log('Initialized:', detail = repr(found) + (' from %s\n' % basepath))
-
+    log('Initialized:', detail = str(len(found)) +
+        (' message catalogs in %s\n' % basepath))
 
 def _remove_mo_cache(path=None):
     """Remove the mo cache."""
