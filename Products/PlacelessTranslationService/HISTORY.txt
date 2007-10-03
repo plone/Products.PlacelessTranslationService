@@ -24,6 +24,12 @@
     Removed deprecated methods.
     [hannosch]
 
+1.4.5 - Unreleased
+
+    Guard against sporadic ConnectionStateErrors in the PTS utility
+    implementation.
+    [hannosch]
+
 1.4.4 - Released July 9, 2007
 
     Added new memoize function, which is used to patch the Zope3 negotiator to
