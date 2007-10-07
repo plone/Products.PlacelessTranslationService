@@ -1,4 +1,4 @@
-1.4.5 - Unreleased
+1.4.5 - Released October 7, 2007
 
     Guard against sporadic ConnectionStateErrors in the PTS utility
     implementation.
