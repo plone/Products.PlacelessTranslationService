@@ -39,7 +39,7 @@ def _load_i18n_dir(basepath):
         pofile = join(basepath, name)
         # XXX Only parse the header and not the whole file
         po = Msgfmt(pofile, None)
-        po.read()
+        po.read(header_only=True)
         header = po.messages.get('', None)
         if header is not None:
             mime_header = {}

@@ -1,5 +1,10 @@
 1.5a1 - Unreleased
 
+    Optimized loading of po files from i18n files. We only parse the header of
+    the files, when all we need is the language header. This requires a new
+    version of python-gettext.
+    [hannosch]
+
     Optimized startup logging. Now we don't spam the debug level anymore.
     [hannosch]
 
