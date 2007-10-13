@@ -9,11 +9,12 @@ from stat import ST_MTIME
 from pythongettext.msgfmt import Msgfmt
 from zope.component import getGlobalSiteManager
 from zope.component import queryUtility
-from zope.i18n.gettextmessagecatalog import GettextMessageCatalog
 from zope.i18n.interfaces import ITranslationDomain
 from zope.i18n.translationdomain import TranslationDomain
 
 from Products.PlacelessTranslationService.utils import log
+from Products.PlacelessTranslationService.lazycatalog import \
+    LazyGettextMessageCatalog
 
 
 def _load_i18n_dir(basepath):
@@ -117,7 +118,7 @@ def _register_catalog_file(name, msgpath, lang, domain, update=False):
         util = queryUtility(ITranslationDomain, name=domain)
         if util is not None and os.path.exists(mofile):
             # Add message catalog
-            cat = GettextMessageCatalog(lang, domain, mofile)
+            cat = LazyGettextMessageCatalog(lang, domain, mofile)
             util.addCatalog(cat)
 
 def _load_locales_dir(basepath):
