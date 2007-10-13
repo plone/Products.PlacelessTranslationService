@@ -18,6 +18,16 @@ from Products.PlacelessTranslationService.utils import log
 from Products.PlacelessTranslationService.memoize import memoize_second
 
 
+# Patch the Zope3 negotiator to cache the negotiated languages
+from zope.i18n.negotiator import Negotiator
+Negotiator.getLanguage = memoize_second(Negotiator.getLanguage)
+
+# Patch Zope3 to use a lazy message catalog
+from zope.i18n import gettextmessagecatalog
+from Products.PlacelessTranslationService.lazycatalog import \
+    LazyGettextMessageCatalog
+gettextmessagecatalog.GettextMessageCatalog = LazyGettextMessageCatalog
+
 # BBB
 import warnings
 showwarning = warnings.showwarning
@@ -88,19 +98,3 @@ def initialize(context):
         # (priority, dir_name, index, base_dir) for each Product directory
         _load_i18n_dir(os.path.join(prod[3], prod[1], 'i18n'))
         _load_locales_dir(os.path.join(prod[3], prod[1], 'locales'))
-
-    # XXX These aren't supported anymore, point to CustomizableTranslations
-    # or plone.app.i18n...
-
-    # sweep the i18n directory for local catalogs
-    # instance_i18n = os.path.join(INSTANCE_HOME, 'i18n')
-    # if os.path.isdir(instance_i18n):
-    #     _load_i18n_dir(instance_i18n)
-    # 
-    # instance_locales = os.path.join(INSTANCE_HOME, 'locales')
-    # if os.path.isdir(instance_locales):
-    #     _load_locales_dir(instance_locales)
-
-    # Patch the Zope3 negotiator to cache the negotiated languages
-    from zope.i18n.negotiator import Negotiator
-    Negotiator.getLanguage = memoize_second(Negotiator.getLanguage)
