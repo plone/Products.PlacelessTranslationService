@@ -1,3 +1,11 @@
+1.4.5 - Unreleased
+
+    Backported LazyGettextMessageCatalog from the trunk and use it instead of
+    the standard zope.i18n GettextMessageCatalog. This improves startup time
+    and memory footprint, as only those catalog files will be parsed and loaded
+    into memory which are actually used.
+    [hannosch]
+
 1.4.5 - Released October 7, 2007
 
     Guard against sporadic ConnectionStateErrors in the PTS utility

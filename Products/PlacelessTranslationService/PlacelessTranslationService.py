@@ -6,8 +6,6 @@ from zope.component import getGlobalSiteManager
 from zope.component import getUtility
 from zope.component import queryUtility
 from zope.deprecation import deprecate
-from zope.i18n.gettextmessagecatalog import \
-    GettextMessageCatalog as Z3GettextMessageCatalog
 from zope.i18n.translationdomain import TranslationDomain
 from zope.i18n.interfaces import ITranslationDomain
 from zope.interface import implements
@@ -22,6 +20,8 @@ from AccessControl.Permissions import view, view_management_screens
 from Globals import InitializeClass
 from OFS.Folder import Folder
 
+from Products.PlacelessTranslationService.lazycatalog import \
+    LazyGettextMessageCatalog
 from GettextMessageCatalog import BrokenMessageCatalog
 from GettextMessageCatalog import GettextMessageCatalog
 from GettextMessageCatalog import translationRegistry
@@ -375,7 +375,7 @@ class PlacelessTranslationService(Folder):
                     util = queryUtility(ITranslationDomain, name=domain)
                     if util is not None:
                         # Add message catalog
-                        cat = Z3GettextMessageCatalog(lang, domain, mofile)
+                        cat = LazyGettextMessageCatalog(lang, domain, mofile)
                         util.addCatalog(cat)
 
         if not found:

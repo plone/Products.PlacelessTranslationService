@@ -26,6 +26,16 @@ from utils import log
 from GettextMessageCatalog import purgeMoFileCache
 from interfaces import IPlacelessTranslationService
 
+# Patch the Zope3 negotiator to cache the negotiated languages
+from zope.i18n.negotiator import Negotiator
+Negotiator.getLanguage = memoize_second(Negotiator.getLanguage)
+
+# Patch Zope3 to use a lazy message catalog
+from zope.i18n import gettextmessagecatalog
+from Products.PlacelessTranslationService.lazycatalog import \
+    LazyGettextMessageCatalog
+gettextmessagecatalog.GettextMessageCatalog = LazyGettextMessageCatalog
+
 # id to use in the Control Panel
 cp_id = 'TranslationService'
 
@@ -163,10 +173,6 @@ def initialize(context):
     # Register the persistent PTS as a utility, so we can easily get it
     sm = getGlobalSiteManager()
     sm.registerUtility(cp_ts, IPlacelessTranslationService)
-
-    # Patch the Zope3 negotiator to cache the negotiated languages
-    from zope.i18n.negotiator import Negotiator
-    Negotiator.getLanguage = memoize_second(Negotiator.getLanguage)
 
     # set ZPT's translation service
     # NOTE: since this registry is a global var we can't register the
