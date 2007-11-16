@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '1.4.5'
+version = '1.5a'
 
 setup(name='Products.PlacelessTranslationService',
       version=version,
@@ -27,5 +27,6 @@ setup(name='Products.PlacelessTranslationService',
       download_url='http://plone.org/products/pts/releases',
       install_requires=[
         'setuptools',
+        'python-gettext >= 0.6',
       ],
 )
