@@ -3,7 +3,6 @@ import logging
 from stat import ST_MTIME
 
 from zope.component import getGlobalSiteManager
-from zope.component import getUtility
 from zope.component import queryUtility
 from zope.deprecation import deprecate
 from zope.i18n.translationdomain import TranslationDomain
@@ -58,7 +57,20 @@ class PTSWrapper(Base):
     Wrap the persistent PTS since persistent
     objects can't be passed around threads.
     """
+
     security = ClassSecurityInfo()
+
+    def __init__(self, service):
+        # get path from service
+        self._path=service.getPhysicalPath()
+
+    security.declarePrivate('load')
+    def load(self, context):
+        # return the real service
+        try: root = context.getPhysicalRoot()
+        except: return None
+        # traverse the service
+        return root.unrestrictedTraverse(self._path, None)
 
     security.declareProtected(view, 'translate')
     def translate(self, domain, msgid, mapping=None, context=None,
@@ -66,7 +78,9 @@ class PTSWrapper(Base):
         """
         Translate a message using Unicode.
         """
-        service = getUtility(IPlacelessTranslationService)
+        service = self.load(context)
+        if not service:
+            return default
         return service.translate(domain, msgid, mapping, context, target_language, default)
 
     security.declareProtected(view, 'utranslate')
@@ -78,22 +92,24 @@ class PTSWrapper(Base):
         """
         Translate a message using Unicode..
         """
-        service = getUtility(IPlacelessTranslationService)
-        return service.translate(domain, msgid, mapping, context, target_language, default)
+        service = self.load(context)
+        if not service:
+            return default
+        return service.utranslate(domain, msgid, mapping, context, target_language, default)
 
     security.declarePublic(view, 'getLanguageName')
     def getLanguageName(self, code, context):
-        service = getUtility(IPlacelessTranslationService)
+        service = self.load(context)
         return service.getLanguageName(code)
 
     security.declarePublic(view, 'getLanguages')
     def getLanguages(self, context, domain=None):
-        service = getUtility(IPlacelessTranslationService)
+        service = self.load(context)
         return service.getLanguages(domain)
 
     security.declarePrivate('negotiate_language')
     def negotiate_language(self, context, domain):
-        service = getUtility(IPlacelessTranslationService)
+        service = self.load(context)
         return service.negotiate_language(context.REQUEST,domain)
 
     security.declarePublic('isRTL')
@@ -101,8 +117,17 @@ class PTSWrapper(Base):
                "in the next PTS release. Use the information found in the "
                "Zope3 locale instead.")
     def isRTL(self, context, domain):
-        service = getUtility(IPlacelessTranslationService)
+        service = self.load(context)
+        # Default to LtR
+        if service is None:
+            return False
         return service.isRTL(context.REQUEST,domain)
+
+    def __repr__(self):
+        """
+        Return a string representation
+        """
+        return "<PTSWrapper for %s>" % '/'.join(self._path)
 
 InitializeClass(PTSWrapper)
 

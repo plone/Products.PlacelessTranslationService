@@ -2,10 +2,11 @@ from zope.interface import implements
 from zope.component import queryUtility
 from zope.i18n import interpolate
 
-from ZODB.POSException import ConnectionStateError
-
-from interfaces import IPlacelessTranslationService
-from interfaces import IPTSTranslationDomain
+from Products.PlacelessTranslationService import getTranslationService
+from Products.PlacelessTranslationService.interfaces import \
+    IPlacelessTranslationService
+from Products.PlacelessTranslationService.interfaces import \
+    IPTSTranslationDomain
 
 
 class PTSTranslationDomain(object):
@@ -20,12 +21,10 @@ class PTSTranslationDomain(object):
 
     def translate(self, msgid, mapping=None, context=None,
                   target_language=None, default=None):
-        pts = queryUtility(IPlacelessTranslationService)
-        try:
-            if pts is not None:
-                return pts.translate(self.domain, msgid, mapping, context,
-                                     target_language, default)
-        except ConnectionStateError:
-            pass
+        if context is None:
+            return interpolate(default, mapping)
 
-        return interpolate(default, mapping)
+        pts  = getTranslationService()
+        parent = context['PARENTS'][0]
+        return pts.translate(self.domain, msgid, mapping, parent,
+                             target_language, default)

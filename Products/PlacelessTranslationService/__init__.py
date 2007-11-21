@@ -3,7 +3,6 @@ $Id$
 """
 
 import os
-from zope.component import getGlobalSiteManager
 from zope.deprecation import deprecate
 
 from Products.PageTemplates.GlobalTranslationService import \
@@ -24,7 +23,6 @@ import logging
 from utils import log
 
 from GettextMessageCatalog import purgeMoFileCache
-from interfaces import IPlacelessTranslationService
 
 # Patch the Zope3 negotiator to cache the negotiated languages
 from zope.i18n.negotiator import Negotiator
@@ -112,7 +110,7 @@ def make_translation_service(cp):
     translation_service = PlacelessTranslationService('default')
     translation_service.id = cp_id
     cp._setObject(cp_id, translation_service)
-    translation_service = PTSWrapper()
+    translation_service = PTSWrapper(translation_service)
     return getattr(cp, cp_id)
 
 def initialize(context):
@@ -129,7 +127,7 @@ def initialize(context):
         cp_ts = getattr(cp, cp_id)
         # use the ts in the acquisition context of the control panel
         # translation_service = translation_service.__of__(cp)
-        translation_service = PTSWrapper()
+        translation_service = PTSWrapper(cp_ts)
     else:
         cp_ts = make_translation_service(cp)
 
@@ -170,12 +168,8 @@ def initialize(context):
     if not cp_ts.objectIds():
         log('no translations found!', logging.DEBUG)
 
-    # Register the persistent PTS as a utility, so we can easily get it
-    sm = getGlobalSiteManager()
-    sm.registerUtility(cp_ts, IPlacelessTranslationService)
-
     # set ZPT's translation service
     # NOTE: since this registry is a global var we can't register the
     #       persistent service itself (zodb connection) therefore a
     #       wrapper is created around it
-    setGlobalTranslationService(PTSWrapper())
+    setGlobalTranslationService(PTSWrapper(cp_ts))
