@@ -21,10 +21,11 @@ class PTSTranslationDomain(object):
 
     def translate(self, msgid, mapping=None, context=None,
                   target_language=None, default=None):
-        if context is None:
-            return interpolate(default, mapping)
 
         pts  = getTranslationService()
-        parent = context['PARENTS'][0]
+        if pts is None or context is None or 'PARENTS' not in context:
+            return interpolate(default, mapping)
+
+        parent = context['PARENTS'][-1]
         return pts.translate(self.domain, msgid, mapping, parent,
                              target_language, default)
