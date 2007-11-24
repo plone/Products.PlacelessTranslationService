@@ -7,6 +7,7 @@ import shutil
 from stat import ST_MTIME
 
 from pythongettext.msgfmt import Msgfmt
+from pythongettext.msgfmt import PoSyntaxError
 from zope.component import getGlobalSiteManager
 from zope.component import queryUtility
 from zope.i18n.interfaces import ITranslationDomain
@@ -94,7 +95,7 @@ def _updateMoFile(name, msgpath, lang, domain):
             fd.write(mo.read())
             fd.close()
 
-        except (IOError, OSError):
+        except (IOError, OSError, PoSyntaxError):
             log('Error while compiling %s' % pofile, logging.WARNING)
             return
 
