@@ -31,6 +31,7 @@ from Domain import Domain
 from interfaces import IPlacelessTranslationService
 from memoize import memoize
 from msgfmt import Msgfmt
+from msgfmt import PoSyntaxError
 from utils import log, Registry
 
 PTS_IS_RTL = '_pts_is_rtl'
@@ -352,7 +353,7 @@ class PlacelessTranslationService(Folder):
                 fd.write(mo.read())
                 fd.close()
 
-            except (IOError, OSError):
+            except (IOError, OSError, PoSyntaxError):
                 log('Error while compiling %s' % pofile, logging.WARNING)
                 return
 

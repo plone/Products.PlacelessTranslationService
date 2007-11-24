@@ -1,5 +1,9 @@
 1.4.5 - Unreleased
 
+    Catch PoSyntaxError when loading translation files from locales folders
+    and output a warning instead of preventing Zope from starting up.
+    [hannosch]
+
     Backed out handling of PTS as a global utility again. It turns out that
     registering a persistent object both as a global utility is as bad as
     registering it as a module level global. So we use the PTSWrapper again
