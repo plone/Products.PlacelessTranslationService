@@ -1,4 +1,4 @@
-1.4.6 - Unreleased
+1.4.6 - Released December 2, 2007
 
     Catch PoSyntaxError when loading translation files from locales folders
     and output a warning instead of preventing Zope from starting up.
