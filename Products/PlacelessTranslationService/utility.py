@@ -1,10 +1,7 @@
 from zope.interface import implements
-from zope.component import queryUtility
 from zope.i18n import interpolate
 
 from Products.PlacelessTranslationService import getTranslationService
-from Products.PlacelessTranslationService.interfaces import \
-    IPlacelessTranslationService
 from Products.PlacelessTranslationService.interfaces import \
     IPTSTranslationDomain
 
