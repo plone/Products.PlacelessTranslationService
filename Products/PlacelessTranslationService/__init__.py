@@ -1,5 +1,6 @@
 import logging
 import os
+from os.path import isdir
 
 from zope.deprecation import deprecate
 
@@ -95,5 +96,10 @@ def initialize(context):
     for prod in get_products():
         # prod is a tuple in the form:
         # (priority, dir_name, index, base_dir) for each Product directory
-        _load_i18n_dir(os.path.join(prod[3], prod[1], 'i18n'))
-        _load_locales_dir(os.path.join(prod[3], prod[1], 'locales'))
+        base_dir = os.path.join(prod[3], prod[1])
+        i18n_dir = os.path.join(base_dir, 'i18n')
+        locales_dir = os.path.join(base_dir, 'locales')
+        if isdir(i18n_dir):
+            _load_i18n_dir(i18n_dir)
+        if isdir(locales_dir):
+            _load_locales_dir(locales_dir)
