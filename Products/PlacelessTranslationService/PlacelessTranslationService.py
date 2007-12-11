@@ -232,7 +232,8 @@ class PlacelessTranslationService(Folder):
 
     def _updateMoFile(self, name, msgpath, lang, domain):
         """Creates or updates a mo file in the locales folder."""
-        return _updateMoFile(name, msgpath, lang, domain)
+        mofile = join(msgpath, name[:-2] + 'mo')
+        return _updateMoFile(name, msgpath, lang, domain, mofile)
 
     def _register_catalog_file(self, name, msgpath, lang, domain, update=False):
         """Registers a catalog file as an ITranslationDomain."""

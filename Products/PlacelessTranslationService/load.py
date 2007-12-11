@@ -1,3 +1,4 @@
+from cPickle import dump, load
 import fnmatch
 import logging
 import os
@@ -17,6 +18,8 @@ from Products.PlacelessTranslationService.utils import log
 from Products.PlacelessTranslationService.lazycatalog import \
     LazyGettextMessageCatalog
 
+REGISTRATION_CACHE_NAME = '.registration.cache'
+
 
 def _load_i18n_dir(basepath):
     """
@@ -34,35 +37,68 @@ def _load_i18n_dir(basepath):
     if not names:
         log('Nothing found in ' + basepath, logging.DEBUG)
         return
+
+    changed = False
     registered = []
+    registrations = {}
+    cache = join(basepath, REGISTRATION_CACHE_NAME)
+    if os.path.exists(cache):
+        try:
+            fd = open(cache, 'rb')
+            registrations = load(fd)
+            fd.close()
+        except (IOError, OSError, EOFError):
+            pass
+
     for name in names:
         lang = None
         domain = None
         pofile = join(basepath, name)
-        po = Msgfmt(pofile, None)
-        po.read(header_only=True)
-        header = po.messages.get('', None)
-        if header is not None:
-            mime_header = {}
-            pairs = [l.split(':', 1) for l in header.split('\n') if l]
-            for key, value in pairs:
-                mime_header[key.strip().lower()] = value.strip()
-            lang = mime_header.get('language-code', None)
-            domain = mime_header.get('domain', None)
-            if lang is not None and domain is not None:
-                _register_catalog_file(name, basepath, lang, domain, True)
-                registered.append(name)
+        mtime = 0
+        try:
+            mtime = os.stat(pofile)[ST_MTIME]
+        except (IOError, OSError):
+            pass
+
+        cached = registrations.get(name, None)
+        if cached is not None and cached[0] >= mtime:
+            _register_catalog_file(*cached[1])
+            registered.append(name)
+        else:
+            po = Msgfmt(pofile, None)
+            po.read(header_only=True)
+            header = po.messages.get('', None)
+            if header is not None:
+                mime_header = {}
+                pairs = [l.split(':', 1) for l in header.split('\n') if l]
+                for key, value in pairs:
+                    mime_header[key.strip().lower()] = value.strip()
+                lang = mime_header.get('language-code', None)
+                domain = mime_header.get('domain', None)
+                if lang is not None and domain is not None:
+                    reg = (name, basepath, lang, domain, True)
+                    changed = True
+                    registrations[name] = (mtime, reg)
+                    _register_catalog_file(*reg)
+                    registered.append(name)
+
+    if changed and len(registrations) > 0:
+        try:
+            fd = open(cache, 'wb')
+            dump(registrations, fd, protocol=2)
+            fd.close()
+        except (IOError, OSError):
+            pass
 
     log('Initialized:', detail = str(len(registered)) +
         (' message catalogs in %s\n' % basepath))
 
-def _updateMoFile(name, msgpath, lang, domain):
+def _updateMoFile(name, msgpath, lang, domain, mofile):
     """
     Creates or updates a mo file in the locales folder. Returns True if a
     new file was created.
     """
-    pofile = os.path.normpath(join(msgpath, name))
-    mofile = os.path.normpath(join(msgpath, os.path.splitext(name)[0]+'.mo'))
+    pofile = join(msgpath, name)
     create = False
     update = False
 
@@ -106,11 +142,11 @@ def _updateMoFile(name, msgpath, lang, domain):
 
 def _register_catalog_file(name, msgpath, lang, domain, update=False):
     """Registers a catalog file as an ITranslationDomain."""
-    result = _updateMoFile(name, msgpath, lang, domain)
+    mofile = join(msgpath, name[:-2] + 'mo')
+    result = _updateMoFile(name, msgpath, lang, domain, mofile)
     if result or update:
         # Newly created file or one from a i18n folder,
         # the Z3 domain utility does not exist
-        mofile = join(msgpath, os.path.splitext(name)[0] + '.mo')
         if queryUtility(ITranslationDomain, name=domain) is None:
             ts_domain = TranslationDomain(domain)
             sm = getGlobalSiteManager()
@@ -131,8 +167,10 @@ def _load_locales_dir(basepath):
     file (e.g. locales/de/LC_MESSAGES/plone.po)
     """
     found=[]
+    basepath = os.path.normpath(basepath)
     if not isdir(basepath):
         return
+
     for lang in os.listdir(basepath):
         langpath = join(basepath, lang)
         if not isdir(langpath):

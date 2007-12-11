@@ -1,5 +1,12 @@
 1.5a1 - Unreleased
 
+    Added first version of a registration cache for i18n folders. We track the
+    modification time, number of files and header information of the files and
+    write those out to a cache file. On startup we read the cache file and use
+    the information as long as it is still current, instead of reparsing the po
+    files headers. The cache file is called '.registration.cache'.
+    [hannosch]
+
     Minor optimization in initialize code.
     [hannosch]
 
