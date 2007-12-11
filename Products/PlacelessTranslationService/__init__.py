@@ -76,6 +76,7 @@ def make_translation_service(cp):
     translation_service = PTSWrapper()
     return getattr(cp, cp_id)
 
+
 def initialize(context):
     # allow for disabling PTS entirely by setting a environment variable.
     if bool(os.getenv('DISABLE_PTS')):
@@ -83,14 +84,12 @@ def initialize(context):
         return
 
     cp = context._ProductContext__app.Control_Panel # argh
-    cp_ts = None
     if cp_id in cp.objectIds():
         cp_ts = getattr(cp, cp_id, None)
-
-    # Clean up ourselves
-    if cp_ts is not None:
-        cp._delObject(cp_id)
-        _remove_mo_cache(CACHE_PATH)
+        # Clean up ourselves
+        if cp_ts is not None:
+            cp._delObject(cp_id)
+            _remove_mo_cache(CACHE_PATH)
 
     # load translation files from all products
     for prod in get_products():
