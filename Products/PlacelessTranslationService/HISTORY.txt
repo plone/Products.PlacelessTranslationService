@@ -1,3 +1,11 @@
+1.4.7 - Unreleased
+
+    Raise a ValueError when the Zope3 translation utilities get passed in an
+    invalid context argument. Translations in Zope3 work against the request
+    alone and while the keyword is called context it was too easily confused
+    with a contentish context.
+    [hannosch]
+
 1.4.6 - Released December 2, 2007
 
     Catch PoSyntaxError when loading translation files from locales folders
