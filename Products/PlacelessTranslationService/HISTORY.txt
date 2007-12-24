@@ -1,4 +1,4 @@
-1.4.7 - Unreleased
+1.4.7 - Released December 24, 2007
 
     Raise a ValueError when the Zope3 translation utilities get passed in an
     invalid context argument. Translations in Zope3 work against the request
