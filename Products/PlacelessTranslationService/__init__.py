@@ -110,8 +110,11 @@ def make_translation_service(cp):
     translation_service = PlacelessTranslationService('default')
     translation_service.id = cp_id
     cp._setObject(cp_id, translation_service)
-    translation_service = PTSWrapper(translation_service)
-    return getattr(cp, cp_id)
+    # We need to get the service in the context of the control panel so its
+    # physical path is correct.
+    cp_ts = getattr(cp, cp_id)
+    translation_service = PTSWrapper(cp_ts)
+    return cp_ts
 
 def initialize(context):
     # hook into the Control Panel

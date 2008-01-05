@@ -1,3 +1,12 @@
+1.4.8 - Released January 5, 2008
+
+    Fixed a bug in the persistent translation service creation code. It
+    registered the wrapper with a _path of ('TranslationService', ) at first.
+    After a restart that would be corrected to the correct one:
+    ('', 'Control_Panel', 'TranslationService'). This should fix a couple of
+    bugs in the Plone bug tracker.
+    [hannosch]
+
 1.4.7 - Released December 24, 2007
 
     Raise a ValueError when the Zope3 translation utilities get passed in an
