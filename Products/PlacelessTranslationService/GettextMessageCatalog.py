@@ -451,8 +451,8 @@ class MoFileCache(object):
             try:
                 os.makedirs(path)
             except (IOError, OSError):
-                path = None
                 log("No permission to create directory %s" % path, logging.INFO)
+                path = None
         self._path = path
         
     def storeMoFile(self, catalog):

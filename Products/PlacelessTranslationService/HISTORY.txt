@@ -1,3 +1,9 @@
+1.4.9 - Unreleased
+
+    Fixed incorrect logging in MoFileCache. This closes
+    http://dev.plone.org/plone/ticket/7775.
+    [kaell311, hannosch]
+
 1.4.8 - Released January 5, 2008
 
     Fixed a bug in the persistent translation service creation code. It
