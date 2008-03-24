@@ -1,5 +1,11 @@
 1.4.9 - Unreleased
 
+    Restructured patches. Added patch to always compile po files in all locales
+    folders to mo files, even when those are found in packages. This closes
+    http://dev.plone.org/plone/ticket/7157. At the same time we do not longer
+    load locales folders in Products if they are not registered via ZCML.
+    [hannosch]
+
     Fixed incorrect logging in MoFileCache. This closes
     http://dev.plone.org/plone/ticket/7775.
     [kaell311, hannosch]

@@ -14,7 +14,6 @@ from OFS.Application import get_products
 from AccessControl import ModuleSecurityInfo, allow_module
 from AccessControl.Permissions import view
 
-from Products.PlacelessTranslationService.memoize import memoize_second
 from PlacelessTranslationService import PlacelessTranslationService
 from PlacelessTranslationService import PTSWrapper
 from PlacelessTranslationService import PTS_IS_RTL
@@ -24,15 +23,9 @@ from utils import log
 
 from GettextMessageCatalog import purgeMoFileCache
 
-# Patch the Zope3 negotiator to cache the negotiated languages
-from zope.i18n.negotiator import Negotiator
-Negotiator.getLanguage = memoize_second(Negotiator.getLanguage)
-
-# Patch Zope3 to use a lazy message catalog
-from zope.i18n import gettextmessagecatalog
-from Products.PlacelessTranslationService.lazycatalog import \
-    LazyGettextMessageCatalog
-gettextmessagecatalog.GettextMessageCatalog = LazyGettextMessageCatalog
+# Apply import time patches
+if not bool(os.getenv('DISABLE_PTS')):
+    import patches
 
 # id to use in the Control Panel
 cp_id = 'TranslationService'
@@ -120,7 +113,7 @@ def initialize(context):
     # hook into the Control Panel
     global translation_service
 
-    # allow for disabling PTS entirely by setting a environment variable.
+    # allow for disabling PTS entirely by setting an environment variable.
     if bool(os.getenv('DISABLE_PTS')):
         log('Disabled by environment variable "DISABLE_PTS".', logging.WARNING)
         return
@@ -156,7 +149,6 @@ def initialize(context):
         # prod is a tuple in the form:
         # (priority, dir_name, index, base_dir) for each Product directory
         cp_ts._load_i18n_dir(os.path.join(prod[3], prod[1], 'i18n'))
-        cp_ts._load_locales_dir(os.path.join(prod[3], prod[1], 'locales'))
 
     # sweep the i18n directory for local catalogs
     instance_i18n = os.path.join(INSTANCE_HOME, 'i18n')
