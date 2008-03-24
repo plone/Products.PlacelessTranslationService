@@ -158,16 +158,15 @@ def _register_catalog_file(name, msgpath, lang, domain, update=False):
             cat = LazyGettextMessageCatalog(lang, domain, mofile)
             util.addCatalog(cat)
 
-def _load_locales_dir(basepath):
+def _compile_locales_dir(basepath):
     """
-    Loads an locales directory (Zope3 format)
+    Compiles all po files in a locales directory (Zope3 format) to mo files.
     Format:
         Products/MyProduct/locales/${lang}/LC_MESSAGES/${domain}.po
     Where ${lang} and ${domain} are the language and the domain of the po
     file (e.g. locales/de/LC_MESSAGES/plone.po)
     """
-    found=[]
-    basepath = os.path.normpath(basepath)
+    basepath = str(os.path.normpath(basepath))
     if not isdir(basepath):
         return
 
@@ -183,14 +182,8 @@ def _load_locales_dir(basepath):
         names = fnmatch.filter(os.listdir(msgpath), '*.po')
         for name in names:
             domain = name[:-3]
-            found.append('%s:%s' % (lang, domain))
-            _register_catalog_file(name, msgpath, lang, domain)
-
-    if not found:
-        log('Nothing found in ' + basepath, logging.DEBUG)
-        return
-    log('Initialized:', detail = str(len(found)) +
-        (' message catalogs in %s\n' % basepath))
+            mofile = join(msgpath, name[:-2] + 'mo')
+            result = _updateMoFile(name, msgpath, lang, domain, mofile)
 
 def _remove_mo_cache(path=None):
     """Remove the mo cache."""

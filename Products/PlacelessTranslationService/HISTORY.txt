@@ -1,5 +1,11 @@
 1.5a1 - Unreleased
 
+    Restructured patches. Added patch to always compile po files in all locales
+    folders to mo files, even when those are found in packages. This closes
+    http://dev.plone.org/plone/ticket/7157. At the same time we do not longer
+    load locales folders in Products if they are not registered via ZCML.
+    [hannosch]
+
     Added first version of a registration cache for i18n folders. We track the
     modification time, number of files and header information of the files and
     write those out to a cache file. On startup we read the cache file and use

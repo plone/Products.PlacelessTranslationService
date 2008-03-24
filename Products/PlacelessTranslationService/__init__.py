@@ -14,20 +14,12 @@ from AccessControl import ModuleSecurityInfo, allow_module
 from AccessControl.Permissions import view
 
 from Products.PlacelessTranslationService.load import (
-    _load_i18n_dir, _load_locales_dir, _remove_mo_cache)
+    _load_i18n_dir, _remove_mo_cache)
 from Products.PlacelessTranslationService.utils import log
-from Products.PlacelessTranslationService.memoize import memoize_second
 
-
-# Patch the Zope3 negotiator to cache the negotiated languages
-from zope.i18n.negotiator import Negotiator
-Negotiator.getLanguage = memoize_second(Negotiator.getLanguage)
-
-# Patch Zope3 to use a lazy message catalog
-from zope.i18n import gettextmessagecatalog
-from Products.PlacelessTranslationService.lazycatalog import \
-    LazyGettextMessageCatalog
-gettextmessagecatalog.GettextMessageCatalog = LazyGettextMessageCatalog
+# # Apply import time patches
+if not bool(os.getenv('DISABLE_PTS')):
+    import patches
 
 # BBB
 import warnings
@@ -79,7 +71,7 @@ def make_translation_service(cp):
 
 
 def initialize(context):
-    # allow for disabling PTS entirely by setting a environment variable.
+    # allow for disabling PTS entirely by setting an environment variable.
     if bool(os.getenv('DISABLE_PTS')):
         log('Disabled by environment variable "DISABLE_PTS".', logging.WARNING)
         return
@@ -98,8 +90,5 @@ def initialize(context):
         # (priority, dir_name, index, base_dir) for each Product directory
         base_dir = os.path.join(prod[3], prod[1])
         i18n_dir = os.path.join(base_dir, 'i18n')
-        locales_dir = os.path.join(base_dir, 'locales')
         if isdir(i18n_dir):
             _load_i18n_dir(i18n_dir)
-        if isdir(locales_dir):
-            _load_locales_dir(locales_dir)

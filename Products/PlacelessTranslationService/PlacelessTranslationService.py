@@ -1,6 +1,8 @@
 import sys, os, re
 import logging
 
+from os.path import join
+
 import zope.deprecation
 from zope.component import queryUtility
 from zope.i18n import interpolate as z3interpolate
@@ -27,7 +29,7 @@ from Products.PlacelessTranslationService.Domain import Domain
 from Products.PlacelessTranslationService.interfaces import \
     IPlacelessTranslationService
 from Products.PlacelessTranslationService.load import (_load_i18n_dir,
-    _updateMoFile, _register_catalog_file, _load_locales_dir)
+    _updateMoFile, _register_catalog_file)
 from Products.PlacelessTranslationService.memoize import memoize
 from Products.PlacelessTranslationService.utils import log, Registry
 
@@ -238,10 +240,6 @@ class PlacelessTranslationService(Folder):
     def _register_catalog_file(self, name, msgpath, lang, domain, update=False):
         """Registers a catalog file as an ITranslationDomain."""
         _register_catalog_file(name, msgpath, lang, domain, update=update)
-
-    def _load_locales_dir(self, basepath):
-        """Loads an locales directory (Zope3 format)."""
-        _load_locales_dir(basepath)
 
     security.declareProtected(view_management_screens, 'manage_renameObject')
     def manage_renameObject(self, id, new_id, REQUEST=None):
