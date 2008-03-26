@@ -1,4 +1,4 @@
-1.4.9 - Unreleased
+1.4.9 - Released March 26, 2008
 
     Restructured patches. Added patch to always compile po files in all locales
     folders to mo files, even when those are found in packages. This closes
