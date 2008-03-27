@@ -5,6 +5,7 @@ from stat import ST_MTIME
 from zope.component import getGlobalSiteManager
 from zope.component import queryUtility
 from zope.deprecation import deprecate
+from zope.i18n.gettextmessagecatalog import GettextMessageCatalog
 from zope.i18n.translationdomain import TranslationDomain
 from zope.i18n.interfaces import ITranslationDomain
 from zope.interface import implements
@@ -19,6 +20,8 @@ from AccessControl.Permissions import view, view_management_screens
 from Globals import InitializeClass
 from OFS.Folder import Folder
 
+from Products.PlacelessTranslationService.load import _checkLanguage
+from Products.PlacelessTranslationService.load import PTS_LANGUAGES
 from Products.PlacelessTranslationService.lazycatalog import \
     LazyGettextMessageCatalog
 from GettextMessageCatalog import BrokenMessageCatalog
@@ -29,7 +32,6 @@ from GettextMessageCatalog import getMessage
 from Negotiator import negotiator
 from Domain import Domain
 from interfaces import IPlacelessTranslationService
-from load import _checkLanguage
 from memoize import memoize
 from msgfmt import Msgfmt
 from msgfmt import PoSyntaxError
@@ -405,8 +407,14 @@ class PlacelessTranslationService(Folder):
 
                     util = queryUtility(ITranslationDomain, name=domain)
                     if util is not None:
+                        if PTS_LANGUAGES is not None:
+                            # If we have restricted the available languages,
+                            # use the speed and not memory optimized version
+                            cat = GettextMessageCatalog(lang, domain, mofile)
+                        else:
+                            # Otherwise optimize for memory footprint
+                            cat = LazyGettextMessageCatalog(lang, domain, mofile)
                         # Add message catalog
-                        cat = LazyGettextMessageCatalog(lang, domain, mofile)
                         util.addCatalog(cat)
 
         if not found:
