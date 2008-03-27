@@ -29,6 +29,7 @@ from GettextMessageCatalog import getMessage
 from Negotiator import negotiator
 from Domain import Domain
 from interfaces import IPlacelessTranslationService
+from load import _checkLanguage
 from memoize import memoize
 from msgfmt import Msgfmt
 from msgfmt import PoSyntaxError
@@ -167,10 +168,12 @@ class PlacelessTranslationService(Folder):
 
     def _registerMessageCatalog(self, catalog):
         # dont register broken message catalogs
-        if isinstance(catalog, BrokenMessageCatalog): return
+        if isinstance(catalog, BrokenMessageCatalog):
+            return
 
         domain = catalog.getDomain()
-        catalogRegistry.setdefault((catalog.getLanguage(), domain), []).append(catalog.getIdentifier())
+        language = catalog.getLanguage()
+        catalogRegistry.setdefault((language, domain), []).append(catalog.getIdentifier())
         for lang in catalog.getOtherLanguages():
             fbcatalogRegistry.setdefault((lang, domain), []).append(catalog.getIdentifier())
         self._p_changed = 1
@@ -381,6 +384,8 @@ class PlacelessTranslationService(Folder):
             if not os.path.isdir(langpath):
                 # it's not a directory
                 continue
+            if not _checkLanguage(lang):
+                return
             msgpath = os.path.join(langpath, 'LC_MESSAGES')
             if not os.path.isdir(msgpath):
                 # it doesn't contain a LC_MESSAGES directory
@@ -440,6 +445,9 @@ class PlacelessTranslationService(Folder):
             self._delObject(catalog.id)
         except:
             pass
+        lang = catalog.getLanguage()
+        if not _checkLanguage(lang):
+            return
         self._setObject(catalog.id, catalog, set_owner=False)
         log('adding %s: %s' % (catalog.id, catalog.title))
         self._registerMessageCatalog(catalog)

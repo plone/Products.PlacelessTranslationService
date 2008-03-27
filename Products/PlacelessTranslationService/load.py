@@ -9,6 +9,20 @@ from Products.PlacelessTranslationService.utils import log
 from Products.PlacelessTranslationService.msgfmt import Msgfmt
 from Products.PlacelessTranslationService.msgfmt import PoSyntaxError
 
+# Restrict languages
+PTS_LANGUAGES = None
+if bool(os.getenv('PTS_LANGUAGES')):
+    langs = os.getenv('PTS_LANGUAGES')
+    langs = langs.strip().replace(',', '').split()
+    PTS_LANGUAGES = tuple(langs)
+
+
+def _checkLanguage(lang):
+    if PTS_LANGUAGES is None:
+        return True
+    else:
+        return bool(lang in PTS_LANGUAGES)
+
 
 def _updateMoFile(name, msgpath, lang, domain, mofile):
     """
@@ -70,6 +84,8 @@ def _compile_locales_dir(basepath):
         return
 
     for lang in os.listdir(basepath):
+        if not _checkLanguage(lang):
+            continue
         langpath = join(basepath, lang)
         if not isdir(langpath):
             # it's not a directory
