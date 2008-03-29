@@ -11,6 +11,7 @@ from pythongettext.msgfmt import Msgfmt
 from pythongettext.msgfmt import PoSyntaxError
 from zope.component import getGlobalSiteManager
 from zope.component import queryUtility
+from zope.i18n.gettextmessagecatalog import GettextMessageCatalog
 from zope.i18n.interfaces import ITranslationDomain
 from zope.i18n.translationdomain import TranslationDomain
 
@@ -171,8 +172,14 @@ def _register_catalog_file(name, msgpath, lang, domain, update=False):
 
         util = queryUtility(ITranslationDomain, name=domain)
         if util is not None and os.path.exists(mofile):
+            if PTS_LANGUAGES is not None:
+                # If we have restricted the available languages,
+                # use the speed and not memory optimized version
+                cat = GettextMessageCatalog(lang, domain, mofile)
+            else:
+                # Otherwise optimize for memory footprint
+                cat = LazyGettextMessageCatalog(lang, domain, mofile)
             # Add message catalog
-            cat = LazyGettextMessageCatalog(lang, domain, mofile)
             util.addCatalog(cat)
 
 def _compile_locales_dir(basepath):

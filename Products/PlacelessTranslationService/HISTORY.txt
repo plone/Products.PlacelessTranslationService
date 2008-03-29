@@ -41,6 +41,11 @@
 
 1.4.10 - Unreleased
 
+    Do not use the lazy message catalog at all when the list of languages is
+    restricted via PTS_LANGUAGES, as the advantage in memory footprint will
+    no longer exist, but the tiny lookup penalty would still be there.
+    [hannosch]
+
     Added support for a new environment variable called PTS_LANGUAGES. If this
     variable is specified and contains a comma separated list of language codes
     only those languages will be registered in the Zope instance. This can help
