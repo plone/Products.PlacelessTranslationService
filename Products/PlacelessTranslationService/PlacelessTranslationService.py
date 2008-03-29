@@ -28,8 +28,8 @@ from Products.PlacelessTranslationService.Negotiator import negotiator
 from Products.PlacelessTranslationService.Domain import Domain
 from Products.PlacelessTranslationService.interfaces import \
     IPlacelessTranslationService
-from Products.PlacelessTranslationService.load import (_load_i18n_dir,
-    _updateMoFile, _register_catalog_file)
+from Products.PlacelessTranslationService.load import (_checkLanguage,
+    _load_i18n_dir, _updateMoFile, _register_catalog_file)
 from Products.PlacelessTranslationService.memoize import memoize
 from Products.PlacelessTranslationService.utils import log, Registry
 
@@ -116,10 +116,12 @@ class PlacelessTranslationService(Folder):
 
     def _registerMessageCatalog(self, catalog):
         # dont register broken message catalogs
-        if isinstance(catalog, BrokenMessageCatalog): return
+        if isinstance(catalog, BrokenMessageCatalog):
+            return
 
         domain = catalog.getDomain()
-        catalogRegistry.setdefault((catalog.getLanguage(), domain), []).append(catalog.getIdentifier())
+        language = catalog.getLanguage()
+        catalogRegistry.setdefault((language, domain), []).append(catalog.getIdentifier())
         for lang in catalog.getOtherLanguages():
             fbcatalogRegistry.setdefault((lang, domain), []).append(catalog.getIdentifier())
         self._p_changed = 1
@@ -272,6 +274,9 @@ class PlacelessTranslationService(Folder):
             self._delObject(catalog.id)
         except:
             pass
+        lang = catalog.getLanguage()
+        if not _checkLanguage(lang):
+            return
         self._setObject(catalog.id, catalog, set_owner=False)
         log('adding %s: %s' % (catalog.id, catalog.title))
         self._registerMessageCatalog(catalog)

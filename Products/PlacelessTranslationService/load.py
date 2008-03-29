@@ -18,7 +18,21 @@ from Products.PlacelessTranslationService.utils import log
 from Products.PlacelessTranslationService.lazycatalog import \
     LazyGettextMessageCatalog
 
+# Restrict languages
+PTS_LANGUAGES = None
+if bool(os.getenv('PTS_LANGUAGES')):
+    langs = os.getenv('PTS_LANGUAGES')
+    langs = langs.strip().replace(',', '').split()
+    PTS_LANGUAGES = tuple(langs)
+
 REGISTRATION_CACHE_NAME = '.registration.cache'
+
+
+def _checkLanguage(lang):
+    if PTS_LANGUAGES is None:
+        return True
+    else:
+        return bool(lang in PTS_LANGUAGES)
 
 
 def _load_i18n_dir(basepath):
@@ -76,11 +90,12 @@ def _load_i18n_dir(basepath):
                 lang = mime_header.get('language-code', None)
                 domain = mime_header.get('domain', None)
                 if lang is not None and domain is not None:
-                    reg = (name, basepath, lang, domain, True)
-                    changed = True
-                    registrations[name] = (mtime, reg)
-                    _register_catalog_file(*reg)
-                    registered.append(name)
+                    if _checkLanguage(lang):
+                        reg = (name, basepath, lang, domain, True)
+                        changed = True
+                        registrations[name] = (mtime, reg)
+                        _register_catalog_file(*reg)
+                        registered.append(name)
 
     if changed and len(registrations) > 0:
         try:
@@ -142,6 +157,8 @@ def _updateMoFile(name, msgpath, lang, domain, mofile):
 
 def _register_catalog_file(name, msgpath, lang, domain, update=False):
     """Registers a catalog file as an ITranslationDomain."""
+    if not _checkLanguage(lang):
+        return
     mofile = join(msgpath, name[:-2] + 'mo')
     result = _updateMoFile(name, msgpath, lang, domain, mofile)
     if result or update:
@@ -171,6 +188,8 @@ def _compile_locales_dir(basepath):
         return
 
     for lang in os.listdir(basepath):
+        if not _checkLanguage(lang):
+            continue
         langpath = join(basepath, lang)
         if not isdir(langpath):
             # it's not a directory
