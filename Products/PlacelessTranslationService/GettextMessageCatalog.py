@@ -108,6 +108,8 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             return os.path.join(ZOPE_HOME, pofile)
         elif prefix == 'INSTANCE_HOME':
             return os.path.join(INSTANCE_HOME, pofile)
+        elif prefix == 'CLIENT_HOME':
+            return os.path.join(CLIENT_HOME, pofile)
         else:
             return os.path.normpath(pofile)
 
@@ -337,6 +339,8 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
             return os.path.join(ZOPE_HOME, pofile)
         elif prefix == 'INSTANCE_HOME':
             return os.path.join(INSTANCE_HOME, pofile)
+        elif prefix == 'CLIENT_HOME':
+            return os.path.join(CLIENT_HOME, pofile)
         else:
             return os.path.normpath(pofile)
 
@@ -557,7 +561,6 @@ class MoFileCache(object):
             except IOError:
                 log("Failed to unlink %s" % mo, logging.INFO)
 
-_moCache = MoFileCache(os.path.join(INSTANCE_HOME, 'var', 'pts'))
+_moCache = MoFileCache(os.path.join(CLIENT_HOME, 'pts'))
 cachedPoFile = _moCache.cachedPoFile
 purgeMoFileCache = _moCache.purgeCache
-

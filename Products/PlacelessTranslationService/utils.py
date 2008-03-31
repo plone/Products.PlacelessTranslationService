@@ -24,9 +24,12 @@ def make_relative_location(popath):
 
     popath = os.path.normpath(popath)
     instance_home = os.path.normpath(INSTANCE_HOME) + os.sep
+    client_home = os.path.normpath(CLIENT_HOME) + os.sep
     zope_home = os.path.normpath(ZOPE_HOME) + os.sep
 
-    if popath.startswith(instance_home):
+    if popath.startswith(client_home):
+        return ("CLIENT_HOME", popath[len(client_home):])
+    elif popath.startswith(instance_home):
         return ("INSTANCE_HOME", popath[len(instance_home):])
     elif popath.startswith(zope_home):
         return ("ZOPE_HOME", popath[len(zope_home):])
