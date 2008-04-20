@@ -1,4 +1,4 @@
-1.4.10 - Unreleased
+1.4.10 - Released April 20, 2008
 
     Switched mo file cache to store files under the client home instead of
     relying on the var folder to be present inside the instance home. This
