@@ -12,18 +12,3 @@ if PTS_LANGUAGES is not None:
     from Products.PlacelessTranslationService.lazycatalog import \
         LazyGettextMessageCatalog
     gettextmessagecatalog.GettextMessageCatalog = LazyGettextMessageCatalog
-
-
-# Patch the Zope3 i18n zcml statement to compile po files to mo
-from zope.i18n import zcml
-from Products.PlacelessTranslationService.load import _compile_locales_dir
-
-def wrap_compile_translations(func):
-    def compile_translations(*args, **kwargs):
-        if 'directory' in kwargs:
-            _compile_locales_dir(kwargs.get('directory'))
-        func(*args, **kwargs)
-    return compile_translations
-
-# Apply patch
-zcml.registerTranslations = wrap_compile_translations(zcml.registerTranslations)

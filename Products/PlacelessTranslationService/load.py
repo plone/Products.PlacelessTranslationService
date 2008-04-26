@@ -182,35 +182,6 @@ def _register_catalog_file(name, msgpath, lang, domain, update=False):
             # Add message catalog
             util.addCatalog(cat)
 
-def _compile_locales_dir(basepath):
-    """
-    Compiles all po files in a locales directory (Zope3 format) to mo files.
-    Format:
-        Products/MyProduct/locales/${lang}/LC_MESSAGES/${domain}.po
-    Where ${lang} and ${domain} are the language and the domain of the po
-    file (e.g. locales/de/LC_MESSAGES/plone.po)
-    """
-    basepath = str(os.path.normpath(basepath))
-    if not isdir(basepath):
-        return
-
-    for lang in os.listdir(basepath):
-        if not _checkLanguage(lang):
-            continue
-        langpath = join(basepath, lang)
-        if not isdir(langpath):
-            # it's not a directory
-            continue
-        msgpath = join(langpath, 'LC_MESSAGES')
-        if not isdir(msgpath):
-            # it doesn't contain a LC_MESSAGES directory
-            continue
-        names = fnmatch.filter(os.listdir(msgpath), '*.po')
-        for name in names:
-            domain = name[:-3]
-            mofile = join(msgpath, name[:-2] + 'mo')
-            result = _updateMoFile(name, msgpath, lang, domain, mofile)
-
 def _remove_mo_cache(path=None):
     """Remove the mo cache."""
     if path is not None and os.path.exists(path):

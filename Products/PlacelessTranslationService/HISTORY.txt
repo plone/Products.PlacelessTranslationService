@@ -1,5 +1,9 @@
 1.5a1 - Unreleased
 
+    Removed the _compile_locales_dir method and patch. Compiling mo files is
+    now handled by zope.i18n itself.
+    [hannosch]
+
     Added first version of a registration cache for i18n folders. We track the
     modification time, number of files and header information of the files and
     write those out to a cache file. On startup we read the cache file and use
