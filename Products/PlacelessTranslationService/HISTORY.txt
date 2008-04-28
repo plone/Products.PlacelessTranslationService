@@ -1,4 +1,4 @@
-1.4.11 - Unreleased
+1.4.11 - Released April 28, 2008
 
     Work around a bug in addCatalog that would fail on broken message catalogs.
     This closes http://dev.plone.org/plone/ticket/8084.
