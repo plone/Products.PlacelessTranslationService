@@ -453,9 +453,10 @@ class PlacelessTranslationService(Folder):
             self._delObject(catalog.id)
         except:
             pass
-        lang = catalog.getLanguage()
-        if not _checkLanguage(lang):
-            return
+        if not isinstance(catalog, BrokenMessageCatalog):
+            lang = catalog.getLanguage()
+            if not _checkLanguage(lang):
+                return
         self._setObject(catalog.id, catalog, set_owner=False)
         log('adding %s: %s' % (catalog.id, catalog.title))
         self._registerMessageCatalog(catalog)

@@ -1,5 +1,8 @@
 1.4.11 - Unreleased
 
+    Work around a bug in addCatalog that would fail on broken message catalogs.
+    This closes http://dev.plone.org/plone/ticket/8084.
+    [hannosch]
 
 1.4.10 - Released April 20, 2008
 
