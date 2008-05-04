@@ -9,7 +9,6 @@ pts_globals = globals()
 
 CACHE_PATH = os.path.join(INSTANCE_HOME, 'var', 'pts')
 
-from OFS.Application import get_products
 from AccessControl import ModuleSecurityInfo, allow_module
 from AccessControl.Permissions import view
 
@@ -85,10 +84,9 @@ def initialize(context):
             _remove_mo_cache(CACHE_PATH)
 
     # load translation files from all products
-    for prod in get_products():
-        # prod is a tuple in the form:
+    for prod in cp.Products.objectValues():
+        # prod is a Product object:
         # (priority, dir_name, index, base_dir) for each Product directory
-        base_dir = os.path.join(prod[3], prod[1])
-        i18n_dir = os.path.join(base_dir, 'i18n')
+        i18n_dir = os.path.join(prod.home, 'i18n')
         if isdir(i18n_dir):
             _load_i18n_dir(i18n_dir)
