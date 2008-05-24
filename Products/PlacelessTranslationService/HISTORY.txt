@@ -1,5 +1,8 @@
 1.4.12 - Unreleased
 
+    Added some missing ZCML statements, which allow to use PTS in a Zope-only
+    environment. Thanks to Martijn Jacobs for the patch.
+    [hannosch]
 
 1.4.11 - Released April 28, 2008
 
