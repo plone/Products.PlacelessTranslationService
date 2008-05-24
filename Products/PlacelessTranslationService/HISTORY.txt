@@ -48,7 +48,25 @@
     Removed deprecated methods.
     [hannosch]
 
-1.4.10 - Unreleased
+1.4.12 - Unreleased
+
+    Added some missing ZCML statements, which allow to use PTS in a Zope-only
+    environment. Thanks to Martijn Jacobs for the patch.
+    [hannosch]
+
+1.4.11 - Released April 28, 2008
+
+    Work around a bug in addCatalog that would fail on broken message catalogs.
+    This closes http://dev.plone.org/plone/ticket/8084.
+    [hannosch]
+
+1.4.10 - Released April 20, 2008
+
+    Switched mo file cache to store files under the client home instead of
+    relying on the var folder to be present inside the instance home. This
+    should fix permission errors for effective-user installs. This refs
+    http://dev.plone.org/plone/ticket/7786.
+    [hannosch]
 
     Do not use the lazy message catalog at all when the list of languages is
     restricted via PTS_LANGUAGES, as the advantage in memory footprint will
