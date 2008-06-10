@@ -1,5 +1,12 @@
 1.4.12 - Unreleased
 
+    Patched zope.i18n.zcml.registerTranslations in order to backport
+    Hanno's work on merging po files from the same domain.
+    [tarek]
+
+    Added some tests for the registerTranslations patch.
+    [tarek]
+    
     Added some missing ZCML statements, which allow to use PTS in a Zope-only
     environment. Thanks to Martijn Jacobs for the patch.
     [hannosch]

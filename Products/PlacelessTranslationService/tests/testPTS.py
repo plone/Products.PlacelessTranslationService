@@ -2,6 +2,7 @@
 # PTS test
 #
 
+import os
 import unittest
 from Testing import ZopeTestCase
 
@@ -26,6 +27,15 @@ class TestPTS(ZopeTestCase.ZopeTestCase):
 
     def afterSetUp(self):
         self.service = self.app.Control_Panel.TranslationService
+        self.dir1 = os.path.join(os.path.dirname(__file__), 'i18nsample')
+        self.dir2 = os.path.join(os.path.dirname(__file__), 'i18nsample2')
+        self.mo_file = os.path.join(self.dir1, 'fr', 'LC_MESSAGES', 'plone.mo')
+        self.mo_file2 = os.path.join(self.dir2, 'fr', 'LC_MESSAGES', 'plone.mo')
+
+    def tearDown(self):
+        for f in (self.mo_file, self.mo_file2):
+            if os.path.exists(f):
+                os.remove(f)
 
     def testClassVersion(self):
         clv = PTS._class_version
@@ -151,6 +161,40 @@ class TestPTS(ZopeTestCase.ZopeTestCase):
         mapping = {'unicode' : 1}
         expected = u'1\xc2'
         self.assertEquals(self.service.interpolate(text, mapping), expected)
+
+    def testRegisterTranslations(self):
+        # make sure registerTranslations is patched
+        from zope.i18n.zcml import registerTranslations
+        self.assertEquals(registerTranslations.__module__, 
+                          'Products.PlacelessTranslationService.patches')
+
+        import zope.component
+        gsm = zope.component.getGlobalSiteManager()
+
+        class FakeContext(object):
+            def action(self, *args, **kw):
+                if 'args' in kw:
+                    if hasattr(kw['args'][1], 'domain'):
+                        gsm.registerUtility(*kw['args'][1:])
+                            
+        context = FakeContext()
+
+        for dir_ in (self.dir1, self.dir2):
+            registerTranslations(context, dir_)
+
+        # making sure the .mo files were generated
+        assert os.path.exists(self.mo_file)
+        assert os.path.exists(self.mo_file2)
+
+        # make sure the plone domain was merged correctly
+        from zope.component import queryUtility
+        from zope.i18n.interfaces import ITranslationDomain
+        domain = queryUtility(ITranslationDomain, 'plone') 
+        res1 = domain.translate('sample1', target_language='fr')
+        res2 = domain.translate('sample2', target_language='fr')
+
+        self.assertEquals(res1, 'OK')
+        self.assertEquals(res2, 'OK')
 
 
 def test_suite():

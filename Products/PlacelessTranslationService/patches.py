@@ -16,16 +16,53 @@ if PTS_LANGUAGES is not None:
     gettextmessagecatalog.GettextMessageCatalog = LazyGettextMessageCatalog
 
 
-# Patch the Zope3 i18n zcml statement to compile po files to mo
+# Patch the Zope3 i18n zcml statement:
+#	- to compile po files to mo
+#	- to check for an existing domain
+
 from zope.i18n import zcml
 from Products.PlacelessTranslationService.load import _compile_locales_dir
 
-def wrap_compile_translations(func):
-    def compile_translations(*args, **kwargs):
-        if 'directory' in kwargs:
-            _compile_locales_dir(kwargs.get('directory'))
-        func(*args, **kwargs)
-    return compile_translations
+from zope.i18n.gettextmessagecatalog import GettextMessageCatalog
+from zope.i18n.testmessagecatalog import TestMessageCatalog
+from zope.i18n.translationdomain import TranslationDomain
+from zope.i18n.interfaces import ITranslationDomain
 
-# Apply patch
-zcml.registerTranslations = wrap_compile_translations(zcml.registerTranslations)
+from zope.component import queryUtility
+from zope.component.zcml import utility
+
+def patched_registerTranslations(_context, directory):
+
+    # compile mo files
+    _compile_locales_dir(directory)  
+    path = os.path.normpath(directory)
+    domains = {}
+    for language in os.listdir(path):
+        lc_messages_path = os.path.join(path, language, 'LC_MESSAGES')
+        if os.path.isdir(lc_messages_path):
+            for domain_file in os.listdir(lc_messages_path):
+                if domain_file.endswith('.mo'):
+                    domain_path = os.path.join(lc_messages_path, domain_file)
+                    domain = domain_file[:-3]
+                    if not domain in domains:
+                        domains[domain] = {}
+                    domains[domain][language] = domain_path
+
+    # Now create TranslationDomain objects and add them as utilities
+    for name, langs in domains.items():
+        # Try to get an existing domain and add catalogs to it
+        domain = queryUtility(ITranslationDomain, name)
+        
+        if domain is None:
+            domain = TranslationDomain(name)
+
+        for lang, file in langs.items():
+            domain.addCatalog(GettextMessageCatalog(lang, name, file))
+
+        # make sure we have a TEST catalog for each domain:
+        domain.addCatalog(TestMessageCatalog(name))
+        utility(_context, ITranslationDomain, domain, name=name)
+
+# applying the patch
+zcml.registerTranslations = patched_registerTranslations
+
