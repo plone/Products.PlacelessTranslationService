@@ -1,3 +1,6 @@
+1.4.13 - Unreleased
+
+
 1.4.12 - Released June 17, 2008
 
     Finished support for handling of po files inside i18n folders in normal
