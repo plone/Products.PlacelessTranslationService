@@ -10,7 +10,6 @@ from Products.PageTemplates.GlobalTranslationService import \
 import Globals
 pts_globals = globals()
 
-from OFS.Application import get_products
 from AccessControl import ModuleSecurityInfo, allow_module
 from AccessControl.Permissions import view
 
@@ -144,11 +143,11 @@ def initialize(context):
         cp_ts = make_translation_service(cp)
 
     # sweep products
-    log('products: %r' % get_products(), logging.DEBUG)
-    for prod in get_products():
-        # prod is a tuple in the form:
+    log('products: %r' % cp.Products.objectValues(), logging.DEBUG)
+    for prod in cp.Products.objectValues():
+        # prod is a Product object:
         # (priority, dir_name, index, base_dir) for each Product directory
-        cp_ts._load_i18n_dir(os.path.join(prod[3], prod[1], 'i18n'))
+        cp_ts._load_i18n_dir(os.path.join(prod.home, 'i18n'))
 
     # sweep the i18n directory for local catalogs
     instance_i18n = os.path.join(INSTANCE_HOME, 'i18n')

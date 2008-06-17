@@ -1,5 +1,10 @@
 1.4.12 - Unreleased
 
+    Finished support for handling of po files inside i18n folders in normal
+    Python packages. They need to registered as a Zope2 product but don't
+    need to be in the Products.* namespace anymore.
+    [hannosch]
+
     Added some missing ZCML statements, which allow to use PTS in a Zope-only
     environment. Thanks to Martijn Jacobs for the patch.
     [hannosch]
