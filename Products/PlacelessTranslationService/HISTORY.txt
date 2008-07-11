@@ -1,4 +1,4 @@
-1.5a1 - Unreleased
+2.0a1 - Unreleased
 
     Finished support for handling of po files inside i18n folders in normal
     Python packages. They need to registered as a Zope2 product but don't
