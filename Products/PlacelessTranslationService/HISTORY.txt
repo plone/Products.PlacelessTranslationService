@@ -7,6 +7,16 @@
     Added some tests for the registerTranslations patch.
     [tarek]
 
+1.4.13
+
+    Reworked the PTS loading code to not rely on the persistent product
+    registry for file path anymore, since that can get out of sync too easily
+    and cause problems with multiple ZEO clients on different file paths
+    connected to the same database. This closes
+    http://dev.plone.org/plone/ticket/8265 and
+    http://dev.plone.org/plone/ticket/8317.
+    [hannosch]
+
 1.4.12 - Released June 17, 2008
 
     Finished support for handling of po files inside i18n folders in normal
