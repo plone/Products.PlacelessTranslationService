@@ -84,9 +84,16 @@ def initialize(context):
             _remove_mo_cache(CACHE_PATH)
 
     # load translation files from all products
-    for prod in cp.Products.objectValues():
-        # prod is a Product object:
-        # (priority, dir_name, index, base_dir) for each Product directory
-        i18n_dir = os.path.join(prod.home, 'i18n')
+    products = [getattr(p, 'package_name', 'Products.' + p.id) for
+                p in cp.Products.objectValues() if
+                getattr(p, 'thisIsAnInstalledProduct', False)]
+    # Sort the products by lower-cased package name to gurantee a stable
+    # load order
+    products.sort(key=lambda p: p.lower())
+    log('products: %r' % products, logging.DEBUG)
+    for prod in products:
+        # prod is a package name, we fake a globals dict with it
+        prod_path = package_home({'__name__' : prod})
+        i18n_dir = os.path.join(prod_path, 'i18n')
         if isdir(i18n_dir):
             _load_i18n_dir(i18n_dir)
