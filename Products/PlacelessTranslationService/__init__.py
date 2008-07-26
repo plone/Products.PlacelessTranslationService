@@ -7,6 +7,7 @@ from zope.deprecation import deprecate
 
 from Products.PageTemplates.GlobalTranslationService import \
     setGlobalTranslationService
+from Globals import package_home
 import Globals
 pts_globals = globals()
 
@@ -143,11 +144,17 @@ def initialize(context):
         cp_ts = make_translation_service(cp)
 
     # sweep products
-    log('products: %r' % cp.Products.objectValues(), logging.DEBUG)
-    for prod in cp.Products.objectValues():
-        # prod is a Product object:
-        # (priority, dir_name, index, base_dir) for each Product directory
-        cp_ts._load_i18n_dir(os.path.join(prod.home, 'i18n'))
+    products = [getattr(p, 'package_name', 'Products.' + p.id) for
+                p in cp.Products.objectValues() if
+                getattr(p, 'thisIsAnInstalledProduct', False)]
+    # Sort the products by lower-cased package name to gurantee a stable
+    # load order
+    products.sort(key=lambda p: p.lower())
+    log('products: %r' % products, logging.DEBUG)
+    for prod in products:
+        # prod is a package name, we fake a globals dict with it
+        prod_path = package_home({'__name__' : prod})
+        cp_ts._load_i18n_dir(os.path.join(prod_path, 'i18n'))
 
     # sweep the i18n directory for local catalogs
     instance_i18n = os.path.join(INSTANCE_HOME, 'i18n')
