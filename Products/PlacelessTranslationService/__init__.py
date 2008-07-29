@@ -153,8 +153,11 @@ def initialize(context):
     log('products: %r' % products, logging.DEBUG)
     for prod in products:
         # prod is a package name, we fake a globals dict with it
-        prod_path = package_home({'__name__' : prod})
-        cp_ts._load_i18n_dir(os.path.join(prod_path, 'i18n'))
+        try:
+            prod_path = package_home({'__name__' : prod})
+            cp_ts._load_i18n_dir(os.path.join(prod_path, 'i18n'))
+        except KeyError:
+            continue
 
     # sweep the i18n directory for local catalogs
     instance_i18n = os.path.join(INSTANCE_HOME, 'i18n')
