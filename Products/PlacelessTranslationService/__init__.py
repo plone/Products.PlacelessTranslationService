@@ -5,6 +5,7 @@ from os.path import isdir
 from zope.deprecation import deprecate
 
 import Globals
+from Globals import package_home
 pts_globals = globals()
 
 CACHE_PATH = os.path.join(INSTANCE_HOME, 'var', 'pts')
