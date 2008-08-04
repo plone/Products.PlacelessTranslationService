@@ -146,10 +146,10 @@ class PlacelessTranslationService(Folder):
         """Calulate the po id
         """
         # instance, software and global catalog path for i18n and locales
-        iPath       = os.path.join(INSTANCE_HOME, 'Products') + os.sep
-        sPath       = os.path.join(SOFTWARE_HOME, 'Products') + os.sep
-        gci18nNPath = os.path.join(INSTANCE_HOME, 'i18n')
-        gcLocPath   = os.path.join(INSTANCE_HOME, 'locales')
+        iPath       = os.path.join(Globals.INSTANCE_HOME, 'Products') + os.sep
+        sPath       = os.path.join(Globals.SOFTWARE_HOME, 'Products') + os.sep
+        gci18nNPath = os.path.join(Globals.INSTANCE_HOME, 'i18n')
+        gcLocPath   = os.path.join(Globals.INSTANCE_HOME, 'locales')
 
         # a global catalog is
         isGlobalCatalog = False
