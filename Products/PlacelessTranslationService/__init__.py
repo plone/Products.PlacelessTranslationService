@@ -157,11 +157,11 @@ def initialize(context):
         cp_ts._load_i18n_dir(os.path.join(prod_path, 'i18n'))
 
     # sweep the i18n directory for local catalogs
-    instance_i18n = os.path.join(INSTANCE_HOME, 'i18n')
+    instance_i18n = os.path.join(Globals.INSTANCE_HOME, 'i18n')
     if os.path.isdir(instance_i18n):
         cp_ts._load_i18n_dir(instance_i18n)
 
-    instance_locales = os.path.join(INSTANCE_HOME, 'locales')
+    instance_locales = os.path.join(Globals.INSTANCE_HOME, 'locales')
     if os.path.isdir(instance_locales):
         cp_ts._load_locales_dir(instance_locales)
 
