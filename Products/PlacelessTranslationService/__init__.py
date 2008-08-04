@@ -8,7 +8,7 @@ import Globals
 from Globals import package_home
 pts_globals = globals()
 
-CACHE_PATH = os.path.join(INSTANCE_HOME, 'var', 'pts')
+CACHE_PATH = os.path.join(Globals.INSTANCE_HOME, 'var', 'pts')
 
 from AccessControl import ModuleSecurityInfo, allow_module
 from AccessControl.Permissions import view
