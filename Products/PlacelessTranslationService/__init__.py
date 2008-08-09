@@ -94,7 +94,13 @@ def initialize(context):
     log('products: %r' % products, logging.DEBUG)
     for prod in products:
         # prod is a package name, we fake a globals dict with it
-        prod_path = package_home({'__name__' : prod})
-        i18n_dir = os.path.join(prod_path, 'i18n')
+        try:
+            prod_path = package_home({'__name__' : prod})
+            i18n_dir = os.path.join(prod_path, 'i18n')
+        except KeyError:
+            log("You have a stale entry for '%s' in your ZMI Products section."
+                "You should consider removing it." % prod, logging.INFO)
+            continue
+
         if isdir(i18n_dir):
             _load_i18n_dir(i18n_dir)
