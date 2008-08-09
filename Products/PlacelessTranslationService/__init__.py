@@ -157,6 +157,8 @@ def initialize(context):
             prod_path = package_home({'__name__' : prod})
             cp_ts._load_i18n_dir(os.path.join(prod_path, 'i18n'))
         except KeyError:
+            log("You have a stale entry for '%s' in your ZMI Products section."
+                "You should consider removing it." % prod, logging.INFO)
             continue
 
     # sweep the i18n directory for local catalogs
