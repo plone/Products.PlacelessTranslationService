@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '1.4.13'
+version = '1.4.14'
 
 setup(name='Products.PlacelessTranslationService',
       version=version,
