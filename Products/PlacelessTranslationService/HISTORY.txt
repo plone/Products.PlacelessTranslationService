@@ -4,6 +4,8 @@ Changelog
 1.4.14
 ------
 
+- Fixed setup.py that was referring to a non-existing file.  [maurits]
+
 
 1.4.13 - August 18, 2008
 ------------------------
