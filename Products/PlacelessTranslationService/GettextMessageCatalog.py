@@ -14,9 +14,9 @@ from Acquisition import aq_parent, Implicit
 from DateTime import DateTime
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from Globals import INSTANCE_HOME
-from Globals import package_home
+from App.Common import package_home
 import Globals
 from OFS.Traversable import Traversable
 from Persistence import Persistent

@@ -5,7 +5,8 @@ from os.path import isdir
 from zope.deprecation import deprecate
 
 import Globals
-from Globals import package_home
+from App.Common import package_home
+from App.ImageFile import ImageFile
 pts_globals = globals()
 
 CACHE_PATH = os.path.join(Globals.INSTANCE_HOME, 'var', 'pts')
@@ -40,9 +41,9 @@ translation_service = None
 # icon
 misc_ = {
     'PlacelessTranslationService.png':
-    Globals.ImageFile('www/PlacelessTranslationService.png', globals()),
+    ImageFile('www/PlacelessTranslationService.png', globals()),
     'GettextMessageCatalog.png':
-    Globals.ImageFile('www/GettextMessageCatalog.png', globals()),
+    ImageFile('www/GettextMessageCatalog.png', globals()),
     }
 
 # set product-wide attrs for importing

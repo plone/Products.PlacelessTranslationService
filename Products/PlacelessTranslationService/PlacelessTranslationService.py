@@ -18,7 +18,7 @@ from Acquisition import aq_acquire
 from Acquisition import ImplicitAcquisitionWrapper
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view, view_management_screens
-from Globals import InitializeClass
+from App.class_init import InitializeClass
 from OFS.Folder import Folder
 
 from Products.PlacelessTranslationService.GettextMessageCatalog import (
