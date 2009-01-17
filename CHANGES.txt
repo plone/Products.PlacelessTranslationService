@@ -4,6 +4,9 @@ Changelog
 2.0a2 - unreleased
 ------------------
 
+- Cleaned up package metadata.
+  [hannosch]
+
 - Declare package dependencies and fixed deprecation warnings for use
   of Globals.
   [hannosch]
