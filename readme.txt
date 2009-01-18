@@ -1,55 +1,49 @@
-PlacelessTranslationService
+Overview
+========
 
-   Copyright (C) 2001-2007 Lalo Martins <lalo@laranja.org>,
-                 Zope Corporation and Contributors
+Copyright (C) 2001-2009 Lalo Martins <lalo@laranja.org>,
+              Zope Corporation and Contributors
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
 
-   See license.txt for more details.
+See license.txt for more details.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307, USA
 
 What is PlacelessTranslationService?
+------------------------------------
 
-  PTS is a way of internationalizing (i18n'ing) and localizing (l10n'ing)
-  software for Zope 2.
-  It's based on the files supported by the GNU gettext set of
-  utilities. A good source of information and background reading is
-  the gettext documentation:
-  
-  http://www.gnu.org/software/gettext/manual/
+PTS is a way of internationalizing (i18n'ing) and localizing (l10n'ing)
+software for Zope 2. It's based on the files supported by the GNU gettext set
+of utilities. A good source of information and background reading is
+the gettext documentation:
 
-Installation
-
-  PTS is installed as a normal Zope product. This is usually done by unpacking
-  the distribution into the Products directory of your INSTANCE_HOME
-  and restarting Zope. More information can be found in the Zope Book:
-
-  http://zope.org/Documentation/Books/ZopeBook/2_6Edition/MaintainingZope.stx
+http://www.gnu.org/software/gettext/manual/
 
 Using PlacelessTranslationService
+---------------------------------
 
-  PTS is used in the following steps:
+PTS is used in the following steps:
 
-  1. i18n your software
+1. i18n your software
 
-  2. Prepare a translation template
+2. Prepare a translation template
 
-  3. Prepare translations of the template
+3. Prepare translations of the template
 
-  4. Install translations
+4. Install translations
 
-  Each of these is explained below.
+Each of these is explained below.
 
 1. Internationalizing Your Software
 
@@ -91,28 +85,28 @@ Using PlacelessTranslationService
 
 3. Prepare Translations of the Template
 
-   Preferably, find a translation company that can handle the gettext
-   standards and send them your .pot file. They should send back .po
-   files for the languages you require.
+  Preferably, find a translation company that can handle the gettext
+  standards and send them your .pot file. They should send back .po
+  files for the languages you require.
 
-   If you're doing it yourself, copy the .pot file to a file on the
-   name of the language you're translating to and with a .po
-   extension. Then go through that file and fill in the msgstr
-   sections. Finally, update all the metadata fields at the top of the
-   file so they are correct for the translation you have just
-   completed.
+  If you're doing it yourself, copy the .pot file to a file on the
+  name of the language you're translating to and with a .po
+  extension. Then go through that file and fill in the msgstr
+  sections. Finally, update all the metadata fields at the top of the
+  file so they are correct for the translation you have just
+  completed.
 
-   At this point, you should have a .pot file and a collection of .po
-   files.
+  At this point, you should have a .pot file and a collection of .po
+  files.
 
 4. Install Translations
 
-   PTS will look in folders called 'i18n' for .po files to use as
-   translations. These 'i18n' folders will be searched if they are in
-   the INSTANCE_HOME or in the directories of any of the Products you
-   have installed.
+  PTS will look in folders called 'i18n' for .po files to use as
+  translations. These 'i18n' folders will be searched if they are in
+  the INSTANCE_HOME or in the directories of any of the Products you
+  have installed.
 
-   Copy your .po files to a 'i18n' folder of your choice in one of
-   these locations.
+  Copy your .po files to a 'i18n' folder of your choice in one of
+  these locations.
 
-   Once that's done, restart Zope.
+  Once that's done, restart Zope.
