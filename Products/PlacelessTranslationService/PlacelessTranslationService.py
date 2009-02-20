@@ -149,7 +149,7 @@ class PlacelessTranslationService(Folder):
     # -3 for alpha, -2 for beta, -1 for release candidate
     # use an internal of > 99 to recreate the PTS at every startup
     # (development mode)
-    _class_version = (1, 5, 0, 0)
+    _class_version = (1, 5, 1, 0)
     all_meta_types = ()
 
     security = ClassSecurityInfo()
