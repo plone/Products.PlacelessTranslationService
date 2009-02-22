@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.5.1 - unreleased
+1.5.1 - 2009-02-22
 ------------------
 
 - Uppercased the readme.txt file to README.txt. Some platforms don't seem to
