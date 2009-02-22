@@ -4,6 +4,9 @@ Changelog
 1.5.1 - unreleased
 ------------------
 
+- Uppercased the readme.txt file to README.txt. Some platforms don't seem to
+  like an all lowercase name here.
+  [hannosch]
 
 1.5 - 2009-02-20
 ----------------
