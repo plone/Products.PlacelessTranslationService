@@ -4,6 +4,15 @@ Changelog
 1.5.2 - unreleased
 ------------------
 
+- Create unique catalog names for translation files found in packages. This
+  closes http://dev.plone.org/plone/ticket/8443.
+  [hannosch]
+
+- Deferred our own initialization to the package load time, so the persistent
+  product registry is populated with the product entries for all packages.
+  This allows all translations to be registered at the first startup of a new
+  instance and closes http://dev.plone.org/plone/ticket/8376.
+  [hannosch]
 
 1.5.1 - 2009-02-22
 ------------------

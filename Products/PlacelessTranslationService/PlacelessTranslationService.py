@@ -240,6 +240,12 @@ class PlacelessTranslationService(Folder):
         else:
             pre = 'GlobalCatalogs'
 
+        if '.egg' in popath:
+            try:
+                pre = popath[:popath.index('.egg')].split(os.sep)[-1].split('-')[0]
+            except Exception, e:
+                pass
+
         if language and domain:
             return "%s-%s-%s.po" % (pre, language, domain)
         else:

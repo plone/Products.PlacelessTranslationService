@@ -109,7 +109,7 @@ def make_translation_service(cp):
     translation_service = PTSWrapper(cp_ts)
     return cp_ts
 
-def initialize(context):
+def initialize2(context):
     # hook into the Control Panel
     global translation_service
 

@@ -3,6 +3,8 @@
   xmlns:i18n="http://namespaces.zope.org/i18n"
   xmlns:five="http://namespaces.zope.org/five">
 
+  <five:registerPackage package="." initialize=".initialize2" />
+
   <i18n:registerTranslations directory="locales" />
 
   <!-- We need to make the request annotatable -->
