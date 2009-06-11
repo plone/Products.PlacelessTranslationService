@@ -28,8 +28,23 @@ from zope.i18n.testmessagecatalog import TestMessageCatalog
 from zope.i18n.translationdomain import TranslationDomain
 from zope.i18n.interfaces import ITranslationDomain
 
-from zope.component import queryUtility
-from zope.component.zcml import utility
+from zope.component.interface import provideInterface
+from zope.component import getGlobalSiteManager, queryUtility
+
+
+def handler(catalogs, name):
+    """ special handler handling the merging of two message catalogs """
+    gsm = getGlobalSiteManager()
+    # Try to get an existing domain and add the given catalogs to it
+    domain = queryUtility(ITranslationDomain, name)
+    if domain is None:
+        domain = TranslationDomain(name)
+    for catalog in catalogs:
+        domain.addCatalog(catalog)
+    # make sure we have a TEST catalog for each domain:
+    domain.addCatalog(TestMessageCatalog(name))
+    gsm.registerUtility(domain, ITranslationDomain, name=name)
+
 
 def patched_registerTranslations(_context, directory):
 
@@ -50,18 +65,24 @@ def patched_registerTranslations(_context, directory):
 
     # Now create TranslationDomain objects and add them as utilities
     for name, langs in domains.items():
-        # Try to get an existing domain and add catalogs to it
-        domain = queryUtility(ITranslationDomain, name)
-        
-        if domain is None:
-            domain = TranslationDomain(name)
-
+        catalogs = []
         for lang, file in langs.items():
-            domain.addCatalog(GettextMessageCatalog(lang, name, file))
+            catalogs.append(GettextMessageCatalog(lang, name, file))
+        # register the necessary actions directly (as opposed to using
+        # `zope.component.zcml.utility`) since we need the actual utilities
+        # in place before the merging can be done...
+        provides = ITranslationDomain
+        _context.action(
+            discriminator = None,
+            callable = handler,
+            args = (catalogs, name))
 
-        # make sure we have a TEST catalog for each domain:
-        domain.addCatalog(TestMessageCatalog(name))
-        utility(_context, ITranslationDomain, domain, name=name)
+    # also register the interface for the translation utilities
+    _context.action(
+        discriminator = None,
+        callable = provideInterface,
+        args = (provides.__module__ + '.' + provides.getName(), provides))
+
 
 # applying the patch
 zcml.registerTranslations = patched_registerTranslations

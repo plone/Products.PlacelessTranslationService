@@ -175,10 +175,8 @@ class TestPTS(ZopeTestCase.ZopeTestCase):
         gsm = zope.component.getGlobalSiteManager()
 
         class FakeContext(object):
-            def action(self, *args, **kw):
-                if 'args' in kw:
-                    if hasattr(kw['args'][1], 'domain'):
-                        gsm.registerUtility(*kw['args'][1:])
+            def action(self, callable, args, **kw):
+                callable(*args)
                             
         context = FakeContext()
 
@@ -196,6 +194,29 @@ class TestPTS(ZopeTestCase.ZopeTestCase):
         res1 = domain.translate('sample1', target_language='fr')
         res2 = domain.translate('sample2', target_language='fr')
 
+        self.assertEquals(res1, 'OK')
+        self.assertEquals(res2, 'OK')
+
+    def testRegisterTranslationsViaZCML(self):
+        # register the translation directories via zcml so that the
+        # `zope.configuration` machinery can do its thing...
+        from zope.configuration import xmlconfig
+        xmlconfig.string("""
+          <configure
+              xmlns='http://namespaces.zope.org/zope'
+              xmlns:i18n='http://namespaces.zope.org/i18n'>
+            <include package="zope.i18n" file="meta.zcml" />
+            <configure package="Products.PlacelessTranslationService">
+              <i18n:registerTranslations directory="tests/i18nsample" />
+              <i18n:registerTranslations directory="tests/i18nsample2" />
+            </configure>
+          </configure>""")
+        # make sure the plone domain was merged correctly
+        from zope.component import queryUtility
+        from zope.i18n.interfaces import ITranslationDomain
+        domain = queryUtility(ITranslationDomain, 'plone') 
+        res1 = domain.translate('sample1', target_language='fr')
+        res2 = domain.translate('sample2', target_language='fr')
         self.assertEquals(res1, 'OK')
         self.assertEquals(res2, 'OK')
 
