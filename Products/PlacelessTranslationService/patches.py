@@ -71,13 +71,13 @@ def patched_registerTranslations(_context, directory):
         # register the necessary actions directly (as opposed to using
         # `zope.component.zcml.utility`) since we need the actual utilities
         # in place before the merging can be done...
-        provides = ITranslationDomain
         _context.action(
             discriminator = None,
             callable = handler,
             args = (catalogs, name))
 
     # also register the interface for the translation utilities
+    provides = ITranslationDomain
     _context.action(
         discriminator = None,
         callable = provideInterface,
