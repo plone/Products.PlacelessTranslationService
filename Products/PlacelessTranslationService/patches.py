@@ -39,11 +39,11 @@ def handler(catalogs, name):
     domain = queryUtility(ITranslationDomain, name)
     if domain is None:
         domain = TranslationDomain(name)
+        gsm.registerUtility(domain, ITranslationDomain, name=name)
     for catalog in catalogs:
         domain.addCatalog(catalog)
     # make sure we have a TEST catalog for each domain:
     domain.addCatalog(TestMessageCatalog(name))
-    gsm.registerUtility(domain, ITranslationDomain, name=name)
 
 
 def patched_registerTranslations(_context, directory):
