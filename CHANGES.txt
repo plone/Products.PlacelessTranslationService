@@ -4,6 +4,9 @@ Changelog
 1.5.3 - unreleased
 ------------------
 
+- Add test layer properly initializing the package so that the tests can
+  also pass with the eggified version.
+  [witsch]
 
 1.5.2 - 2009-05-13
 ------------------

@@ -6,12 +6,13 @@ import os
 import unittest
 from Testing import ZopeTestCase
 
-ZopeTestCase.installProduct('PlacelessTranslationService')
+ZopeTestCase.installProduct('Five')
 
 from Products.CMFPlone.utils import versionTupleFromString
 
 from Products.PlacelessTranslationService import pts_globals
 from Products.PlacelessTranslationService import PlacelessTranslationService as PTS
+from Products.PlacelessTranslationService.tests.layer import PTSLayer
 
 from Globals import package_home
 PACKAGE_HOME = package_home(pts_globals)
@@ -24,6 +25,8 @@ def getFSVersionTuple():
 
 
 class TestPTS(ZopeTestCase.ZopeTestCase):
+
+    layer = PTSLayer
 
     def afterSetUp(self):
         self.service = self.app.Control_Panel.TranslationService
