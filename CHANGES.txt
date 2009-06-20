@@ -4,6 +4,10 @@ Changelog
 2.0a2 - unreleased
 ------------------
 
+- Merged in the PTSLanguages class from Products.Five.i18n and enabled it in
+  our overrides.zcml.
+  [hannosch]
+
 - Fixed deprecation warnings for use of Globals.
   [hannosch]
 

@@ -1,6 +1,8 @@
-import logging
 import types
-from utils import log
+
+from zope.interface import implements
+from zope.i18n.interfaces import IUserPreferredLanguages
+
 
 _langPrefsRegistry = {}
 
@@ -217,3 +219,18 @@ negotiator = Negotiator()
 
 def negotiate(langs, request):
     return negotiator.negotiate(langs, request, 'language')
+
+
+class PTSLanguages(object):
+    """Languages adapter that chooses languages for the zope.i18n machinery.
+
+    This used to be part of Products.Five.i18n.
+    """
+
+    implements(IUserPreferredLanguages)
+
+    def __init__(self, context):
+        self.context = context
+
+    def getPreferredLanguages(self):
+        return getLangPrefs(self.context)
