@@ -7,7 +7,7 @@ setup(name='Products.PlacelessTranslationService',
       version=version,
       description="PTS provides a way of internationalizing (i18n'ing) and "
                   "localizing (l10n'ing) software for Zope 2.",
-      long_description=open("readme.txt").read() + "\n" +
+      long_description=open("README.txt").read() + "\n" +
                        open(os.path.join("Products", "PlacelessTranslationService", "HISTORY.txt")).read(),
       classifiers=[
         "Framework :: Plone",
