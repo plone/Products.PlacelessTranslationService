@@ -68,6 +68,10 @@ Changelog
 1.5.3 - 2009-06-11
 ------------------
 
+- Fix support for merging multiple message catalogs for the same domain.
+  Previously this only worked in test-land.
+  [witsch]
+
 - Add test layer properly initializing the package so that the tests can
   also pass with the eggified version.
   [witsch]
