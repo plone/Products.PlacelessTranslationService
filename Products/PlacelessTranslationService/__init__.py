@@ -71,7 +71,7 @@ def make_translation_service(cp):
     return getattr(cp, cp_id)
 
 
-def initialize(context):
+def initialize2(context):
     # allow for disabling PTS entirely by setting an environment variable.
     if bool(os.getenv('DISABLE_PTS')):
         log('Disabled by environment variable "DISABLE_PTS".', logging.WARNING)

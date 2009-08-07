@@ -65,6 +65,38 @@ Changelog
 - Removed deprecated methods.
   [hannosch]
 
+1.5.2 - 2009-05-13
+------------------
+
+- Create unique catalog names for translation files found in packages. This
+  closes http://dev.plone.org/plone/ticket/8443.
+  [hannosch]
+
+- Deferred our own initialization to the package load time, so the persistent
+  product registry is populated with the product entries for all packages.
+  This allows all translations to be registered at the first startup of a new
+  instance and closes http://dev.plone.org/plone/ticket/8376.
+  [hannosch]
+
+1.5.1 - 2009-02-22
+------------------
+
+- Uppercased the readme.txt file to README.txt. Some platforms don't seem to
+  like an all lowercase name here.
+  [hannosch]
+
+1.5 - 2009-02-20
+----------------
+
+- Reformatted changelog and updated package metadata.
+  [hannosch]
+
+- Patched zope.i18n.zcml.registerTranslations in order to backport
+  Hanno's work on merging po files from the same domain.
+  [tarek]
+
+- Added some tests for the registerTranslations patch.
+  [tarek]
 
 1.4.14
 ------
