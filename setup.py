@@ -26,6 +26,7 @@ setup(name='Products.PlacelessTranslationService',
       install_requires=[
         'setuptools',
         'python-gettext >= 0.6',
+        'zope.annotation',
         'zope.component',
         'zope.deferredimport',
         'zope.deprecation',
