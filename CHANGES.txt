@@ -4,6 +4,12 @@ Changelog
 2.0b1 - Unreleased
 ------------------
 
+- Extend our hack of the negotiator a bit more and introduce the concept of a
+  template language. This one will always be allowed no matter if there's a
+  po file for it for every domain or not. This closes
+  http://dev.plone.org/plone/ticket/9762.
+  [hannosch]
+
 - Added missing zope.annotation dependency.
   [hannosch]
 
