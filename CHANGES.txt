@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0b1 - Unreleased
+2.0b1 - 2010-01-24
 ------------------
 
 - Extend our hack of the negotiator a bit more and introduce the concept of a
