@@ -4,6 +4,9 @@ Changelog
 2.0b2 - unreleased
 ------------------
 
+- Refactored the i18n folder discovery mechanism to be independent of the
+  persistent product registry.
+  [hannosch]
 
 2.0b1 - 2010-01-24
 ------------------

@@ -1,11 +1,11 @@
 import logging
 import os
+import os.path
 from os.path import isdir
 
 from zope.deprecation import deprecate
 
 import Globals
-from App.Common import package_home
 from App.ImageFile import ImageFile
 pts_globals = globals()
 
@@ -13,6 +13,7 @@ CACHE_PATH = os.path.join(Globals.INSTANCE_HOME, 'var', 'pts')
 
 from AccessControl import ModuleSecurityInfo, allow_module
 from AccessControl.Permissions import view
+from OFS.Application import get_products
 
 from Products.PlacelessTranslationService.load import (
     _load_i18n_dir, _remove_mo_cache)
@@ -71,6 +72,14 @@ def make_translation_service(cp):
     return getattr(cp, cp_id)
 
 
+IGNORED = frozenset([
+    'BTreeFolder2', 'ExternalEditor', 'ExternalMethod', 'Five', 'MIMETools',
+    'MailHost', 'OFSP', 'PageTemplates', 'PlacelessTranslationService',
+    'PluginIndexes', 'PythonScripts', 'Sessions', 'SiteAccess', 'SiteErrorLog',
+    'StandardCacheManagers', 'TemporaryFolder', 'Transience', 'ZCTextIndex',
+    'ZCatalog', 'ZODBMountPoint', 'ZReST', 'ZSQLMethods',
+])
+
 def initialize2(context):
     # allow for disabling PTS entirely by setting an environment variable.
     if bool(os.getenv('DISABLE_PTS')):
@@ -85,23 +94,29 @@ def initialize2(context):
             cp._delObject(cp_id)
             _remove_mo_cache(CACHE_PATH)
 
-    # load translation files from all products
-    products = [getattr(p, 'package_name', 'Products.' + p.id) for
-                p in cp.Products.objectValues() if
-                getattr(p, 'thisIsAnInstalledProduct', False)]
-    # Sort the products by lower-cased package name to gurantee a stable
-    # load order
-    products.sort(key=lambda p: p.lower())
-    log('products: %r' % products, logging.DEBUG)
-    for prod in products:
-        # prod is a package name, we fake a globals dict with it
-        try:
-            prod_path = package_home({'__name__' : prod})
-            i18n_dir = os.path.join(prod_path, 'i18n')
-        except KeyError:
-            log("You have a stale entry for '%s' in your ZMI Products section."
-                "You should consider removing it." % prod, logging.INFO)
-            continue
+    # load translation files from all packages and products
+    loaded = {}
 
+    import Products
+    packages = getattr(Products, '_registered_packages', ())
+    for package in packages:
+        name = package.__name__
+        path = package.__path__[0]
+        loaded[name] = True
+        i18n_dir = os.path.join(path, 'i18n')
+        if isdir(i18n_dir):
+            _load_i18n_dir(i18n_dir)
+
+    for product in get_products():
+        name = product[1]
+        if name in IGNORED:
+            continue
+        basepath = product[3]
+        fullname = 'Products.' + name
+        # Avoid loading products registered as packages twice
+        if loaded.get(fullname):
+            continue
+        loaded[fullname] = True
+        i18n_dir = os.path.join(basepath, name, 'i18n')
         if isdir(i18n_dir):
             _load_i18n_dir(i18n_dir)

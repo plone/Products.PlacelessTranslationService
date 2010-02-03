@@ -43,11 +43,9 @@ def _load_i18n_dir(basepath):
         Products/MyProduct/i18n/*.po
     The language and domain are stored in the po file
     """
-    if not isdir(basepath):
-        return
-
     # load po files
     basepath = os.path.normpath(basepath)
+    log('Looking for po files in ' + basepath, logging.DEBUG)
     names = fnmatch.filter(os.listdir(basepath), '*.po')
     if not names:
         log('Nothing found in ' + basepath, logging.DEBUG)
