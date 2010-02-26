@@ -10,21 +10,21 @@ from zope.annotation.interfaces import IAnnotations
 
 _marker = object()
 class PTSMemo(object):
-    
+
     key = 'pts.memoize'
-    
+
     def memoize(self, func):
         def memogetter(*args, **kwargs):
             instance = args[0]
             request = args[1]
-            
+
             annotations = IAnnotations(request)
             cache = annotations.get(self.key, _marker)
-            
+
             if cache is _marker:
                 cache = annotations[self.key] = dict()
-            
-            key = hash((instance.__class__.__name__, func.__name__, 
+
+            key = hash((instance.__class__.__name__, func.__name__,
                         args[1:], frozenset(kwargs.items())),)
             value = cache.get(key, _marker)
             if value is _marker:
@@ -36,20 +36,22 @@ _m = PTSMemo()
 memoize = _m.memoize
 
 class NegotiatorMemo(object):
-    
+
     key = 'pts.memoize_second'
-    
+
     def memoize(self, func):
         def memogetter(*args):
             instance = args[0]
             request = args[2]
-            
-            annotations = IAnnotations(request)
+
+            annotations = IAnnotations(request, None)
+            if annotations is None:
+                return func(*args)
+
             cache = annotations.get(self.key, _marker)
-            
             if cache is _marker:
                 cache = annotations[self.key] = dict()
-            
+
             key = hash((instance.__class__.__name__, func.__name__),)
             value = cache.get(key, _marker)
             if value is _marker:

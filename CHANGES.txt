@@ -1,6 +1,14 @@
 Changelog
 =========
 
+2.0b4 - unreleased
+------------------
+
+- Made sure that the request language memoization patch doesn't throw errors
+  if the request cannot be adapted to IAnnotations. This closes
+  http://dev.plone.org/plone/ticket/10272.
+  [hannosch, davisagli]
+
 2.0b3 - 2010-02-04
 ------------------
 
