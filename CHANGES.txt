@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0b4 - unreleased
+2.0b4 - 2010-03-01
 ------------------
 
 - Made sure that the request language memoization patch doesn't throw errors
@@ -92,7 +92,7 @@ Changelog
 - Removed deprecated methods.
   [hannosch]
 
-1.5.4 - Unreleased
+1.5.4 - 2010-03-01
 ------------------
 
 - Fix the PTS_LANGUAGES and LazyGettextMessageCatalog optimization. A boolean
