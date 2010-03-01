@@ -1,7 +1,8 @@
 Changelog
 =========
 
-1.5.4 - unreleased
+1.5.4 - 2010-03-01
+------------------
 
 - Made sure that the request language memoization patch doesn't throw errors
   if the request cannot be adapted to IAnnotations. This closes
