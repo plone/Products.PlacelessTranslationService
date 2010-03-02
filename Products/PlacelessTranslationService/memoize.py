@@ -42,6 +42,7 @@ class NegotiatorMemo(object):
     def memoize(self, func):
         def memogetter(*args):
             instance = args[0]
+            langs = args[1]
             request = args[2]
 
             annotations = IAnnotations(request, None)
@@ -52,7 +53,7 @@ class NegotiatorMemo(object):
             if cache is _marker:
                 cache = annotations[self.key] = dict()
 
-            key = hash((instance.__class__.__name__, func.__name__),)
+            key = hash((instance.__class__.__name__, func.__name__, tuple(langs)),)
             value = cache.get(key, _marker)
             if value is _marker:
                 value = cache[key] = func(*args)
