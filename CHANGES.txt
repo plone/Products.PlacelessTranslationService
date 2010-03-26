@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0b5 - unreleased
+2.0b5 - 2010-03-26
 ------------------
 
 - Fixed incompatibility in ``TEMPLATE_LANGUAGE`` support if you have specified
