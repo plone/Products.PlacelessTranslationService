@@ -4,6 +4,9 @@ Changelog
 2.0b5 - unreleased
 ------------------
 
+- Fixed incompatibility in ``TEMPLATE_LANGUAGE`` support if you have specified
+  an explicit language list via ``zope_i18n_allowed_languages``.
+  [hannosch]
 
 2.0b4 - 2010-03-01
 ------------------

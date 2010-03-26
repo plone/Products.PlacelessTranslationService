@@ -12,7 +12,7 @@ def getLanguage(self, langs, env):
     # Always add the template language to the available ones. This allows the
     # template language to be picked without the need for a message catalog
     # for every domain for it to be registered.
-    langs += TEMPLATE_LANGUAGE
+    langs = list(langs) + TEMPLATE_LANGUAGE
     # Prioritize on the user preferred languages.  Return the
     # first user preferred language that the object has available.
     langs = normalize_langs(langs)
