@@ -15,7 +15,8 @@
     <implements interface="zope.annotation.interfaces.IAttributeAnnotatable" />
   </class>
 
-  <five:implements class="ZPublisher.HTTPRequest.HTTPRequest"
-    interface="zope.publisher.interfaces.browser.IBrowserRequest" />
+  <class class="ZPublisher.HTTPRequest.HTTPRequest">
+    <implements interface="zope.publisher.interfaces.browser.IBrowserRequest" />
+  </class>
 
 </configure>
