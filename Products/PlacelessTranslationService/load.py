@@ -1,8 +1,6 @@
-from cPickle import dump, load
 import fnmatch
 import logging
 import os
-from os.path import isdir
 from os.path import join
 import shutil
 from stat import ST_MTIME
@@ -25,8 +23,6 @@ if bool(os.getenv('PTS_LANGUAGES')):
     langs = os.getenv('PTS_LANGUAGES')
     langs = langs.strip().replace(',', '').split()
     PTS_LANGUAGES = tuple(langs)
-
-REGISTRATION_CACHE_NAME = '.registration.cache'
 
 
 def _checkLanguage(lang):
@@ -51,58 +47,27 @@ def _load_i18n_dir(basepath):
         log('Nothing found in ' + basepath, logging.DEBUG)
         return
 
-    changed = False
     registered = []
-    registrations = {}
-    cache = join(basepath, REGISTRATION_CACHE_NAME)
-    if os.path.exists(cache):
-        try:
-            fd = open(cache, 'rb')
-            registrations = load(fd)
-            fd.close()
-        except (IOError, OSError, EOFError):
-            pass
 
     for name in names:
         lang = None
         domain = None
         pofile = join(basepath, name)
-        mtime = 0
-        try:
-            mtime = os.stat(pofile)[ST_MTIME]
-        except (IOError, OSError):
-            pass
-
-        cached = registrations.get(name, None)
-        if cached is not None and cached[0] >= mtime:
-            _register_catalog_file(*cached[1])
-            registered.append(name)
-        else:
-            po = Msgfmt(pofile, None)
-            po.read(header_only=True)
-            header = po.messages.get('', None)
-            if header is not None:
-                mime_header = {}
-                pairs = [l.split(':', 1) for l in header.split('\n') if l]
-                for key, value in pairs:
-                    mime_header[key.strip().lower()] = value.strip()
-                lang = mime_header.get('language-code', None)
-                domain = mime_header.get('domain', None)
-                if lang is not None and domain is not None:
-                    if _checkLanguage(lang):
-                        reg = (name, basepath, lang, domain, True)
-                        changed = True
-                        registrations[name] = (mtime, reg)
-                        _register_catalog_file(*reg)
-                        registered.append(name)
-
-    if changed and len(registrations) > 0:
-        try:
-            fd = open(cache, 'wb')
-            dump(registrations, fd, protocol=2)
-            fd.close()
-        except (IOError, OSError):
-            pass
+        po = Msgfmt(pofile, None)
+        po.read(header_only=True)
+        header = po.messages.get('', None)
+        if header is not None:
+            mime_header = {}
+            pairs = [l.split(':', 1) for l in header.split('\n') if l]
+            for key, value in pairs:
+                mime_header[key.strip().lower()] = value.strip()
+            lang = mime_header.get('language-code', None)
+            domain = mime_header.get('domain', None)
+            if lang is not None and domain is not None:
+                if _checkLanguage(lang):
+                    reg = (name, basepath, lang, domain, True)
+                    _register_catalog_file(*reg)
+                    registered.append(name)
 
     log('Initialized:', detail = str(len(registered)) +
         (' message catalogs in %s\n' % basepath))

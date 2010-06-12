@@ -4,6 +4,11 @@ Changelog
 2.0b6 - unreleased
 ------------------
 
+- Removed the ``.registration.cache`` file from i18n directories. Since the
+  majority of po files in plone.app.locales moved to locales folders, since
+  optimization isn't worth it anymore.
+  [hannosch]
+
 - Avoid using the deprecated five:implements directive.
   [hannosch]
 
