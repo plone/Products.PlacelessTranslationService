@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0b6 - unreleased
+2.0b6 - 2010-06-13
 ------------------
 
 - Removed the ``.registration.cache`` file from i18n directories. Since the
