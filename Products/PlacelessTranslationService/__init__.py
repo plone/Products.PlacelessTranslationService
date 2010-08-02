@@ -86,8 +86,8 @@ def initialize2(context):
         log('Disabled by environment variable "DISABLE_PTS".', logging.WARNING)
         return
 
-    cp = context._ProductContext__app.Control_Panel # argh
-    if cp_id in cp.objectIds():
+    cp = getattr(context._ProductContext__app, 'Control_Panel', None) # argh
+    if cp is not None and cp_id in cp.objectIds():
         cp_ts = getattr(cp, cp_id, None)
         # Clean up ourselves
         if cp_ts is not None:
