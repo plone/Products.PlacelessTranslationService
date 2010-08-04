@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.0.1 - unreleased
+2.0.1 - 2010-08-04
 ------------------
 
 - Made initialize2 function compatible with Zope 2.13.
