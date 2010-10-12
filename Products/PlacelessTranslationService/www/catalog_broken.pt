@@ -6,7 +6,12 @@
 <h1 tal:content="here/Title" i18n:translate="">Gettext message catalog</h1>
 
 <blockquote>
-<pre tal:content="structure python:'<br />'.join(here.getError())" />
+<pre>
+<tal:block tal:repeat="part here/getError">
+<span tal:replace="structure part"/>
+<br tal:condition="not:repeat/part/end"/>
+</tal:block>
+</pre>
 </blockquote>
 
 <tal:block define="can_reload here/file_exists">
