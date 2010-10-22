@@ -309,7 +309,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         """
         self._prepareTranslations()
         return self._v_tro._info.get(name, None)
-    
+
     def isRTL(self):
         """
         """
@@ -441,7 +441,7 @@ InitializeClass(GettextMessageCatalog)
 class MoFileCache(object):
     """Cache for mo files
     """
-    
+
     def __init__(self, path=None):
         self._path = path
 

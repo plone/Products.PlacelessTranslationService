@@ -24,7 +24,7 @@ def log(msg, severity=logging.DEBUG, detail='', error=None):
 def make_relative_location(popath):
     # return ("INSTANCE_HOME", stripped po path)
     # when po is located below INSTANCE_HOME
-    # and return ("ZOPE_HOME", stripped po path) 
+    # and return ("ZOPE_HOME", stripped po path)
     # when po is located below ZOPE_HOME
 
     popath = os.path.normpath(popath)

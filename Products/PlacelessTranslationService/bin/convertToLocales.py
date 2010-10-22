@@ -33,9 +33,9 @@ def svnAdd(path):
 
 for po in po_files:
     fd = open(po, 'r')
-    header = fd.read(5000) # 5,000 bytes should be fine 
+    header = fd.read(5000) # 5,000 bytes should be fine
     fd.close()
- 
+
     domain = RE_DOMAIN.findall(header)
     lang = RE_LANGUAGE.findall(header)
     if domain and lang:
