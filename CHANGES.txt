@@ -4,6 +4,10 @@ Changelog
 2.0.3 - unreleased
 ------------------
 
+- Make sure packages that are registered with five:registerPackage are
+  searched for an i18n directory, also in Zope 2.13 (Plone 4.1).
+  [maurits]
+
 - Make product init compatible with Zope trunk.
   [elro]
 

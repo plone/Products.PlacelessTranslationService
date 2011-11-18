@@ -10,6 +10,14 @@ from App.ImageFile import ImageFile
 pts_globals = globals()
 
 CACHE_PATH = os.path.join(Globals.INSTANCE_HOME, 'var', 'pts')
+try:
+    # Zope 2.13+
+    from OFS.metaconfigure import get_registered_packages
+    get_registered_packages  # pyflakes
+except ImportError:
+    def get_registered_packages():
+        import Products
+        return getattr(Products, '_registered_packages', ())
 
 from AccessControl import ModuleSecurityInfo, allow_module
 from AccessControl.Permissions import view
@@ -98,7 +106,7 @@ def initialize2(context):
     loaded = {}
 
     import Products
-    packages = getattr(Products, '_registered_packages', ())
+    packages = get_registered_packages()
     for package in packages:
         name = package.__name__
         path = package.__path__[0]
