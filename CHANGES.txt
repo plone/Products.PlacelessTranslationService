@@ -4,6 +4,10 @@ Changelog
 2.0.3 - unreleased
 ------------------
 
+- Prevent exception after failing to reload a lazy catalog.
+  This closes http://dev.plone.org/ticket/9726
+  [davisagli]
+
 - Make sure packages that are registered with five:registerPackage are
   searched for an i18n directory, also in Zope 2.13 (Plone 4.1).
   [maurits]

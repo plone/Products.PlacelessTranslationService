@@ -17,7 +17,8 @@ class LazyGettextMessageCatalog(GettextMessageCatalog):
     def _check_reload(self):
         if self._catalog is None:
             self.reload()
-            self._catalog.add_fallback(_KeyErrorRaisingFallback())
+            if not self._catalog._fallback:
+                self._catalog.add_fallback(_KeyErrorRaisingFallback())
 
     def getMessage(self, id):
         'See IMessageCatalog'
