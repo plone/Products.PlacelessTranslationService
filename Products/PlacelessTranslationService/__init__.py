@@ -59,6 +59,24 @@ misc_ = {
 security = ModuleSecurityInfo('Products.PlacelessTranslationService')
 allow_module('Products.PlacelessTranslationService')
 
+security.declarePrivate('os')
+security.declarePrivate('logging')
+security.declarePrivate('isdir')
+security.declarePrivate('deprecate')
+security.declarePrivate('Globals')
+security.declarePrivate('ImageFile')
+security.declarePrivate('pts_globals')
+security.declarePrivate('CACHE_PATH')
+security.declarePrivate('get_registered_packages')
+security.declarePrivate('ModuleSecurityInfo')
+security.declarePrivate('PTSWrapper')
+security.declarePrivate('get_products')
+security.declarePrivate('patches')
+security.declarePrivate('warnings')
+security.declarePrivate('misc_')
+security.declarePrivate('os')
+
+
 security.declareProtected(view, 'getTranslationService')
 @deprecate("The getTranslationService method of PTS is deprecated and "
            "will be removed in the next major version of PTS.")
@@ -67,6 +85,7 @@ def getTranslationService():
     """
     return translation_service
 
+security.declarePrivate('make_translation_service')
 @deprecate("The make_translation_service method of PTS is deprecated and "
            "will be removed in the next major version of PTS.")
 def make_translation_service(cp):
@@ -88,6 +107,7 @@ IGNORED = frozenset([
     'ZCatalog', 'ZODBMountPoint', 'ZReST', 'ZSQLMethods',
 ])
 
+security.declarePrivate('initialize2')
 def initialize2(context):
     # allow for disabling PTS entirely by setting an environment variable.
     if bool(os.getenv('DISABLE_PTS')):
