@@ -59,9 +59,7 @@ class PTSWrapper(Base):
     security.declareProtected(view, 'translate')
     def translate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
-        """
-        Translate a message using Unicode.
-        """
+        # Translate a message using Unicode.
         return z3translate(msgid, domain, mapping, context,
                            target_language, default)
 
@@ -363,9 +361,7 @@ class PlacelessTranslationService(Folder):
     security.declareProtected(view, 'translate')
     def translate(self, domain, msgid, mapping=None, context=None,
                   target_language=None, default=None):
-        """
-        Translate a message using Unicode.
-        """
+        # Translate a message using Unicode.
         if not msgid:
             # refuse to translate an empty msgid
             return default

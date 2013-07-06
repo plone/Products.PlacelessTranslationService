@@ -4,7 +4,9 @@ Changelog
 2.0.4 (unreleased)
 ------------------
 
-- Add module security declarations.
+- Add module security declarations. Prevent publishing of
+  the translate method. (Fixes from PloneHotfix20130618.)
+  [davisagli]
 
 
 2.0.3 (2011-11-24)
