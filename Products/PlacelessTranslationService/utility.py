@@ -1,6 +1,6 @@
 import zope.deprecation
 
-from zope.interface import implements
+from zope.interface import implementer
 from zope.component import queryUtility
 from zope.i18n import interpolate
 
@@ -10,12 +10,11 @@ from interfaces import IPlacelessTranslationService
 from interfaces import IPTSTranslationDomain
 
 
+@implementer(IPTSTranslationDomain)
 class PTSTranslationDomain(object):
     """Makes translation domains that are still kept in PTS available as
     ITranslationDomain utilities. That way they are usable from Zope 3 code
     such as Zope 3 PageTemplates."""
-
-    implements(IPTSTranslationDomain)
 
     def __init__(self, domain):
         self.domain = domain
