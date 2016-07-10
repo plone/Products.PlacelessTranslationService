@@ -9,7 +9,7 @@ from zope.i18n import interpolate as z3interpolate
 from zope.i18n import translate as z3translate
 from zope.i18n import _interp_regex
 from zope.i18n import NAME_RE
-from zope.interface import implements
+from zope.interface import implementer
 from zope.publisher.interfaces.browser import IBrowserRequest
 
 import Globals
@@ -87,11 +87,11 @@ class PTSWrapper(Base):
 InitializeClass(PTSWrapper)
 
 
+@implementer(IPlacelessTranslationService)
 class PlacelessTranslationService(Folder):
     """
     The Placeless Translation Service
     """
-    implements(IPlacelessTranslationService)
 
     meta_type = title = 'Placeless Translation Service'
     icon = 'misc_/PlacelessTranslationService/PlacelessTranslationService.png'

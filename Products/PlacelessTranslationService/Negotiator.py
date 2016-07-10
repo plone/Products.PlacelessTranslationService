@@ -1,6 +1,6 @@
 import types
 
-from zope.interface import implements
+from zope.interface import implementer
 from zope.i18n.interfaces import IUserPreferredLanguages
 
 
@@ -221,13 +221,12 @@ def negotiate(langs, request):
     return negotiator.negotiate(langs, request, 'language')
 
 
+@implementer(IUserPreferredLanguages)
 class PTSLanguages(object):
     """Languages adapter that chooses languages for the zope.i18n machinery.
 
     This used to be part of Products.Five.i18n.
     """
-
-    implements(IUserPreferredLanguages)
 
     def __init__(self, context):
         self.context = context
