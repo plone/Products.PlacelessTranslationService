@@ -7,8 +7,8 @@ setup(
     version=version,
     description="PTS provides a way of internationalizing (i18n'ing) and "
                 "localizing (l10n'ing) software for Zope 2.",
-    long_description=(open("README.txt").read() + "\n" +
-                      open("CHANGES.txt").read()),
+    long_description=(open("README.rst").read() + "\n" +
+                      open("CHANGES.rst").read()),
     classifiers=[
         "Framework :: Plone",
         "Framework :: Plone :: 4.3",
