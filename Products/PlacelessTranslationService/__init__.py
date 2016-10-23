@@ -5,11 +5,10 @@ from os.path import isdir
 
 from zope.deprecation import deprecate
 
-import Globals
 from App.ImageFile import ImageFile
 pts_globals = globals()
 
-CACHE_PATH = os.path.join(Globals.INSTANCE_HOME, 'var', 'pts')
+CACHE_PATH = os.path.join(os.environ['INSTANCE_HOME'], 'var', 'pts')
 try:
     # Zope 2.13+
     from OFS.metaconfigure import get_registered_packages
