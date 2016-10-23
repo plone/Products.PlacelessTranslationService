@@ -15,9 +15,8 @@ from DateTime import DateTime
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from App.class_init import InitializeClass
-from Globals import INSTANCE_HOME
 from App.Common import package_home
-import Globals
+from App.config import getConfiguration
 from OFS.Traversable import Traversable
 from Persistence import Persistent
 from App.Management import Tabs
@@ -110,7 +109,7 @@ class BrokenMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         if prefix == 'ZOPE_HOME':
             return os.path.join(ZOPE_HOME, pofile)
         elif prefix == 'INSTANCE_HOME':
-            return os.path.join(INSTANCE_HOME, pofile)
+            return os.path.join(os.environ.get('INSTANCE_HOME'), pofile)
         else:
             return os.path.normpath(pofile)
 
@@ -332,7 +331,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
         if prefix == 'ZOPE_HOME':
             return os.path.join(ZOPE_HOME, pofile)
         elif prefix == 'INSTANCE_HOME':
-            return os.path.join(INSTANCE_HOME, pofile)
+            return os.path.join(os.environ.get('INSTANCE_HOME'), pofile)
         else:
             return os.path.normpath(pofile)
 
@@ -354,7 +353,7 @@ class GettextMessageCatalog(Persistent, Implicit, Traversable, Tabs):
 
         if the file is newer and we are running in debug mode.
         """
-        if Globals.DevelopmentMode:
+        if getConfiguration().debug_mode:
             mtime = self._getModTime()
             if mtime != self._mod_time:
                 self._mod_time = mtime
