@@ -12,7 +12,6 @@ from zope.i18n import NAME_RE
 from zope.interface import implementer
 from zope.publisher.interfaces.browser import IBrowserRequest
 
-import Globals
 from ExtensionClass import Base
 from Acquisition import aq_acquire
 from Acquisition import ImplicitAcquisitionWrapper
@@ -144,10 +143,10 @@ class PlacelessTranslationService(Folder):
         """Calulate the po id
         """
         # instance, software and global catalog path for i18n and locales
-        iPath       = os.path.join(Globals.INSTANCE_HOME, 'Products') + os.sep
-        sPath       = os.path.join(Globals.SOFTWARE_HOME, 'Products') + os.sep
-        gci18nNPath = os.path.join(Globals.INSTANCE_HOME, 'i18n')
-        gcLocPath   = os.path.join(Globals.INSTANCE_HOME, 'locales')
+        iPath       = os.path.join(os.environ['INSTANCE_HOME'], 'Products') + os.sep
+        sPath       = os.path.join(os.environ['SOFTWARE_HOME'], 'Products') + os.sep
+        gci18nNPath = os.path.join(os.environ['INSTANCE_HOME'], 'i18n')
+        gcLocPath   = os.path.join(os.environ['INSTANCE_HOME'], 'locales')
 
         # a global catalog is
         isGlobalCatalog = False

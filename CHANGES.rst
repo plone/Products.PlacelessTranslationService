@@ -14,7 +14,7 @@ New features:
 
 Bug fixes:
 
-- Fix import from Globals that is removed in Zope4
+- Fix import from Globals that is removed in Zope4.
   [pbauer]
 
 
