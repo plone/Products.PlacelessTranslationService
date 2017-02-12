@@ -4,14 +4,6 @@ Changelog
 2.0.7 (unreleased)
 ------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Fix import from Globals that is removed in Zope4.
