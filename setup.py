@@ -23,7 +23,7 @@ setup(
     keywords='Zope CMF Plone i18n l10n translation gettext',
     author='Lalo Martins',
     author_email='plone-developers@lists.sourceforge.net',
-    url='https://pypi.python.org/pypi/Products.PlacelessTranslationService',
+    url='https://pypi.org/project/Products.PlacelessTranslationService',
     license='GPL',
     packages=find_packages(exclude=['ez_setup']),
     namespace_packages=['Products'],
