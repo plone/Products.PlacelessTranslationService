@@ -44,7 +44,7 @@ setup(
       'Acquisition',
       'DateTime',
       'ExtensionClass',
-      'ZODB3',
-      'Zope2',
+      'ZODB',
+      'Zope',
     ],
 )
