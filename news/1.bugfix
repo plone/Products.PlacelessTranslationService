@@ -1,0 +1,3 @@
+Use `ZODB` as dependency rather than the deprecated `ZODB3`,
+same for `Zope` and `Zope2`.
+[gforcada]
